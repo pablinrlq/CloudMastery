@@ -1,0 +1,58 @@
+---
+title: "Redes: VPC, Route 53 e CloudFront"
+description: "Rede virtual, DNS e entrega de conteúdo — os blocos de conectividade que a prova cobra em alto nível."
+domain: "Tecnologia e Serviços"
+order: 5
+durationMinutes: 50
+---
+
+## Amazon VPC em alto nível
+
+Rede virtual isolada dentro da AWS. No CLF-C02 basta o vocabulário:
+
+- **Subnet pública**: tem rota para o **Internet Gateway** (recursos acessíveis da internet).
+- **Subnet privada**: sem rota direta para a internet; sai via **NAT Gateway**.
+- **Security Group**: firewall da instância (stateful, só allow).
+- **Network ACL**: firewall da subnet (stateless, allow e deny).
+- **VPC Peering**: conecta duas VPCs.
+- **VPN Site-to-Site**: túnel criptografado pela internet até o datacenter.
+- **Direct Connect**: link físico dedicado até a AWS (consistência de banda, não passa pela internet).
+
+## Route 53
+
+DNS gerenciado. Traduz domínio em endereço e roteia tráfego com políticas (latência, geolocalização, failover). Health checks monitoram endpoints.
+
+## CloudFront
+
+CDN da AWS: entrega conteúdo em cache a partir das **edge locations**, reduzindo latência global. Protege contra DDoS junto com Shield/WAF.
+
+- **Global Accelerator**: melhora performance de aplicações (não cache de conteúdo) roteando pela rede backbone da AWS. A prova diferencia: conteúdo estático → CloudFront; tráfego de aplicação TCP/UDP → Global Accelerator.
+
+## Conectividade híbrida — escolhendo pela prova
+
+| Cenário | Resposta |
+|---|---|
+| Conexão rápida e barata com datacenter | VPN Site-to-Site |
+| Banda consistente, sem internet pública | Direct Connect |
+| Conectar duas VPCs | VPC Peering |
+| API pública para clientes | API Gateway |
+
+## Sinais de prova
+
+- "Reduzir latência de conteúdo estático para usuários globais" → **CloudFront**.
+- "Conexão dedicada e privada com o datacenter" → **Direct Connect**.
+- "Registrar domínio e rotear com base em latência" → **Route 53**.
+- "Firewall no nível da instância" → **Security Group**; "no nível da subnet" → **NACL**.
+
+## Armadilhas comuns
+
+- Direct Connect **não é criptografado** por padrão (VPN é). Também não é rápido de provisionar — leva semanas.
+- CloudFront usa edge locations; Route 53 também responde de edge — mas CDN ≠ DNS.
+- Security Group não tem regra de deny; NACL tem.
+
+## Checklist antes de avançar
+
+- [ ] Sei o papel de IGW, NAT, subnets públicas/privadas
+- [ ] Sei diferenciar Security Group × NACL nas três dimensões (nível, estado, deny)
+- [ ] Sei escolher entre VPN, Direct Connect e Peering
+- [ ] Sei diferenciar CloudFront × Global Accelerator

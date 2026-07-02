@@ -1,0 +1,61 @@
+---
+title: "Precificação, Cobrança e Planos de Suporte"
+description: "Como a AWS cobra, ferramentas de gestão de custo e a tabela de planos de suporte que sempre cai."
+domain: "Cobrança, Preços e Suporte"
+order: 8
+durationMinutes: 45
+---
+
+## Filosofia de preço
+
+Pague pelo que usar, pague menos ao reservar, pague menos por volume. Sem contratos obrigatórios de longo prazo (exceto quando você **escolhe** reservar).
+
+O que geralmente é grátis: entrada de dados (ingress), transferência **entre serviços na mesma Região** em muitos casos, e o nível gratuito (free tier). O que custa caro e a prova adora: **transferência de dados para fora da AWS (egress)** e entre Regiões.
+
+## Ferramentas de custo (distinção exata)
+
+| Ferramenta | Responde |
+|---|---|
+| **Pricing Calculator** | "Quanto VAI custar?" (estimativa antes de usar) |
+| **Cost Explorer** | "Quanto CUSTOU e qual a tendência?" (análise histórica + previsão) |
+| **AWS Budgets** | "Me AVISE quando passar de X" (alertas de orçamento) |
+| **Cost & Usage Report (CUR)** | Relatório mais detalhado, linha a linha |
+| **Cost Allocation Tags** | Atribuir custo por projeto/equipe via tags |
+
+## Planos de suporte (tabela mais decorada do exame)
+
+| Plano | Custo | O que oferece |
+|---|---|---|
+| **Basic** | Grátis | Documentação, fóruns, casos de cobrança |
+| **Developer** | $ | E-mail em horário comercial, ambientes de teste |
+| **Business** | $$ | 24/7 telefone/chat, Trusted Advisor completo, produção prejudicada < 4h, produção fora do ar < 1h |
+| **Enterprise On-Ramp** | $$$ | Acima + resposta < 30 min para crítico, pool de TAMs |
+| **Enterprise** | $$$$ | **TAM dedicado**, Concierge de cobrança, crítico < 15 min |
+
+Sinal rápido: "TAM dedicado" → Enterprise. "Suporte 24/7 por telefone mais barato" → Business.
+
+## Outros que caem
+
+- **Fatura consolidada** (Organizations): agrega uso de todas as contas → atinge faixas de desconto por volume mais rápido.
+- **Reserved Instances e Savings Plans**: desconto por compromisso de 1/3 anos.
+- **Free tier**: 12 meses para alguns serviços, sempre grátis para outros (ex: 1 milhão de requisições Lambda/mês).
+
+## Sinais de prova
+
+- "Estimar custo de uma migração ainda não feita" → **Pricing Calculator**.
+- "Visualizar tendência de gastos dos últimos meses" → **Cost Explorer**.
+- "Alerta automático ao ultrapassar orçamento" → **Budgets**.
+- "Dividir a fatura por departamento" → **tags de alocação de custo**.
+- "Menor plano com Trusted Advisor completo" → **Business**.
+
+## Armadilhas comuns
+
+- Calculator estima o futuro; Explorer analisa o passado. Não confunda.
+- Budgets alerta, mas não bloqueia gastos.
+- Egress (saída) é cobrado; ingress (entrada), em geral, não.
+
+## Checklist antes de avançar
+
+- [ ] Sei escolher a ferramenta de custo pela pergunta do cenário
+- [ ] Sei a tabela de planos de suporte com seus diferenciais
+- [ ] Sei o que a fatura consolidada muda no preço

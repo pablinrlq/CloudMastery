@@ -1,0 +1,61 @@
+---
+title: "Well-Architected, CAF e Estratégias de Migração"
+description: "Os frameworks de boas práticas e os 7 Rs de migração — conteúdo conceitual garantido na prova."
+domain: "Conceitos de Nuvem"
+order: 9
+durationMinutes: 40
+---
+
+## Well-Architected Framework — 6 pilares
+
+| Pilar | Uma frase |
+|---|---|
+| Excelência operacional | Operar e evoluir com automação e melhoria contínua |
+| Segurança | Proteger dados, sistemas e identidades |
+| Confiabilidade | Recuperar de falhas e escalar conforme a demanda |
+| Eficiência de performance | Usar recursos de forma eficiente conforme evolui |
+| Otimização de custos | Eliminar gasto desnecessário |
+| Sustentabilidade | Minimizar impacto ambiental |
+
+A prova pergunta "qual pilar corresponde a X?" — decore os seis nomes e uma frase de cada.
+
+## Cloud Adoption Framework (CAF)
+
+Guia de **adoção organizacional** da nuvem em 6 perspectivas: Negócio, Pessoas, Governança (lado do negócio); Plataforma, Segurança, Operações (lado técnico). Palavra-chave: "transformação digital", "plano de adoção".
+
+## As estratégias de migração (7 Rs)
+
+| Estratégia | O que é |
+|---|---|
+| **Rehost** ("lift and shift") | Mover como está — mais rápida |
+| **Replatform** | Mover com pequenas otimizações (ex: banco → RDS) |
+| **Repurchase** | Trocar por SaaS (ex: CRM → Salesforce) |
+| **Refactor** | Redesenhar para nuvem (mais cara, mais benefícios) |
+| **Retire** | Desligar o que não é mais necessário |
+| **Retain** | Manter on-premises por enquanto |
+| **Relocate** | Mover hypervisor inteiro (VMware Cloud on AWS) |
+
+## Ferramentas de migração
+
+- **Migration Hub**: painel central do progresso.
+- **Application Migration Service (MGN)**: rehost automatizado de servidores.
+- **DMS**: migração de bancos.
+- **Snow Family**: migração física de dados.
+
+## Sinais de prova
+
+- "Mover rápido, sem alterar aplicações" → **Rehost**.
+- "Trocar sistema interno por software por assinatura" → **Repurchase**.
+- "Guia para planejar adoção de nuvem na organização" → **CAF**.
+- "Melhores práticas para arquitetar cargas de trabalho" → **Well-Architected**.
+
+## Armadilhas comuns
+
+- CAF é sobre **organização/pessoas**; Well-Architected é sobre **arquitetura de workloads**. A prova mistura os dois.
+- Refactor não é a estratégia "mais rápida" — é a mais profunda.
+
+## Checklist antes de avançar
+
+- [ ] Sei os 6 pilares e uma frase de cada
+- [ ] Sei os 7 Rs com um exemplo de cada
+- [ ] Sei quando o cenário pede CAF vs Well-Architected

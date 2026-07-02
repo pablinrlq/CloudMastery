@@ -1,0 +1,64 @@
+---
+title: "Fundamentos da Computação em Nuvem"
+description: "O que é nuvem, por que as empresas migram e como a AWS organiza sua infraestrutura global."
+domain: "Conceitos de Nuvem"
+order: 1
+durationMinutes: 45
+---
+
+## O que você precisa dominar
+
+Este módulo cobre a base conceitual do exame: o que é computação em nuvem, os seis benefícios que a AWS promove e como a infraestrutura global é organizada. Cerca de 24% da prova (domínio Conceitos de Nuvem) depende diretamente disso.
+
+## Computação em nuvem em uma frase
+
+Entrega de recursos de TI sob demanda, pela internet, com pagamento conforme o uso. Você troca investimento antecipado em datacenter (CAPEX) por custo operacional variável (OPEX).
+
+## Os 6 benefícios da nuvem (decore o vocabulário)
+
+| Benefício | Como aparece na prova |
+|---|---|
+| Trocar CAPEX por OPEX | "Sem investimento inicial em hardware" |
+| Economia de escala | "Preços menores porque a AWS agrega demanda de milhões de clientes" |
+| Parar de adivinhar capacidade | "Escala conforme a demanda real, sem superdimensionar" |
+| Velocidade e agilidade | "Provisionar recursos em minutos" |
+| Parar de gastar com datacenter | "Foco no produto, não em racks e energia" |
+| Alcance global em minutos | "Implantar em várias regiões com poucos cliques" |
+
+## Infraestrutura global: Região, AZ e Edge
+
+- **Região**: área geográfica (ex: `sa-east-1`, São Paulo). Escolhida por latência, custo, conformidade legal e disponibilidade de serviços.
+- **Zona de Disponibilidade (AZ)**: um ou mais datacenters isolados dentro de uma Região, com energia e rede independentes. Alta disponibilidade = distribuir em **múltiplas AZs**.
+- **Edge Location / Ponto de Presença**: usado pelo CloudFront (CDN) e Route 53 para entregar conteúdo perto do usuário. Há muito mais edge locations do que Regiões.
+
+## Modelos de nuvem
+
+- **Pública**: tudo na AWS.
+- **Híbrida**: parte on-premises, parte AWS (palavras-chave: Direct Connect, VPN, Outposts).
+- **Privada / on-premises**: infraestrutura própria.
+
+## Modelos de serviço
+
+- **IaaS**: você gerencia SO para cima (EC2).
+- **PaaS**: você gerencia só código e dados (Elastic Beanstalk, RDS).
+- **SaaS**: você só usa (e-mail corporativo, Salesforce).
+
+## Sinais de prova
+
+- "Menor latência para usuários em um país específico" → escolher **Região** próxima.
+- "A aplicação precisa continuar operando se um datacenter falhar" → **múltiplas AZs**.
+- "Entregar vídeos com baixa latência globalmente" → **CloudFront / edge locations**.
+- "Requisito legal de manter dados no Brasil" → Região `sa-east-1` (conformidade define a Região).
+
+## Armadilhas comuns
+
+- **Elasticidade ≠ escalabilidade**: elasticidade é ajuste automático conforme demanda (para cima e para baixo); escalabilidade é a capacidade de crescer. A prova adora trocar uma pela outra.
+- **Alta disponibilidade ≠ alta performance**: disponibilidade é continuidade do serviço; performance é velocidade.
+- Uma AZ **não** é um único prédio necessariamente — é um agrupamento isolado de datacenters.
+
+## Checklist antes de avançar
+
+- [ ] Sei citar os 6 benefícios com o vocabulário da AWS
+- [ ] Sei a diferença entre Região, AZ e edge location e quando cada uma responde a questão
+- [ ] Sei classificar um cenário em IaaS / PaaS / SaaS
+- [ ] Sei diferenciar elasticidade, escalabilidade, disponibilidade e performance

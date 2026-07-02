@@ -1,0 +1,66 @@
+---
+title: "IA/ML e Serviços Complementares"
+description: "Os serviços de inteligência artificial e os demais serviços que aparecem em 1-2 questões cada."
+domain: "Tecnologia e Serviços"
+order: 10
+durationMinutes: 40
+---
+
+## Serviços de IA/ML (mapeie nome → função)
+
+| Serviço | Faz |
+|---|---|
+| **SageMaker** | Construir, treinar e implantar modelos de ML (para cientistas de dados) |
+| **Rekognition** | Análise de imagens e vídeos (rostos, objetos, moderação) |
+| **Polly** | Texto → fala |
+| **Transcribe** | Fala → texto |
+| **Translate** | Tradução de idiomas |
+| **Comprehend** | Análise de sentimento e entidades em texto |
+| **Lex** | Chatbots com voz e texto (motor da Alexa) |
+| **Textract** | Extrair texto e dados de documentos escaneados |
+| **Kendra** | Busca inteligente em documentos corporativos |
+| **Personalize** | Recomendações personalizadas |
+| **Bedrock** | Acesso a modelos de IA generativa via API |
+
+A prova dá o caso de uso e pede o serviço. Basta o mapeamento de uma linha.
+
+## Integração de aplicações
+
+- **SQS**: fila de mensagens — desacopla componentes ("processar pedidos sem perder mensagens").
+- **SNS**: notificações pub/sub — um evento para muitos assinantes (e-mail, SMS, Lambda).
+- **EventBridge**: barramento de eventos entre serviços e SaaS.
+- **Step Functions**: orquestração visual de fluxos com várias etapas.
+
+## Desenvolvimento e implantação
+
+- **CodeCommit/CodeBuild/CodeDeploy/CodePipeline**: esteira CI/CD gerenciada.
+- **CloudShell**: terminal no navegador.
+- **CLI / SDK**: automação por linha de comando / código.
+
+## Análise de dados
+
+- **Athena**: SQL direto em arquivos no S3 (serverless, paga por consulta).
+- **Glue**: ETL serverless (preparar/transformar dados).
+- **Kinesis**: ingestão e processamento de dados em **tempo real** (streaming).
+- **QuickSight**: dashboards de BI.
+
+## Sinais de prova
+
+- "Analisar sentimento de avaliações de clientes" → **Comprehend**.
+- "Converter atas escaneadas em texto pesquisável" → **Textract**.
+- "Desacoplar produtor e consumidor de mensagens" → **SQS**.
+- "Notificar vários sistemas quando algo acontece" → **SNS**.
+- "Consultar logs no S3 com SQL sem provisionar nada" → **Athena**.
+- "Processar cliques de site em tempo real" → **Kinesis**.
+
+## Armadilhas comuns
+
+- SQS enfileira (1 consumidor processa); SNS difunde (N assinantes recebem). Cenário "fan-out" usa os dois juntos.
+- Athena consulta o S3 onde os dados estão; Redshift carrega dados para dentro do warehouse.
+- SageMaker é para **construir** modelos; os serviços de nome amigável (Polly, Lex...) são prontos para uso.
+
+## Checklist antes de avançar
+
+- [ ] Sei o mapeamento de uma linha de cada serviço de IA
+- [ ] Sei diferenciar SQS × SNS × EventBridge
+- [ ] Sei quando Athena responde em vez de Redshift

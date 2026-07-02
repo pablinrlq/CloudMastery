@@ -1,0 +1,56 @@
+---
+title: "Bancos de Dados na AWS"
+description: "RDS, Aurora, DynamoDB e os bancos especializados — escolhendo pelo tipo de dado e carga."
+domain: "Tecnologia e Serviços"
+order: 6
+durationMinutes: 45
+---
+
+## O princípio: banco certo para o dado certo
+
+A AWS oferece bancos especializados. A prova dá um cenário e pede o serviço:
+
+| Serviço | Tipo | Palavra-chave do cenário |
+|---|---|---|
+| RDS | Relacional gerenciado | "SQL", "transações", MySQL/PostgreSQL |
+| Aurora | Relacional da AWS | "Compatível com MySQL/PostgreSQL, mais performático" |
+| DynamoDB | Chave-valor NoSQL | "Milissegundos de latência em qualquer escala", "serverless" |
+| ElastiCache | Cache em memória | "Reduzir carga de leitura", Redis/Memcached |
+| Redshift | Data warehouse | "Análise de dados", "BI", consultas em petabytes |
+| Neptune | Grafos | "Relacionamentos", rede social, recomendação |
+| DocumentDB | Documentos | "Compatível com MongoDB" |
+| QLDB | Ledger | "Histórico imutável e verificável" |
+
+## RDS e Aurora
+
+- RDS é o serviço **gerenciado**: AWS cuida de patch, backup e failover. Você não acessa o SO.
+- **Multi-AZ**: réplica síncrona em outra AZ para **disponibilidade** (failover automático). Não serve para escalar leitura.
+- **Read Replica**: cópia assíncrona para **escalar leitura**. Pode ficar em outra Região.
+- Aurora: engine da AWS compatível com MySQL/PostgreSQL, mais cara que RDS padrão porém mais performática e resiliente (6 cópias em 3 AZs).
+
+## DynamoDB
+
+NoSQL chave-valor totalmente gerenciado e serverless. Escala automática, latência de milissegundos. Palavras-chave: "sem administrar servidores de banco", "escala imprevisível", "chave-valor".
+
+## Migração
+
+- **DMS (Database Migration Service)**: migra bancos para a AWS com o banco de origem **em operação**.
+
+## Sinais de prova
+
+- "Failover automático de banco relacional" → **RDS Multi-AZ**.
+- "Aliviar leituras pesadas no banco relacional" → **Read Replica** (ou ElastiCache se falar em cache/memória).
+- "Data warehouse para relatórios de BI" → **Redshift**.
+- "Migrar Oracle on-premises sem parar a aplicação" → **DMS**.
+
+## Armadilhas comuns
+
+- **Multi-AZ = disponibilidade; Read Replica = performance de leitura.** A prova troca uma pela outra o tempo todo.
+- DynamoDB não roda SQL relacional — se o cenário exige joins/transações complexas, é RDS/Aurora.
+- Redshift é para análise (OLAP), não para transações da aplicação (OLTP).
+
+## Checklist antes de avançar
+
+- [ ] Sei mapear cada banco à sua palavra-chave de cenário
+- [ ] Sei explicar Multi-AZ × Read Replica sem hesitar
+- [ ] Sei quando a resposta é cache (ElastiCache) e não réplica

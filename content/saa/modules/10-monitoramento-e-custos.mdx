@@ -1,0 +1,57 @@
+---
+title: "Observabilidade, Governança e Otimização de Custos"
+description: "CloudWatch avançado, Organizations e as alavancas de custo que fecham o domínio de 20%."
+domain: "Arquiteturas com Custo Otimizado"
+order: 10
+durationMinutes: 55
+---
+
+## CloudWatch para arquitetos
+
+- Métricas custom (memória, disco — via agente), alarmes compostos, dashboards.
+- **Logs Insights**: consultas nos logs.
+- Alarme → SNS → ação (ou EventBridge → automação). "Detectar e reagir automaticamente" = alarme + automação.
+- **CloudWatch Synthetics**: canários testando endpoints de fora.
+
+## Auditoria e conformidade contínua
+
+- **CloudTrail**: quem chamou o quê (multi-região, log file validation).
+- **AWS Config**: estado de configuração + **auto-remediação** via SSM Automation ("bucket ficou público → corrige sozinho").
+- **Organizations + SCP**: teto de permissões por conta/OU; contas separadas por ambiente (prod/dev) como boa prática.
+
+## As grandes alavancas de custo (o que a prova espera que você saiba puxar)
+
+| Alavanca | Exemplo de cenário |
+|---|---|
+| Modelo de compra | Base estável → Savings Plans; batch tolerante → Spot |
+| Dimensionamento correto | Compute Optimizer recomenda instância menor |
+| Classe de armazenamento | Logs antigos → Glacier; padrão desconhecido → Intelligent-Tiering |
+| Transferência de dados | Mesma AZ é grátis; NAT caro → Gateway Endpoint p/ S3; CloudFront reduz egress |
+| Serverless | Carga intermitente → Lambda/Fargate/Aurora Serverless em vez de EC2 24/7 |
+| Desligar o ocioso | Instance Scheduler em dev/test fora do expediente |
+
+## Ferramentas de custo
+
+- **Cost Explorer** (análise/tendência) + **Budgets** (alertas) + **CUR** (detalhe máximo).
+- **Compute Optimizer**: recomendações de right-sizing com ML.
+- Tags de alocação → custo por equipe/projeto.
+
+## Sinais de prova
+
+- "Reduzir custo de transferência das instâncias privadas para o S3" → **Gateway Endpoint** (elimina NAT).
+- "Corrigir automaticamente configurações fora de conformidade" → **AWS Config + remediação**.
+- "Análise histórica de gastos por serviço" → **Cost Explorer**.
+- "Instâncias superdimensionadas" → **Compute Optimizer**.
+- "Dev/test rodando à noite sem uso" → agendar desligamento.
+
+## Armadilhas comuns
+
+- CloudTrail ≠ Config: ações de API vs estado de configuração. Ambos ≠ CloudWatch (métricas).
+- Egress entre AZs é cobrado — arquiteturas "chatty" entre AZs custam; mesma AZ quando o cenário prioriza custo (perdendo HA — trade-off explícito).
+- SCP não dá permissão, só limita.
+
+## Checklist antes de avançar
+
+- [ ] Sei as 6 alavancas de custo com um exemplo cada
+- [ ] Sei o trio CloudWatch × CloudTrail × Config no nível SAA
+- [ ] Sei montar auto-remediação com Config

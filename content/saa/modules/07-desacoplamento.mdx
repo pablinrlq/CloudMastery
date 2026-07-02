@@ -1,0 +1,59 @@
+---
+title: "Desacoplamento: SQS, SNS e EventBridge"
+description: "Mensageria e arquiteturas orientadas a eventos — o coração das questões de resiliência."
+domain: "Arquiteturas Resilientes"
+order: 7
+durationMinutes: 60
+---
+
+## Por que desacoplar
+
+Componente A chama B diretamente → se B cai ou fica lento, A falha junto. Com fila/eventos no meio, picos são absorvidos e falhas isoladas. Quando a prova diz "picos de tráfego causam perda de pedidos", a resposta quase sempre envolve **SQS**.
+
+## SQS
+
+- **Standard**: throughput ilimitado, entrega *at-least-once*, ordem não garantida.
+- **FIFO**: ordem garantida e exatamente-uma-vez, até 3.000 msg/s com batch. Sufixo `.fifo`.
+- **Visibility timeout**: mensagem some da fila enquanto processada; se não deletada a tempo, volta (retry automático).
+- **DLQ (dead-letter queue)**: mensagens que falharam N vezes vão para análise.
+- **Long polling**: reduz custo e requests vazios.
+- Consumidores em ASG escalando por **profundidade da fila** (métrica ApproximateNumberOfMessages) — padrão clássico.
+
+## SNS
+
+Pub/sub: um tópico → N assinantes (Lambda, SQS, e-mail, SMS, HTTP). Não persiste: quem não estava inscrito não recebe depois.
+
+**Fan-out** (padrão favorito da prova): evento → SNS → múltiplas filas SQS → cada consumidor processa no seu ritmo com durabilidade.
+
+## EventBridge
+
+Barramento de eventos com **regras e filtros por conteúdo**, integra serviços AWS, apps próprias e SaaS de terceiros; agenda eventos (cron). Escolha EventBridge quando o cenário fala "reagir a eventos de serviços AWS/SaaS com roteamento por regras".
+
+## Outros desacopladores
+
+- **Step Functions**: orquestração de workflows com estado, retries e ramificações — "coordenar múltiplas Lambdas com tratamento de erro".
+- **Amazon MQ**: RabbitMQ/ActiveMQ gerenciado — **migração** de sistemas que já usam protocolos abertos (AMQP, MQTT) sem reescrever.
+- **Kinesis Data Streams**: streaming em tempo real com ordem por shard e replay — telemetria, clickstream. Kinesis ≠ SQS: streaming com múltiplos leitores e replay vs fila consumível.
+
+## Sinais de prova
+
+- "Pedidos perdidos em picos" → **SQS entre o front e o processamento**.
+- "Ordem estritamente necessária" → **SQS FIFO**.
+- "Uma atualização deve notificar 4 sistemas" → **SNS fan-out para SQS**.
+- "Mensagens com falha para análise posterior" → **DLQ**.
+- "Migrar do RabbitMQ on-premises sem alterar código" → **Amazon MQ**.
+- "Análise em tempo real de streams com replay" → **Kinesis**.
+- "Workflow de várias etapas com retry e aprovação" → **Step Functions**.
+
+## Armadilhas comuns
+
+- SQS Standard pode duplicar mensagens — consumidores devem ser idempotentes; se o cenário proíbe duplicatas, FIFO.
+- SNS sozinho não persiste; para durabilidade, SNS → SQS.
+- Kinesis para streaming/analytics; SQS para desacoplar trabalho. Não são intercambiáveis.
+
+## Checklist antes de avançar
+
+- [ ] Sei Standard × FIFO (ordem, duplicatas, throughput)
+- [ ] Sei desenhar o fan-out SNS→SQS
+- [ ] Sei visibility timeout + DLQ
+- [ ] Sei posicionar EventBridge, MQ, Kinesis e Step Functions

@@ -1,0 +1,64 @@
+---
+title: "EC2, Auto Scaling e Load Balancing"
+description: "Dimensionamento, balanceamento e os padrões de alta disponibilidade em computação."
+domain: "Arquiteturas Resilientes"
+order: 3
+durationMinutes: 70
+---
+
+## Elastic Load Balancing — escolha do balanceador
+
+| Tipo | Camada | Quando |
+|---|---|---|
+| **ALB** | 7 (HTTP/S) | Rotas por path/host, microserviços, WAF |
+| **NLB** | 4 (TCP/UDP) | Latência ultra baixa, milhões de req/s, IP estático |
+| **GWLB** | 3 | Inserir appliances de rede (firewalls de terceiros) |
+
+ALB responde à maioria das questões web. NLB quando o cenário fala "TCP", "IP estático" ou "performance extrema".
+
+## Auto Scaling Group (ASG)
+
+- Define min/desired/max de instâncias em múltiplas AZs.
+- **Políticas**: target tracking (manter CPU em 50% — a mais comum), step scaling, scheduled (padrões previsíveis: "todo dia às 9h").
+- Health checks: substitui instâncias não saudáveis automaticamente (autocura).
+- **Warm-up e cooldown** evitam oscilação.
+
+Padrão resiliente clássico da prova: **ALB + ASG multi-AZ** — cobre "escalar com a demanda" e "sobreviver à falha de uma AZ".
+
+## Placement Groups
+
+- **Cluster**: mesma rack, menor latência entre instâncias — HPC (e maior risco correlacionado).
+- **Spread**: hardware distinto por instância — poucas instâncias críticas (máx 7 por AZ).
+- **Partition**: grupos isolados — big data distribuído (Hadoop, Kafka).
+
+## Compra e otimização de custo em computação
+
+- Base estável → **Savings Plans/Reserved**; picos → On-Demand; tolerante a interrupção → **Spot** (com ASG mixed instances).
+- **Graviton (ARM)**: melhor preço/performance quando o software é compatível.
+
+## Recuperação de instâncias e dados
+
+- EC2 **user data**: script na inicialização. **Instance metadata** (IMDSv2): informações da instância via `169.254.169.254`.
+- AMI dourada: acelera scale-out (pacote pronto vs instalar tudo no boot).
+- EBS multi-AZ? Não — snapshot e restaurar. EBS é single-AZ.
+
+## Sinais de prova
+
+- "Rotear /api para um grupo e /images para outro" → **ALB path-based routing**.
+- "Endereço IP fixo para whitelisting" → **NLB** (ou Global Accelerator).
+- "Escalar antes do horário de pico conhecido" → **scheduled scaling**.
+- "Instâncias críticas em hardware separado" → **spread placement group**.
+- "Menor latência entre nós do cluster HPC" → **cluster placement group**.
+
+## Armadilhas comuns
+
+- ALB não tem IP estático nativo (usa DNS); se pedem IP fixo com HTTP, a resposta pode ser NLB na frente do ALB ou Global Accelerator.
+- ASG não redistribui carga entre Regiões — para multi-região entra Route 53.
+- Scale up (instância maior) ≠ scale out (mais instâncias); a prova prefere out com ASG.
+
+## Checklist antes de avançar
+
+- [ ] Sei escolher ALB × NLB × GWLB em uma linha cada
+- [ ] Sei as 3 políticas de scaling e seus cenários
+- [ ] Sei os 3 placement groups
+- [ ] Sei combinar modelos de compra num ASG para custo mínimo

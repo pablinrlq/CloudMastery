@@ -1,0 +1,71 @@
+---
+title: "Bancos de Dados para Arquitetos"
+description: "RDS, Aurora e DynamoDB em profundidade: réplicas, failover, caching e modelagem de acesso."
+domain: "Arquiteturas de Alta Performance"
+order: 6
+durationMinutes: 70
+---
+
+## RDS: disponibilidade × performance
+
+- **Multi-AZ**: réplica **síncrona** standby; failover automático de DNS em minutos; a standby **não atende leitura**. Objetivo: disponibilidade.
+- **Read Replicas**: assíncronas, até em outra região; atendem leitura; promoção manual em desastre. Objetivo: escalar leitura.
+- Combinação comum na prova: Multi-AZ **e** read replicas juntos.
+- Criptografia: definida na criação; para criptografar um banco existente → snapshot → copiar snapshot criptografado → restaurar.
+
+## Aurora
+
+- 6 cópias de dados em 3 AZs, storage auto-expansível.
+- **Aurora Replicas** (até 15) com failover mais rápido que RDS.
+- **Endpoints**: writer, reader (balanceia leituras), custom.
+- **Aurora Serverless**: capacidade sob demanda — cargas intermitentes/imprevisíveis.
+- **Global Database**: replicação entre regiões < 1s — DR e leitura global.
+
+## DynamoDB
+
+- Tabela + partition key (+ sort key). Modelagem por padrão de acesso, não por normalização.
+- **On-demand** (imprevisível) × **provisioned** (+auto scaling; previsível e mais barato).
+- **GSI**: consultar por outros atributos.
+- **DAX**: cache em memória específico do DynamoDB — "reduzir latência de leitura para microssegundos **sem alterar código**".
+- **Streams**: mudanças na tabela disparam Lambda (event-driven).
+- **Global Tables**: multi-região ativa-ativa.
+- **TTL**: expira itens automaticamente (sessões).
+
+## ElastiCache
+
+- **Redis**: estruturas ricas, persistência, pub/sub, réplicas + failover — o padrão.
+- **Memcached**: cache puro multi-thread, sem persistência.
+- Padrões: cache-aside (lazy loading) vs write-through. Sessões de usuário → Redis (alternativa: DynamoDB).
+
+## Escolha rápida de banco (tabela de decisão)
+
+| Cenário | Banco |
+|---|---|
+| SQL, transações, joins | RDS/Aurora |
+| Chave-valor, escala massiva, serverless | DynamoDB |
+| Latência de microssegundos em DynamoDB | + DAX |
+| Cache de queries do RDS | + ElastiCache |
+| Analytics/OLAP em petabytes | Redshift |
+| Séries temporais | Timestream |
+| Ledger imutável | QLDB |
+| Grafos | Neptune |
+
+## Sinais de prova
+
+- "Failover automático sem intervenção" → **Multi-AZ**.
+- "Relatórios pesados sem impactar produção" → **read replica** dedicada a relatórios.
+- "Tráfego imprevisível, picos raros" → **Aurora Serverless** ou **DynamoDB on-demand**.
+- "Microssegundos de leitura sem reescrever a aplicação" → **DAX**.
+- "Usuários em 3 continentes escrevendo na mesma tabela" → **DynamoDB Global Tables**.
+
+## Armadilhas comuns
+
+- Read replica não dá failover automático (Multi-AZ dá); a prova mistura os dois de propósito.
+- DAX ≠ ElastiCache: DAX é só para DynamoDB e é drop-in; ElastiCache exige lógica de cache no código.
+- DynamoDB não faz joins — cenário relacional complexo elimina DynamoDB.
+
+## Checklist antes de avançar
+
+- [ ] Sei Multi-AZ × read replica de olhos fechados (síncrono/assíncrono, failover, leitura)
+- [ ] Sei os recursos do DynamoDB (DAX, Streams, GSI, Global Tables, TTL) com um cenário cada
+- [ ] Sei a tabela de decisão de bancos completa

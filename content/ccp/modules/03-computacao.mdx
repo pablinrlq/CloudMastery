@@ -1,0 +1,69 @@
+---
+title: "Computação: EC2, Lambda e Containers"
+description: "Os serviços de computação da AWS e como escolher entre servidor, serverless e container."
+domain: "Tecnologia e Serviços"
+order: 3
+durationMinutes: 60
+---
+
+## O mapa mental de computação
+
+A prova quer que você escolha o serviço certo pelo cenário. Três famílias:
+
+1. **Servidores virtuais** → EC2
+2. **Serverless** → Lambda, Fargate
+3. **Containers** → ECS, EKS
+
+## Amazon EC2
+
+Máquinas virtuais com controle total do SO. Conceitos que caem:
+
+- **Tipos de instância**: otimizadas para computação, memória, armazenamento ou uso geral. Não decore modelos — saiba que existem famílias por perfil de carga.
+- **Security Group**: firewall **da instância**, com estado (stateful), só regras de *allow*.
+- **Modelos de compra** (cai muito):
+
+| Modelo | Quando usar | Economia |
+|---|---|---|
+| On-Demand | Cargas imprevisíveis, curtas | Nenhuma, preço cheio |
+| Reserved / Savings Plans | Uso constante por 1 ou 3 anos | Até ~72% |
+| Spot | Cargas tolerantes a interrupção (batch, render) | Até ~90% |
+| Dedicated Host | Licenças por socket/core, compliance | Mais caro |
+
+## AWS Lambda
+
+Código executado por **evento**, sem servidor para administrar. Paga por requisição e tempo de execução (ms). Limite de 15 minutos por execução. Palavras-chave na prova: "sem gerenciar servidores", "executa quando um arquivo chega no S3", "pagar somente pelo tempo de execução".
+
+## Containers
+
+- **ECS**: orquestrador de containers da AWS.
+- **EKS**: Kubernetes gerenciado (quando a questão diz "Kubernetes", é EKS).
+- **Fargate**: motor **serverless** para ECS/EKS — sem gerenciar instâncias EC2 por baixo.
+- **ECR**: registro de imagens de container.
+
+## Outros que aparecem
+
+- **Elastic Beanstalk**: PaaS — você sobe o código, a AWS provisiona tudo (mantendo acesso aos recursos por baixo).
+- **AWS Batch**: processamento em lote gerenciado.
+- **Lightsail**: pacote simplificado (VPS com preço fixo) para quem está começando — palavra-chave "maneira mais simples/previsível de hospedar um site pequeno".
+
+## Sinais de prova
+
+- "Executar código em resposta a eventos, sem servidores" → **Lambda**.
+- "Kubernetes gerenciado" → **EKS**.
+- "Containers sem gerenciar servidores" → **Fargate**.
+- "Carga de trabalho que pode ser interrompida" → **Spot**.
+- "Uso estável nos próximos 3 anos, quer economizar" → **Reserved/Savings Plans**.
+- "Site simples com mensalidade previsível" → **Lightsail**.
+
+## Armadilhas comuns
+
+- Lambda tem limite de execução (15 min) — cargas longas vão para EC2/Batch/Fargate.
+- Beanstalk não é "sem controle": você continua podendo acessar as instâncias (diferente de Lambda).
+- Spot pode ser **interrompido pela AWS** a qualquer momento — nunca é resposta para produção crítica.
+
+## Checklist antes de avançar
+
+- [ ] Sei escolher entre On-Demand, Reserved, Spot e Dedicated pelo cenário
+- [ ] Sei quando Lambda é a resposta (evento + sem servidor + curto)
+- [ ] Sei a diferença ECS / EKS / Fargate / ECR
+- [ ] Sei o que o Beanstalk automatiza

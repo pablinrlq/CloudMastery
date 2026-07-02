@@ -1,0 +1,74 @@
+---
+title: "VPC e Redes na Prática"
+description: "Desenho de VPC, roteamento, endpoints e conectividade híbrida no nível que o SAA exige."
+domain: "Arquiteturas Seguras"
+order: 5
+durationMinutes: 75
+---
+
+## Anatomia de uma VPC bem desenhada
+
+Padrão de referência (o que a prova assume):
+
+- VPC com CIDR privado (ex: 10.0.0.0/16), subnets em **pelo menos 2 AZs**.
+- Subnets públicas: rota `0.0.0.0/0 → IGW`. Contêm ALB, NAT Gateway, bastion.
+- Subnets privadas: aplicação e banco; saída para internet via **NAT Gateway** (um por AZ para alta disponibilidade).
+- Route tables definem o que é "público" — não a subnet em si.
+
+## Security Groups × NACLs (o clássico)
+
+| | Security Group | NACL |
+|---|---|---|
+| Nível | ENI/instância | Subnet |
+| Estado | Stateful (resposta liberada) | Stateless (regras nos 2 sentidos) |
+| Regras | Só allow | Allow e deny, numeradas |
+| Caso de uso | Padrão para tudo | Bloquear IP específico |
+
+## Endpoints — tráfego privado para serviços AWS
+
+- **Gateway Endpoint**: S3 e DynamoDB, via route table, **grátis**.
+- **Interface Endpoint (PrivateLink)**: demais serviços, ENI com IP privado, pago.
+- A prova pergunta: "acessar S3 sem internet, com menor custo" → Gateway Endpoint (não NAT!).
+
+## Conectividade híbrida e entre VPCs
+
+| Necessidade | Solução |
+|---|---|
+| Datacenter ↔ AWS, rápido de montar | Site-to-Site VPN (IPsec pela internet) |
+| Banda dedicada, latência consistente | Direct Connect (semanas para provisionar) |
+| DX com criptografia | VPN **sobre** Direct Connect |
+| 2 VPCs | VPC Peering (não transitivo!) |
+| Dezenas de VPCs + on-premises | **Transit Gateway** (hub-and-spoke) |
+| Expor um serviço a outras VPCs sem peering | **PrivateLink** |
+
+Peering **não é transitivo**: A↔B e B↔C não dá A↔C. Muitas VPCs = Transit Gateway. Essa distinção cai sempre.
+
+## Route 53 — políticas de roteamento
+
+- **Failover**: primário/secundário com health check (DR).
+- **Latency**: menor latência por região.
+- **Geolocation**: por país do usuário (conteúdo/compliance).
+- **Weighted**: percentuais (blue/green, canary).
+- **Multivalue**: vários registros saudáveis.
+
+## Sinais de prova
+
+- "Instâncias privadas precisam baixar patches" → **NAT Gateway** (em subnet pública).
+- "Acessar DynamoDB sem tráfego pela internet e sem custo" → **Gateway Endpoint**.
+- "Conectar 40 VPCs e o datacenter" → **Transit Gateway**.
+- "Failover automático para região secundária" → **Route 53 failover + health check**.
+- "Oferecer nosso serviço SaaS dentro da VPC do cliente" → **PrivateLink**.
+
+## Armadilhas comuns
+
+- NAT Gateway é por AZ e pago por hora + GB; várias respostas "mais econômicas" trocam NAT por Gateway Endpoint quando o destino é S3/DynamoDB.
+- NAT Gateway não aceita security group; fica em subnet pública com Elastic IP.
+- Direct Connect sem VPN **não criptografa**.
+- Peering exige CIDRs sem sobreposição.
+
+## Checklist antes de avançar
+
+- [ ] Sei desenhar a VPC de referência de 2 AZs de memória
+- [ ] Sei a tabela SG × NACL completa
+- [ ] Sei decidir peering × Transit Gateway × PrivateLink
+- [ ] Sei as 5 políticas do Route 53 com um cenário cada

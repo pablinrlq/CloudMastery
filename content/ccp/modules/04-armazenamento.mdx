@@ -1,0 +1,74 @@
+---
+title: "Armazenamento: S3, EBS e EFS"
+description: "Classes de armazenamento do S3, discos de bloco e sistemas de arquivo — e quando usar cada um."
+domain: "Tecnologia e Serviços"
+order: 4
+durationMinutes: 50
+---
+
+## Três tipos de armazenamento
+
+| Tipo | Serviço | Analogia |
+|---|---|---|
+| Objetos | S3 | Um balde de arquivos com URL |
+| Bloco | EBS | O "HD" de uma instância EC2 |
+| Arquivo | EFS / FSx | Pasta de rede compartilhada |
+
+## Amazon S3
+
+Armazenamento de objetos com durabilidade de 11 noves (99,999999999%). Objetos vivem em **buckets** com nome globalmente único.
+
+**Classes de armazenamento** (a tabela mais cobrada da prova):
+
+| Classe | Acesso | Custo |
+|---|---|---|
+| S3 Standard | Frequente | Mais alto |
+| S3 Standard-IA | Infrequente, recuperação imediata | Menor armazenamento, cobra recuperação |
+| S3 One Zone-IA | Infrequente, 1 AZ só (dados recriáveis) | Ainda menor |
+| S3 Glacier Instant | Arquivo com acesso raro mas imediato | Baixo |
+| S3 Glacier Flexible | Arquivo, recuperação em minutos–horas | Muito baixo |
+| S3 Glacier Deep Archive | Arquivo de longo prazo, recuperação em horas | Mínimo |
+| S3 Intelligent-Tiering | Padrão de acesso desconhecido | Move automático entre camadas |
+
+**Recursos**: versionamento (protege contra deleção acidental), políticas de ciclo de vida (move classes automaticamente), replicação entre Regiões, criptografia.
+
+## Amazon EBS
+
+Volume de bloco anexado a **uma** instância EC2, dentro de **uma AZ**. Persiste independente da instância. Snapshot = backup incremental armazenado no S3.
+
+- **Instance Store**: disco físico do host, **efêmero** — some quando a instância para. Cai como pegadinha.
+
+## Amazon EFS
+
+Sistema de arquivos elástico (NFS) montável por **várias instâncias ao mesmo tempo**, multi-AZ, só Linux. Palavra-chave: "compartilhar arquivos entre dezenas de instâncias".
+
+- **FSx**: sistemas de arquivo especializados (FSx for Windows File Server → ambientes Windows/Active Directory; FSx for Lustre → HPC).
+
+## Migração e transferência
+
+- **Snow Family** (Snowcone/Snowball/Snowmobile): transferir dados por dispositivo físico quando a rede é lenta ou o volume é enorme (TB–PB).
+- **Storage Gateway**: ponte híbrida — on-premises acessando armazenamento na AWS.
+- **DataSync**: transferência acelerada de dados pela rede.
+
+## Sinais de prova
+
+- "Backup de longo prazo com acesso raro e menor custo" → **Glacier Deep Archive**.
+- "Padrão de acesso imprevisível" → **Intelligent-Tiering**.
+- "Compartilhar sistema de arquivos entre várias instâncias Linux" → **EFS**.
+- "Migrar 500 TB com internet limitada" → **Snowball**.
+- "Dados recriáveis, acesso infrequente, menor custo" → **One Zone-IA**.
+- "Ambiente Windows com Active Directory" → **FSx for Windows**.
+
+## Armadilhas comuns
+
+- Durabilidade (não perder dados) ≠ disponibilidade (dados acessíveis agora). Standard e Standard-IA têm a MESMA durabilidade.
+- EBS é limitado a uma AZ; para outra AZ, restaura-se de snapshot.
+- Instance store é efêmero — nunca é resposta para dados persistentes.
+- S3 não é sistema de arquivos de rede — para POSIX/NFS a resposta é EFS.
+
+## Checklist antes de avançar
+
+- [ ] Sei ordenar as classes S3 por custo e velocidade de recuperação
+- [ ] Sei diferenciar objeto vs bloco vs arquivo pelo cenário
+- [ ] Sei quando a resposta é Snow Family em vez de transferência pela rede
+- [ ] Sei que EBS ≠ instance store

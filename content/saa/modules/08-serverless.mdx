@@ -1,0 +1,66 @@
+---
+title: "Serverless: Lambda, API Gateway e Padrões"
+description: "A arquitetura serverless completa e os limites que definem quando ela é a resposta."
+domain: "Arquiteturas de Alta Performance"
+order: 8
+durationMinutes: 60
+---
+
+## A stack serverless canônica
+
+**CloudFront → API Gateway → Lambda → DynamoDB** (+ S3 para estáticos, Cognito para auth, SQS para picos). Quando a prova pede "mínima gestão operacional + escala automática + pagar pelo uso", é essa família.
+
+## Lambda — o que decide questões
+
+- Timeout máximo: **15 min** (mais que isso → Fargate/Batch/EC2).
+- Memória 128 MB–10 GB (CPU proporcional à memória).
+- Execução concorrente com limites por conta; **reserved/provisioned concurrency** para garantir capacidade e reduzir cold start.
+- Cold start: mitigado por provisioned concurrency (cenário "latência consistente obrigatória").
+- Dentro de VPC: acessa RDS privado (com RDS Proxy para não esgotar conexões).
+- **RDS Proxy**: pool de conexões entre Lambda e RDS — "Lambda esgota conexões do banco" tem essa resposta.
+- Triggers: S3, SQS, SNS, EventBridge, API Gateway, DynamoDB Streams, Kinesis.
+
+## API Gateway
+
+- REST API (recursos completos: caching, API keys, throttling) vs HTTP API (mais barato/rápido, essencial).
+- Autoriza via Cognito, Lambda authorizer ou IAM.
+- Throttling e caching embutidos — protege o backend.
+- WebSocket API para tempo real.
+
+## Fargate vs Lambda
+
+| | Lambda | Fargate |
+|---|---|---|
+| Duração | ≤ 15 min | Ilimitada |
+| Modelo | Por evento | Container contínuo ou task |
+| Cold start | Sim | Menor relevância |
+| Caso | Eventos, APIs, glue code | Serviços longos, workers, jobs pesados |
+
+## Padrões de arquitetura serverless que caem
+
+- **Upload direto ao S3 com presigned URL** (não passar arquivo pela Lambda).
+- **S3 event → Lambda → processamento** (thumbnails, ETL leve).
+- **SQS entre API e Lambda** para suavizar picos e retry.
+- **DynamoDB Streams → Lambda** para reagir a mudanças de dados.
+- **Static site S3/CloudFront + API serverless** para SPAs.
+
+## Sinais de prova
+
+- "Processamento dispara quando arquivo chega" → **S3 event → Lambda**.
+- "Job de 2 horas" → **não** é Lambda; Fargate/Batch.
+- "Latência previsível sem cold start" → **provisioned concurrency**.
+- "Muitas Lambdas simultâneas derrubando o RDS" → **RDS Proxy**.
+- "Limitar taxa de chamadas de clientes da API" → **API Gateway throttling/API keys**.
+
+## Armadilhas comuns
+
+- Lambda não serve para cargas contínuas de longa duração — custo e timeout matam.
+- Arquivos grandes não trafegam pela Lambda (limite de payload ~6 MB síncrono): presigned URL resolve.
+- API Gateway tem timeout de 29s — backend mais lento que isso precisa de padrão assíncrono (fila + polling/webhook).
+
+## Checklist antes de avançar
+
+- [ ] Sei os limites da Lambda que eliminam alternativas (15 min, payload, concorrência)
+- [ ] Sei quando Fargate substitui Lambda
+- [ ] Sei os 5 padrões serverless canônicos
+- [ ] Sei o papel do RDS Proxy

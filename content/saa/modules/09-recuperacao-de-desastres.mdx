@@ -1,0 +1,57 @@
+---
+title: "Recuperação de Desastres e Continuidade"
+description: "RPO, RTO e as quatro estratégias de DR — do backup ao multi-site ativo-ativo."
+domain: "Arquiteturas Resilientes"
+order: 9
+durationMinutes: 50
+---
+
+## Os dois números que definem tudo
+
+- **RPO (Recovery Point Objective)**: quanto de **dados** posso perder (tempo desde o último backup/replicação).
+- **RTO (Recovery Time Objective)**: quanto tempo posso ficar **fora do ar**.
+
+A questão sempre dá RPO/RTO (explícita ou implicitamente) e pede a estratégia mais barata que os atende.
+
+## As 4 estratégias (da mais barata à mais cara)
+
+| Estratégia | RTO | RPO | Como funciona |
+|---|---|---|---|
+| **Backup & Restore** | Horas | Horas | Backups para S3/outra região; restaura quando precisar |
+| **Pilot Light** | Dezenas de min | Minutos | Núcleo mínimo sempre ligado (dados replicados, computação desligada) |
+| **Warm Standby** | Minutos | Segundos–min | Ambiente completo em escala reduzida, sempre rodando |
+| **Multi-site ativo-ativo** | ~Zero | ~Zero | Produção completa em 2+ regiões, tráfego dividido |
+
+Regra de ouro: escolha a **mais barata** que cumpre o RTO/RPO do cenário. "RTO de 4 horas" não justifica warm standby.
+
+## Blocos de construção de DR
+
+- **Backups**: AWS Backup (centralizado), snapshots EBS/RDS automatizados e copiados entre regiões.
+- **Dados**: S3 CRR, Aurora Global Database, DynamoDB Global Tables, read replica cross-region.
+- **DNS**: Route 53 failover com health checks — o gatilho da virada.
+- **Infra como código**: CloudFormation para recriar o ambiente rápido (essencial em pilot light).
+
+## Alta disponibilidade ≠ DR
+
+- HA: sobreviver a falhas **dentro** da região (multi-AZ). 
+- DR: sobreviver à perda **da região** (multi-região).
+- A prova testa se você multi-AZ quando bastava, ou multi-região quando era exigido.
+
+## Sinais de prova
+
+- "RTO de minutos, orçamento limitado" → **pilot light** ou **warm standby** (pelo RPO/detalhe do cenário).
+- "Perda de dados inaceitável, zero downtime" → **multi-site ativo-ativo** (+ Global Tables/Aurora Global).
+- "Backups de vários serviços centralizados e com política" → **AWS Backup**.
+- "Failover automático de DNS para a região secundária" → **Route 53 failover + health check**.
+
+## Armadilhas comuns
+
+- Snapshot em outra região não acontece sozinho — precisa de cópia configurada.
+- Multi-AZ não protege contra falha regional.
+- Warm standby atende tráfego reduzido imediatamente; pilot light precisa "ligar" a computação primeiro.
+
+## Checklist antes de avançar
+
+- [ ] Sei definir RPO × RTO sem hesitar
+- [ ] Sei ordenar as 4 estratégias por custo e velocidade
+- [ ] Sei escolher a mais barata que atende o cenário

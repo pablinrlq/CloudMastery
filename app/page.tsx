@@ -1,65 +1,151 @@
-import Image from "next/image";
+import Link from "next/link";
+import { CERTIFICATIONS } from "@/lib/content";
 
-export default function Home() {
+const steps = [
+  {
+    title: "Estude pela trilha",
+    text: "Módulos objetivos organizados pelos domínios oficiais do exame, com sinais de prova e armadilhas comuns em cada tópico.",
+  },
+  {
+    title: "Treine com simulados reais",
+    text: "Cronômetro e quantidade de questões no formato oficial. Correção só no final, como na prova — sem decorar gabarito.",
+  },
+  {
+    title: "Descubra onde melhorar",
+    text: "Resultado aberto por domínio mostra exatamente seus pontos fracos, com explicação comentada de cada questão errada.",
+  },
+  {
+    title: "Saiba quando agendar",
+    text: "O diagnóstico de prontidão cruza sua trilha e seus últimos simulados e avisa quando você está pronto para marcar a prova.",
+  },
+];
+
+const faq = [
+  {
+    q: "Quanto tempo preciso estudar para o Cloud Practitioner?",
+    a: "Com 1h por dia, a maioria das pessoas se prepara em 4 a 6 semanas. A trilha indica a duração estimada de cada módulo e o diagnóstico avisa quando sua média de simulados atinge a faixa segura.",
+  },
+  {
+    q: "E para o Solutions Architect Associate?",
+    a: "Partindo de alguma experiência com AWS, tipicamente 8 a 12 semanas com 1h por dia. O SAA exige raciocínio de arquitetura, então os simulados por domínio aceleram bastante.",
+  },
+  {
+    q: "Os simulados são iguais à prova?",
+    a: "Seguem o mesmo formato: mesma quantidade de questões, mesmo tempo, questões de cenário e correção apenas no final, com nota por domínio como no relatório oficial da AWS.",
+  },
+  {
+    q: "Posso cancelar quando quiser?",
+    a: "Sim. A assinatura é sem fidelidade e você gerencia tudo (troca de plano, cancelamento) direto no portal de pagamento.",
+  },
+];
+
+export default function LandingPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div>
+      <header className="border-b border-gray-100">
+        <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+          <span className="font-semibold">Certificações AWS</span>
+          <div className="flex items-center gap-4">
+            <Link href="/pricing" className="text-sm text-gray-600 hover:text-gray-900">
+              Planos
+            </Link>
+            <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900">
+              Entrar
+            </Link>
+            <Link
+              href="/signup"
+              className="rounded-md bg-orange-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-orange-600"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              Começar
+            </Link>
+          </div>
+        </nav>
+      </header>
+
+      <section className="mx-auto max-w-4xl px-4 py-20 text-center">
+        <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
+          Passe na sua certificação AWS
+          <span className="block text-orange-500">com um plano, não com sorte</span>
+        </h1>
+        <p className="mx-auto mt-5 max-w-2xl text-lg text-gray-600">
+          Trilhas de estudo em português, simulados no formato oficial da prova e um
+          diagnóstico que diz exatamente onde melhorar — e quando você está pronto
+          para agendar o exame.
+        </p>
+        <div className="mt-8 flex justify-center gap-3">
+          <Link
+            href="/signup"
+            className="rounded-md bg-orange-500 px-6 py-3 font-medium text-white hover:bg-orange-600"
+          >
+            Começar agora
+          </Link>
+          <Link
+            href="/pricing"
+            className="rounded-md border border-gray-300 px-6 py-3 font-medium hover:border-orange-400"
+          >
+            Ver planos
+          </Link>
+        </div>
+      </section>
+
+      <section className="border-y border-gray-100 bg-gray-50">
+        <div className="mx-auto grid max-w-4xl gap-6 px-4 py-12 sm:grid-cols-2">
+          {Object.values(CERTIFICATIONS).map((cert) => (
+            <div key={cert.id} className="rounded-xl bg-white p-6 shadow-sm">
+              <p className="text-xs font-medium text-orange-600">{cert.code}</p>
+              <h2 className="mt-1 font-semibold">{cert.name}</h2>
+              <p className="mt-2 text-sm text-gray-600">
+                {cert.examQuestionCount} questões · {cert.examDurationMinutes} minutos ·
+                trilha completa + simulados + flashcards
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-4xl px-4 py-16">
+        <h2 className="text-center text-2xl font-bold">Como funciona</h2>
+        <div className="mt-10 grid gap-8 sm:grid-cols-2">
+          {steps.map((step, i) => (
+            <div key={step.title} className="flex gap-4">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-100 font-semibold text-orange-600">
+                {i + 1}
+              </span>
+              <div>
+                <h3 className="font-semibold">{step.title}</h3>
+                <p className="mt-1 text-sm text-gray-600">{step.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-t border-gray-100 bg-gray-50">
+        <div className="mx-auto max-w-3xl px-4 py-16">
+          <h2 className="text-center text-2xl font-bold">Perguntas frequentes</h2>
+          <div className="mt-8 space-y-4">
+            {faq.map((item) => (
+              <details key={item.q} className="rounded-xl bg-white p-5 shadow-sm">
+                <summary className="cursor-pointer font-medium">{item.q}</summary>
+                <p className="mt-2 text-sm text-gray-600">{item.a}</p>
+              </details>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <Link
+              href="/signup"
+              className="inline-block rounded-md bg-orange-500 px-6 py-3 font-medium text-white hover:bg-orange-600"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              Criar conta e começar
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </section>
+
+      <footer className="border-t border-gray-100 py-8 text-center text-xs text-gray-400">
+        AWS e os nomes das certificações são marcas da Amazon Web Services, Inc.
+        Este site é um material de estudo independente, sem afiliação com a AWS.
+      </footer>
     </div>
   );
 }

@@ -1,0 +1,61 @@
+---
+title: "Monitoramento, Auditoria e Governança"
+description: "CloudWatch, CloudTrail, Config e as ferramentas de governança multi-conta."
+domain: "Segurança e Conformidade"
+order: 7
+durationMinutes: 45
+---
+
+## O trio de observabilidade (decore a distinção)
+
+| Serviço | Responde à pergunta |
+|---|---|
+| **CloudWatch** | "Como está a saúde/performance dos meus recursos?" (métricas, logs, alarmes) |
+| **CloudTrail** | "**Quem** fez **o quê** e **quando** na minha conta?" (auditoria de chamadas de API) |
+| **AWS Config** | "Meus recursos **estão configurados** conforme as regras?" (conformidade de configuração) |
+
+Essa distinção sozinha resolve várias questões.
+
+## CloudWatch na prática
+
+- **Métricas**: CPU, rede, disco (memória exige agente).
+- **Alarmes**: disparam ações (notificar via SNS, acionar Auto Scaling).
+- **Logs**: centraliza logs de aplicações e serviços.
+
+## Governança multi-conta
+
+- **AWS Organizations**: gerencia várias contas; **fatura consolidada** (desconto por volume agregado); **SCPs** (Service Control Policies) limitam o máximo de permissões das contas-membro.
+- **Control Tower**: configura ambiente multi-conta com melhores práticas automaticamente ("landing zone").
+
+## Ferramentas de aconselhamento
+
+- **Trusted Advisor**: verificações em 5 pilares — custo, performance, segurança, tolerância a falhas, limites de serviço. Verificações completas exigem plano de suporte Business+.
+- **AWS Well-Architected Tool**: revisa cargas de trabalho contra o framework.
+- **AWS Health Dashboard**: eventos e manutenções que afetam **seus** recursos.
+
+## Provisionamento como código
+
+- **CloudFormation**: infraestrutura como código via templates JSON/YAML (a resposta para "provisionar de forma repetível/automatizada").
+- **CDK**: mesmo objetivo, usando linguagens de programação.
+- **Systems Manager**: gerenciamento operacional de frota (patch, sessões, parâmetros).
+
+## Sinais de prova
+
+- "Auditar quem deletou um recurso" → **CloudTrail**.
+- "Alarme quando CPU passar de 80%" → **CloudWatch**.
+- "Garantir que buckets nunca fiquem públicos (verificação contínua de config)" → **AWS Config**.
+- "Impedir que contas-membro usem determinada Região" → **SCP (Organizations)**.
+- "Recomendações para reduzir custo e melhorar segurança" → **Trusted Advisor**.
+- "Provisionar os mesmos recursos em várias contas de forma repetível" → **CloudFormation**.
+
+## Armadilhas comuns
+
+- CloudTrail está habilitado por padrão (90 dias de histórico de eventos de gerenciamento); para reter mais, cria-se uma trail.
+- SCPs não concedem permissão — apenas **limitam** o teto. IAM continua necessário.
+- Trusted Advisor não corrige nada — só recomenda.
+
+## Checklist antes de avançar
+
+- [ ] Sei separar CloudWatch × CloudTrail × Config em uma frase cada
+- [ ] Sei o que Organizations + SCP fazem (e o que não fazem)
+- [ ] Sei os 5 pilares do Trusted Advisor

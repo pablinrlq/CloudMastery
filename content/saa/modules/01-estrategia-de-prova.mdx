@@ -1,0 +1,56 @@
+---
+title: "Como Pensar na Prova SAA-C03"
+description: "A mecânica do exame e o método de eliminação que resolve questões de cenário."
+domain: "Arquiteturas Seguras"
+order: 1
+durationMinutes: 30
+---
+
+## O formato
+
+65 questões em 130 minutos (2 minutos por questão), múltipla escolha e múltipla resposta. Nota de corte: 720/1000. Quatro domínios:
+
+| Domínio | Peso |
+|---|---|
+| Arquiteturas Seguras | 30% |
+| Arquiteturas Resilientes | 26% |
+| Arquiteturas de Alta Performance | 24% |
+| Custo Otimizado | 20% |
+
+## O padrão das questões
+
+Quase toda questão SAA tem esta forma: **cenário + restrição dominante + 4 soluções tecnicamente possíveis**. A resposta certa é a que atende a restrição dominante — não a arquitetura "mais bonita".
+
+Restrições dominantes típicas e o que priorizar:
+
+- "**MAIS econômico**" → aceite menos performance; pense Spot, S3-IA, Graviton, serverless.
+- "**MENOR latência**" → cache, réplicas próximas do usuário, CloudFront, DAX.
+- "**MENOS esforço operacional**" → serviço gerenciado/serverless vence EC2 sempre.
+- "**Alta disponibilidade**" → multi-AZ no mínimo; multi-região se o cenário exigir.
+- "**Sem alteração na aplicação**" → soluções de infraestrutura (storage gateway, load balancer), não refactor.
+
+## Método de eliminação
+
+1. Sublinhe a restrição dominante (mais barato? mais rápido? menos gestão?).
+2. Elimine as 1–2 alternativas tecnicamente erradas (serviço que não faz aquilo).
+3. Entre as viáveis, escolha a que melhor atende a restrição — geralmente a mais gerenciada ou a mais simples.
+
+## Palavras que mudam a resposta
+
+- "*resilient*" / "tolerante a falhas" → multi-AZ, desacoplamento, retry.
+- "*near real-time*" → Kinesis, não batch.
+- "*infrequently accessed*" → classes IA de armazenamento.
+- "*proprietary/licensing*" → Dedicated Host.
+- "*compliance requires encryption at rest*" → KMS em tudo.
+
+## Ritmo e revisão
+
+- Não gaste mais de ~2,5 min numa questão; marque para revisão e siga.
+- Questões de múltipla resposta dizem quantas marcar ("Choose TWO") — use isso para eliminar.
+- Não existe penalidade por erro: nunca deixe em branco.
+
+## Checklist antes de avançar
+
+- [ ] Sei os 4 domínios e seus pesos
+- [ ] Sei identificar a restrição dominante de um cenário
+- [ ] Tenho o método de eliminação internalizado

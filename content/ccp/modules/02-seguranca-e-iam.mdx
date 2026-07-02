@@ -1,0 +1,74 @@
+---
+title: "Segurança, Responsabilidade Compartilhada e IAM"
+description: "O modelo de responsabilidade compartilhada e o controle de acesso com IAM — o domínio de maior peso na prova."
+domain: "Segurança e Conformidade"
+order: 2
+durationMinutes: 60
+---
+
+## Por que este módulo importa
+
+Segurança e Conformidade é o segundo maior domínio do CLF-C02 (30%). Duas ideias resolvem a maioria das questões: o **modelo de responsabilidade compartilhada** e o **IAM**.
+
+## Modelo de responsabilidade compartilhada
+
+Regra mental: a AWS cuida da segurança **DA** nuvem; o cliente cuida da segurança **NA** nuvem.
+
+| Responsabilidade | De quem |
+|---|---|
+| Hardware, datacenters, rede física | AWS |
+| Hypervisor e software de infraestrutura | AWS |
+| Configuração de segurança do SO em EC2 (patches) | Cliente |
+| Dados do cliente e criptografia deles | Cliente |
+| Configuração de security groups, NACLs, buckets | Cliente |
+| IAM: usuários, permissões, MFA | Cliente |
+| Treinamento dos próprios funcionários da AWS | AWS |
+
+O nível do serviço muda a fronteira: em **EC2 (IaaS)** o cliente faz patch do SO; em **RDS (gerenciado)** a AWS faz patch do SO e o cliente configura acesso e dados; em **S3/Lambda** o cliente cuida basicamente de dados e permissões.
+
+## IAM — Identity and Access Management
+
+- **Usuário root**: dono da conta. Uso mínimo (tarefas exclusivas como fechar conta, alterar plano de suporte). Proteger com MFA e não usar no dia a dia.
+- **Usuário IAM**: identidade para uma pessoa ou aplicação.
+- **Grupo**: coleção de usuários; políticas anexadas ao grupo valem para todos. Grupos não aninham.
+- **Role (função)**: identidade **temporária** assumida por serviços ou usuários. É a resposta certa quando a questão diz "EC2 precisa acessar S3 **sem armazenar credenciais**".
+- **Política**: documento JSON que permite/nega ações. Padrão: **negar por default**; um `Deny` explícito sempre vence.
+
+## Princípio do menor privilégio
+
+Conceder apenas as permissões necessárias para a tarefa. Aparece na prova como "qual é a prática recomendada de permissões?".
+
+## Ferramentas de segurança que caem na prova
+
+| Serviço | Uma frase |
+|---|---|
+| IAM Identity Center (SSO) | Login único para várias contas |
+| Amazon GuardDuty | Detecção inteligente de ameaças (análise de logs) |
+| Amazon Inspector | Varredura de vulnerabilidades em EC2/ECR |
+| AWS Shield | Proteção contra DDoS (Standard grátis, Advanced pago) |
+| AWS WAF | Firewall de aplicação web (SQL injection, XSS) |
+| AWS KMS | Gerenciamento de chaves de criptografia |
+| AWS Artifact | Download de relatórios de conformidade (SOC, ISO, PCI) |
+| Amazon Macie | Descoberta de dados sensíveis (PII) em S3 com ML |
+
+## Sinais de prova
+
+- "Sem armazenar credenciais na instância" → **IAM Role**.
+- "Relatórios de conformidade para auditoria" → **AWS Artifact**.
+- "Proteção contra DDoS" → **Shield**; "bloquear SQL injection" → **WAF**.
+- "Quem fez essa chamada de API?" → **CloudTrail** (auditoria), não CloudWatch.
+- "Encontrar dados pessoais em buckets S3" → **Macie**.
+
+## Armadilhas comuns
+
+- Patch de SO em EC2 é do **cliente**; em RDS é da **AWS**. A prova testa exatamente essa fronteira.
+- MFA no root é responsabilidade do **cliente**, não da AWS.
+- GuardDuty **detecta** ameaças; não bloqueia sozinho. WAF/Shield **protegem**.
+- CloudTrail ≠ CloudWatch: Trail audita **chamadas de API**; Watch monitora **métricas e logs**.
+
+## Checklist antes de avançar
+
+- [ ] Sei desenhar a fronteira de responsabilidade para EC2, RDS e S3
+- [ ] Sei quando a resposta é role em vez de usuário/chave de acesso
+- [ ] Sei mapear cada ferramenta de segurança à sua frase-chave
+- [ ] Sei que Deny explícito vence qualquer Allow

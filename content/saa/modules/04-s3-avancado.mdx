@@ -1,0 +1,61 @@
+---
+title: "S3 Avançado"
+description: "Classes, ciclo de vida, replicação, performance e os padrões de proteção de dados no S3."
+domain: "Arquiteturas de Alta Performance"
+order: 4
+durationMinutes: 60
+---
+
+## Decisões de classe e ciclo de vida
+
+Regras de negócio → regra técnica:
+
+- Acesso frequente 30 dias, depois raro, deletar após 1 ano → lifecycle: Standard → Standard-IA (30d) → Glacier (90d) → expiração (365d).
+- Padrão desconhecido → **Intelligent-Tiering** (sem taxa de recuperação, cobra monitoramento).
+- Mínimos que a prova testa: IA cobra por no mínimo 30 dias; Glacier Flexible 90; Deep Archive 180. Objetos pequenos (<128 KB) não valem a pena em IA.
+
+## Proteção de dados
+
+- **Versionamento**: recuperar de deleção/sobrescrita (delete marker). Uma vez ativado, só suspende, não desativa.
+- **MFA Delete**: exigir MFA para deletar versões.
+- **Object Lock (WORM)**: modo compliance (nem root deleta durante retenção) vs governance. Resposta para "regulação exige dados imutáveis por N anos".
+- **Replicação**: CRR (cross-region, DR/compliance/latência) e SRR (mesma região, agregação de logs). Exige versionamento nos dois lados; não replica retroativamente por padrão.
+
+## Performance
+
+- Prefixos: alta taxa de requests escala por prefixo — distribua objetos entre prefixos.
+- **Multipart upload**: obrigatório mentalmente para arquivos > 100 MB; paraleliza e permite retomar.
+- **Transfer Acceleration**: upload de longa distância via edge locations.
+- **S3 Select**: recuperar só parte de um objeto (filtro SQL) — menos transferência.
+
+## Acesso e segurança
+
+- Bucket policy (resource-based) para acesso público controlado ou cross-account.
+- **Presigned URL**: acesso temporário para upload/download sem credenciais.
+- **Access Points**: políticas de acesso dedicadas por aplicação em buckets compartilhados.
+- CloudFront + **OAC (Origin Access Control)**: bucket privado servido só pela CDN.
+
+## Hospedagem estática
+
+S3 (site estático) + CloudFront (HTTPS, cache, domínio) + Route 53 — o trio de "hospedar SPA/React de forma escalável e barata".
+
+## Sinais de prova
+
+- "Dados imutáveis por exigência regulatória" → **Object Lock compliance mode**.
+- "Recuperar arquivo deletado por engano na semana passada" → **versionamento**.
+- "Uploads lentos de escritórios em outros continentes" → **Transfer Acceleration** (ou multipart).
+- "Servir site estático global com HTTPS" → **S3 + CloudFront + OAC**.
+- "Copiar automaticamente para outra região por DR" → **CRR**.
+
+## Armadilhas comuns
+
+- Versionamento protege contra deleção lógica, mas duplica custo de armazenamento — lifecycle nas versões antigas.
+- CRR não é backup point-in-time: deleções também podem replicar (configurável).
+- Transfer Acceleration é para **longa distância**; dentro da mesma região não ajuda.
+
+## Checklist antes de avançar
+
+- [ ] Sei desenhar um lifecycle completo com os mínimos de dias
+- [ ] Sei quando usar Object Lock vs versionamento vs MFA Delete
+- [ ] Sei o padrão S3+CloudFront+OAC
+- [ ] Sei os truques de performance (prefixos, multipart)

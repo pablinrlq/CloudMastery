@@ -1,0 +1,76 @@
+---
+title: "IAM Avançado e Segurança de Arquiteturas"
+description: "Policies, roles cross-account, criptografia com KMS e os padrões de segurança que o domínio de 30% cobra."
+domain: "Arquiteturas Seguras"
+order: 2
+durationMinutes: 75
+---
+
+## Avaliação de políticas IAM
+
+Ordem mental para resolver qualquer questão de permissão:
+
+1. Existe **Deny explícito** em qualquer política aplicável? → negado, fim.
+2. Existe **Allow** em alguma política (identidade, recurso, SCP dentro do teto)? → permitido.
+3. Nada permite? → negado (default deny).
+
+Tipos de política que interagem:
+
+- **Identity-based**: anexada a usuário/grupo/role.
+- **Resource-based**: anexada ao recurso (bucket policy, KMS key policy). Permite acesso **cross-account** sem assumir role.
+- **Permissions boundary**: teto de permissões de uma identidade.
+- **SCP**: teto por conta/OU via Organizations.
+- **Session policy**: passada ao assumir role, restringe ainda mais.
+
+## Roles e acesso temporário
+
+- **STS AssumeRole**: credenciais temporárias. Padrão para acesso cross-account: conta A cria role com trust policy para conta B; usuários de B assumem a role.
+- **Instance profile**: como uma role chega ao EC2. Sempre a resposta contra credenciais hardcoded.
+- **IAM Identity Center**: SSO federado para humanos em multi-conta.
+- **Cognito**: identidade para **usuários finais de aplicações** (user pools = autenticação; identity pools = credenciais AWS temporárias). Se o cenário fala "usuários do aplicativo móvel", é Cognito, não IAM.
+
+## Criptografia com KMS
+
+- **SSE-S3**: chaves gerenciadas pelo S3 (menos controle, zero gestão).
+- **SSE-KMS**: chaves no KMS — auditoria via CloudTrail, controle de acesso por key policy, rotação. Resposta quando o cenário pede "controlar e auditar o uso das chaves".
+- **SSE-C**: cliente fornece a chave a cada request (raro; "a empresa deve manter posse das chaves").
+- **Criptografia em trânsito**: TLS; entre serviços AWS é o padrão.
+- **CloudHSM**: hardware dedicado single-tenant, requisito FIPS 140-2 Level 3 — só quando o cenário exige HSM dedicado.
+
+## Proteção de perímetro
+
+| Ameaça/necessidade | Serviço |
+|---|---|
+| DDoS L3/L4 | Shield (Advanced para proteção extra + suporte a resposta) |
+| SQL injection, XSS, rate limit por IP | WAF (no ALB, CloudFront, API Gateway) |
+| Gerenciar segredos com rotação automática | Secrets Manager |
+| Parâmetros/config (sem rotação nativa) | SSM Parameter Store |
+| Certificados TLS gratuitos e renovação automática | ACM |
+
+## Padrões seguros de acesso a S3
+
+- Bloquear acesso público por padrão (Block Public Access).
+- **VPC Gateway Endpoint** para S3/DynamoDB: tráfego privado sem passar pela internet, sem custo.
+- **VPC Interface Endpoint (PrivateLink)**: acesso privado aos demais serviços (tem custo).
+- Presigned URLs: acesso temporário a objetos específicos.
+
+## Sinais de prova
+
+- "Acesso de outra conta a este bucket" → bucket policy (resource-based) ou role cross-account.
+- "Aplicação móvel com login social" → **Cognito**.
+- "Rotação automática de senha de banco" → **Secrets Manager** (Parameter Store não rotaciona nativamente).
+- "EC2 acessa S3 sem passar pela internet" → **Gateway Endpoint**.
+- "Auditar todo uso da chave de criptografia" → **SSE-KMS**.
+
+## Armadilhas comuns
+
+- Secrets Manager × Parameter Store: rotação automática é o diferencial (e o custo).
+- KMS é multi-tenant e suficiente para quase tudo; CloudHSM só com requisito explícito de HSM dedicado.
+- Security Group não resolve "bloquear um IP específico" — SG não tem deny; use NACL ou WAF.
+
+## Checklist antes de avançar
+
+- [ ] Sei a ordem de avaliação de políticas com Deny explícito
+- [ ] Sei montar acesso cross-account com roles
+- [ ] Sei escolher entre SSE-S3, SSE-KMS, SSE-C e CloudHSM
+- [ ] Sei quando é Cognito e quando é IAM
