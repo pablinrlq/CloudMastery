@@ -1,0 +1,63 @@
+---
+title: "Criptografia com KMS e Gestão de Segredos"
+description: "Chaves, envelope encryption, políticas de chave e onde guardar cada tipo de segredo."
+domain: "Arquiteturas Seguras"
+order: 20
+durationMinutes: 60
+type: "teoria"
+week: 7
+---
+
+## KMS — o centro da criptografia na AWS
+
+- **Chaves gerenciadas pela AWS** (`aws/s3`, `aws/rds`...): zero gestão, zero controle.
+- **Chaves gerenciadas pelo cliente (CMK)**: você controla key policy, rotação, grants e pode auditar cada uso no CloudTrail. É a resposta quando o cenário pede **controle ou auditoria**.
+- **Envelope encryption**: KMS criptografa a *data key*, a data key criptografa os dados (o KMS nunca vê seus dados — limite de 4 KB por chamada direta).
+- **Key policy**: quem pode usar/administrar a chave — funciona como resource policy; combinada com IAM.
+- Rotação automática anual (CMK simétrica).
+- **Multi-Region keys**: mesma chave replicada para descriptografar em outra região (DR).
+
+## Escopo regional e snapshots (pegadinhas)
+
+- Chaves KMS são **regionais**. Copiar snapshot criptografado para outra região = re-criptografar com chave da região destino.
+- Compartilhar snapshot criptografado com outra conta exige dar acesso à CMK (chaves `aws/*` não podem ser compartilhadas — só CMKs).
+- Criptografar um EBS/RDS **existente**: snapshot → copiar com criptografia → restaurar. Não há botão "criptografar agora".
+
+## CloudHSM
+
+Hardware dedicado single-tenant (FIPS 140-2 Level 3), você gerencia as chaves — **somente** quando o requisito diz "HSM dedicado" ou "controle exclusivo total das chaves". Para todo o resto, KMS.
+
+## Onde guardar cada segredo
+
+| Necessidade | Serviço | Diferencial |
+|---|---|---|
+| Senha de banco com **rotação automática** | **Secrets Manager** | Rotação nativa (RDS/Redshift/DocumentDB), pago por segredo |
+| Parâmetros de config, strings, licenças | **SSM Parameter Store** | Grátis (standard), SecureString com KMS, sem rotação nativa |
+| Chaves de criptografia | **KMS** | Não guarda segredos arbitrários — gerencia CHAVES |
+| Certificados TLS | **ACM** | Emissão e renovação automáticas, grátis |
+
+## Criptografia em trânsito
+
+- TLS em tudo: ALB/CloudFront terminam TLS com certificado do ACM.
+- "Criptografia ponta a ponta até a instância" → certificado **na instância** também (ALB re-encripta no backend).
+
+## Sinais de prova
+
+- "Auditar cada uso da chave / conceder acesso granular" → **CMK (SSE-KMS)**.
+- "Rotacionar credenciais do RDS automaticamente" → **Secrets Manager**.
+- "Guardar config não sensível de graça" → **Parameter Store**.
+- "Requisito FIPS 140-2 Level 3 / HSM dedicado" → **CloudHSM**.
+- "Criptografar volume EBS que já existe" → snapshot → copy com criptografia → restore.
+
+## Armadilhas comuns
+
+- KMS tem limite de request rate — aplicações S3 de altíssimo volume usam **S3 Bucket Keys** para reduzir chamadas (e custo).
+- Secrets Manager custa por segredo/mês; Parameter Store standard é grátis — "menor custo sem rotação" → Parameter Store.
+- Deletar CMK tem espera obrigatória de 7-30 dias (proteção contra perda irreversível de dados).
+
+## Checklist antes de avançar
+
+- [ ] Sei quando CMK vence chave gerenciada pela AWS
+- [ ] Sei o fluxo de criptografar um recurso existente
+- [ ] Sei a tabela Secrets Manager × Parameter Store × KMS × ACM
+- [ ] Sei o que envelope encryption resolve

@@ -1,0 +1,72 @@
+---
+title: "Containers: ECS, EKS, Fargate e App Runner"
+description: "O mapa de decisão de containers que o exame cobra: orquestrador, motor de execução e registro."
+domain: "Arquiteturas de Alta Performance"
+order: 16
+durationMinutes: 55
+type: "teoria"
+week: 5
+---
+
+## As 3 decisões de qualquer questão de container
+
+1. **Orquestrador**: ECS (nativo AWS, mais simples) ou EKS (Kubernetes, portabilidade)?
+2. **Motor**: EC2 (você gerencia instâncias) ou **Fargate** (serverless)?
+3. **Registro**: ECR (privado, integrado com IAM).
+
+Qualquer combinação é válida: ECS+EC2, ECS+Fargate, EKS+EC2, EKS+Fargate.
+
+## ECS — Elastic Container Service
+
+- **Task definition**: o "molde" (imagem, CPU/memória, portas, IAM **task role**).
+- **Service**: mantém N tasks rodando, integra com ALB, faz deploy rolling.
+- **Task role** ≠ execution role: task role é o que o SEU código pode fazer; execution role é o que o ECS precisa (puxar imagem, mandar logs). Pegadinha de prova.
+- Auto scaling de serviço por CPU/memória/requests.
+
+## EKS — Kubernetes gerenciado
+
+- AWS gerencia o control plane (multi-AZ); você gerencia (ou não, com Fargate/managed node groups) os workers.
+- Escolha o EKS quando a questão diz: "Kubernetes", "portabilidade entre nuvens", "migrar cluster on-premises sem reescrever manifests".
+- Não escolha EKS por "simplicidade" — ECS é sempre a opção mais simples/gerenciada.
+
+## Fargate
+
+- Sem instâncias para dimensionar, sem patch, paga por vCPU/memória da task.
+- Sinais: "containers **sem gerenciar servidores**", "menor esforço operacional".
+- Contra-sinal: GPU, controle fino de kernel/daemons, custo otimizado em cluster grande e estável (EC2 com Savings Plans pode sair mais barato).
+
+## App Runner
+
+Do código (ou imagem) direto para uma URL HTTPS com auto scaling — o "mais simples possível" para web apps/containers. Se a questão pede o **mínimo absoluto de configuração** para um serviço web containerizado, App Runner vence até o Fargate.
+
+## ECR
+
+- Registro privado de imagens com scan de vulnerabilidades integrado.
+- Replicação cross-region para DR/latência de pull.
+
+## Padrões de arquitetura que caem
+
+- **ALB → ECS Service (Fargate) multi-AZ**: o web app containerizado padrão.
+- **EventBridge/SQS → ECS task**: jobs sob demanda mais longos que 15 min (onde Lambda morre).
+- **Batch em containers**: AWS Batch com Fargate ou EC2 Spot.
+
+## Sinais de prova
+
+- "Kubernetes gerenciado" → **EKS**.
+- "Containers sem administrar infraestrutura" → **Fargate**.
+- "Web service containerizado com o mínimo de setup" → **App Runner**.
+- "Job de 2h disparado por evento" → **ECS task (Fargate)**, não Lambda.
+- "Onde guardar imagens com scan de segurança" → **ECR**.
+
+## Armadilhas comuns
+
+- Task role vs execution role — decore a diferença.
+- EKS custa por cluster/hora + workers; ECS não cobra pelo control plane.
+- Fargate não suporta todos os cenários (GPU/daemonsets específicos) — mas para a prova, "serverless containers" = Fargate.
+
+## Checklist antes de avançar
+
+- [ ] Sei montar a matriz orquestrador × motor
+- [ ] Sei task role vs execution role
+- [ ] Sei quando App Runner é a resposta
+- [ ] Sei a alternativa correta para jobs > 15 min

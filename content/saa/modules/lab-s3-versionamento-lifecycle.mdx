@@ -1,0 +1,57 @@
+---
+title: "Lab: S3 — Versionamento, Lifecycle e Site Estático"
+description: "Proteja dados contra deleção, automatize a economia com lifecycle e publique um site estático."
+domain: "Arquiteturas com Custo Otimizado"
+order: 7
+durationMinutes: 60
+type: "lab"
+week: 2
+---
+
+## Objetivo
+
+Exercitar os três recursos de S3 que mais caem: **versionamento** (recuperar arquivo deletado), **lifecycle** (economizar sozinho) e **site estático**.
+
+**Custo estimado**: R$ 0 (free tier). **Região**: us-east-1.
+
+## Passo a passo
+
+### Parte 1 — Versionamento salva vidas
+
+1. Crie um bucket `lab-s3-seunome-0001` e **ative versionamento** (Properties → Bucket Versioning → Enable).
+2. Suba um arquivo `relatorio.txt` com o texto "versão 1".
+3. Edite localmente para "versão 2" e suba de novo (mesmo nome).
+4. Em Objects → **Show versions**: as duas versões estão lá.
+5. **Delete** o arquivo (sem show versions). Ele sumiu? Ative "Show versions": há um **delete marker** — as versões continuam.
+6. **Recupere**: delete o delete marker. O arquivo voltou!
+
+### Parte 2 — Lifecycle economiza sozinho
+
+1. Management → Create lifecycle rule: `arquivar-logs`
+2. Escopo: prefixo `logs/`
+3. Transições: para **Standard-IA após 30 dias**, para **Glacier Flexible após 90**, **expirar após 365**
+4. Adicione também: "Delete expired object delete markers" e limpeza de versões antigas (noncurrent) após 30 dias — combo clássico com versionamento.
+
+### Parte 3 — Site estático
+
+1. Crie `index.html` simples e suba no bucket.
+2. Properties → Static website hosting → Enable (document: index.html).
+3. Desative o Block Public Access **só deste bucket** e adicione bucket policy de leitura pública de `GetObject` (a prova espera que você saiba que isso é exceção consciente, nunca padrão).
+4. Acesse o endpoint do site — funcionando.
+
+## Validação
+
+- [ ] Recuperou um arquivo "deletado" removendo o delete marker
+- [ ] Regra de lifecycle criada com 2 transições + expiração
+- [ ] Site responde no endpoint público
+
+## Limpeza
+
+1. Esvazie o bucket (incluindo TODAS as versões — use "Empty")
+2. Delete o bucket
+
+## O que este lab prova para o exame
+
+- Deleção com versionamento cria **delete marker** — dados recuperáveis
+- Lifecycle transita entre classes automaticamente — a resposta para "reduzir custo de dados que envelhecem"
+- Site estático em S3 = hospedagem sem servidor (com CloudFront + OAC em produção)

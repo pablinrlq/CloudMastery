@@ -1,0 +1,58 @@
+---
+title: "Well-Architected na Prática"
+description: "Os 6 pilares aplicados a decisões reais — como o exame usa o framework sem te avisar."
+domain: "Arquiteturas Resilientes"
+order: 27
+durationMinutes: 45
+type: "revisao"
+week: 9
+---
+
+## O framework é o gabarito escondido
+
+O SAA-C03 inteiro é o Well-Architected disfarçado: cada questão pede o trade-off "correto" segundo um pilar. Saber os pilares te dá o critério de desempate.
+
+## Os 6 pilares e a pergunta que cada um responde
+
+| Pilar | Pergunta-guia | Ferramentas-assinatura |
+|---|---|---|
+| Excelência operacional | "Dá para operar e evoluir sem heroísmo?" | CloudFormation, Systems Manager, runbooks |
+| Segurança | "Menor privilégio e defesa em camadas?" | IAM, KMS, SGs, WAF, GuardDuty |
+| Confiabilidade | "Sobrevive a falhas e escala?" | Multi-AZ, ASG, SQS, Route 53, backups |
+| Eficiência de performance | "O recurso certo para a carga?" | Serverless, cache, tipos de instância, bancos especializados |
+| Otimização de custos | "Só pagamos pelo que gera valor?" | Savings Plans, Spot, lifecycle, rightsizing |
+| Sustentabilidade | "Menor pegada pelo mesmo resultado?" | Serverless, Graviton, regiões eficientes |
+
+## Princípios de design que viram alternativas corretas
+
+- **Pare de adivinhar capacidade** → auto scaling em vez de superdimensionar.
+- **Teste a recuperação** → GameDays, chaos engineering (a prova cita "testar failover regularmente").
+- **Automatize mudanças** → IaC (CloudFormation) em vez de console manual.
+- **Desacople** → SQS/SNS entre componentes.
+- **Design stateless** → sessões fora da instância (ElastiCache/DynamoDB), pré-requisito do auto scaling.
+- **Defesa em profundidade** → WAF + SG + NACL + criptografia + IAM, em camadas.
+
+## Como usar em prova (desempate entre 2 alternativas viáveis)
+
+1. Identifique o pilar dominante na pergunta ("mais econômico"? "mais resiliente"?).
+2. A alternativa alinhada ao pilar dominante vence — mesmo que a outra seja "melhor" em outro aspecto.
+3. Empate técnico? Vence a **mais gerenciada/simples** (menos esforço operacional).
+
+## Well-Architected Tool
+
+Serviço gratuito que revisa workloads contra o framework via questionário. Cai como: "documentar e medir a aderência da arquitetura às melhores práticas" → WA Tool.
+
+## Mini-simulado mental
+
+Para cada cenário, diga o pilar e a resposta em 10 segundos:
+
+1. "Reduzir custo de ambiente dev ocioso à noite" → Custos → agendar desligamento.
+2. "Sessões de usuário impedem auto scaling" → Performance/Confiabilidade → stateless com ElastiCache.
+3. "Deploy manual causa erros" → Excelência operacional → CloudFormation/pipeline.
+4. "Uma falha derruba o fluxo inteiro" → Confiabilidade → SQS entre componentes.
+
+## Checklist antes de avançar
+
+- [ ] Sei os 6 pilares e a pergunta-guia de cada
+- [ ] Sei usar o pilar dominante como critério de desempate
+- [ ] Sei os 6 princípios de design que mais viram resposta

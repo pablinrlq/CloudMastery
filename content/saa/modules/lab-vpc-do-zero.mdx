@@ -1,0 +1,62 @@
+---
+title: "Lab: VPC do Zero — Pública, Privada e NAT"
+description: "Construa a VPC de referência na unha: subnets, route tables, IGW, NAT e a prova de que a subnet privada é privada."
+domain: "Arquiteturas Seguras"
+order: 9
+durationMinutes: 90
+type: "lab"
+week: 3
+---
+
+## Objetivo
+
+Montar **na mão** (sem o assistente "VPC and more") a topologia que a prova assume em toda questão de rede: VPC com subnet pública + privada, IGW, NAT Gateway e route tables corretas.
+
+**Custo estimado**: ~R$ 1 (NAT Gateway cobra por hora — limpe ao final!). **Região**: us-east-1.
+
+## Passo a passo
+
+1. **VPC**: Create VPC (VPC only) → `lab-vpc`, CIDR `10.0.0.0/16`.
+
+2. **Subnets** (Subnets → Create):
+   - `lab-publica` — AZ us-east-1a, CIDR `10.0.1.0/24`
+   - `lab-privada` — AZ us-east-1a, CIDR `10.0.2.0/24`
+   (Repare: até aqui NADA as diferencia — quem define "pública" é a rota!)
+
+3. **Internet Gateway**: Create → `lab-igw` → **Attach to VPC**.
+
+4. **Route table pública**: Create `rt-publica` na lab-vpc:
+   - Route: `0.0.0.0/0` → lab-igw
+   - Subnet association: `lab-publica`
+   - Em `lab-publica`: Edit subnet settings → **Enable auto-assign public IPv4**
+
+5. **NAT Gateway**: Create em `lab-publica` (sim, o NAT mora na PÚBLICA) com Elastic IP.
+
+6. **Route table privada**: Create `rt-privada`:
+   - Route: `0.0.0.0/0` → NAT Gateway
+   - Association: `lab-privada`
+
+7. **Teste**: suba 2 instâncias t2.micro:
+   - `web` na pública (com IP público, SG liberando SSH do seu IP)
+   - `app` na privada (sem IP público, SG liberando SSH **só do SG da web**)
+   - Conecte na `web` (EC2 Instance Connect), dela para a `app` via SSH (IP privado)
+   - Na `app`: `curl -m 5 https://aws.amazon.com` → funciona (saída via NAT)
+   - Da internet, tente alcançar o IP privado da `app` → impossível (não tem rota)
+
+## Validação
+
+- [ ] Instância privada acessa a internet (via NAT) mas não é acessível de fora
+- [ ] Referenciou um SG dentro de outro SG (padrão de camadas da prova)
+- [ ] Sabe explicar por que o NAT fica na subnet pública
+
+## Limpeza (o NAT cobra ~US$ 0,045/h!)
+
+1. Terminate nas 2 instâncias
+2. **Delete o NAT Gateway** e libere (release) o Elastic IP
+3. Delete a VPC (leva junto subnets, route tables e IGW)
+
+## O que este lab prova para o exame
+
+- "Pública" = route table com rota para IGW, nada mais
+- NAT Gateway: saída da privada para internet, mora na pública, custa por hora + GB
+- SG referenciando SG: a forma correta de encadear camadas (web → app → db)

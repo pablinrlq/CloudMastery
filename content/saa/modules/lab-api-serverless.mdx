@@ -1,0 +1,66 @@
+---
+title: "Lab: API Serverless — API Gateway + Lambda + DynamoDB"
+description: "Monte a stack serverless canônica de ponta a ponta e teste com dados reais."
+domain: "Arquiteturas de Alta Performance"
+order: 18
+durationMinutes: 90
+type: "lab"
+week: 6
+---
+
+## Objetivo
+
+Construir a arquitetura serverless mais cobrada do exame: **API Gateway → Lambda → DynamoDB**, com role de menor privilégio.
+
+**Custo estimado**: R$ 0 (free tier cobre tudo com folga). **Região**: us-east-1.
+
+## Passo a passo
+
+1. **Tabela**: DynamoDB → Create table → `lab-tarefas`, partition key `id` (String). Capacity: On-demand.
+
+2. **Role da Lambda**: IAM → Create role → Lambda → anexe `AWSLambdaBasicExecutionRole` (logs) + política inline permitindo apenas `dynamodb:PutItem` e `dynamodb:Scan` na tabela `lab-tarefas` (menor privilégio!).
+
+3. **Função**: Lambda → Create function → `lab-api-tarefas`, Python 3.12, com a role acima:
+   ```python
+   import json, boto3, uuid
+
+   table = boto3.resource("dynamodb").Table("lab-tarefas")
+
+   def lambda_handler(event, context):
+       method = event["requestContext"]["http"]["method"]
+       if method == "POST":
+           body = json.loads(event.get("body") or "{}")
+           item = {"id": str(uuid.uuid4()), "titulo": body.get("titulo", "sem título")}
+           table.put_item(Item=item)
+           return {"statusCode": 201, "body": json.dumps(item)}
+       itens = table.scan().get("Items", [])
+       return {"statusCode": 200, "body": json.dumps(itens, default=str)}
+   ```
+
+4. **API**: API Gateway → Create API → **HTTP API** → integração com a Lambda → rotas `GET /tarefas` e `POST /tarefas` → Deploy (stage `$default`, auto-deploy).
+
+5. **Teste** (troque pela sua URL):
+   ```bash
+   curl -X POST https://SUA-API.execute-api.us-east-1.amazonaws.com/tarefas -d '{"titulo":"Estudar VPC"}'
+   curl https://SUA-API.execute-api.us-east-1.amazonaws.com/tarefas
+   ```
+
+6. **Observe a observabilidade**: CloudWatch → Log groups → `/aws/lambda/lab-api-tarefas` — cada invocação logada, com duração e memória (é daqui que vem a cobrança por ms).
+
+7. **Bônus — prove o menor privilégio**: tente adicionar `delete` no código chamando `table.delete_item(...)` → AccessDenied, porque a role não tem `dynamodb:DeleteItem`.
+
+## Validação
+
+- [ ] POST cria item, GET lista
+- [ ] Logs da execução no CloudWatch com duração em ms
+- [ ] DeleteItem falha por falta de permissão (menor privilégio funcionando)
+
+## Limpeza
+
+Delete: API, função Lambda, tabela DynamoDB, role e log group.
+
+## O que este lab prova para o exame
+
+- HTTP API é a opção mais barata/simples do API Gateway (REST API tem mais recursos)
+- Lambda escala sozinha por requisição — zero servidores
+- A role da função define exatamente o raio de ação do código

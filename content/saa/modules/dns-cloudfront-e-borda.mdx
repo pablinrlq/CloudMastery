@@ -1,0 +1,74 @@
+---
+title: "DNS, CloudFront e Serviços de Borda"
+description: "Route 53 avançado, CloudFront com OAC, WAF, Shield e Global Accelerator — a camada que fica entre o usuário e a sua arquitetura."
+domain: "Arquiteturas de Alta Performance"
+order: 13
+durationMinutes: 60
+type: "teoria"
+week: 4
+---
+
+## Route 53 — além do básico
+
+**Tipos de registro que caem**: A/AAAA (IP), CNAME (nome→nome, não funciona no apex do domínio), **Alias** (nome→recurso AWS, funciona no apex e é grátis — prefira sempre).
+
+**Políticas de roteamento com cenário**:
+
+| Política | Cenário-gatilho |
+|---|---|
+| Simple | Um destino, sem health check |
+| **Failover** | "DR: se o primário cair, mande para o secundário" |
+| **Latency** | "Usuários dos EUA no us-east-1, do Brasil no sa-east-1, o mais rápido" |
+| **Geolocation** | "Conteúdo específico por país / restrição legal" |
+| **Weighted** | "10% do tráfego para a versão nova" (canary) |
+| Multivalue | Vários IPs saudáveis, balanceamento simples via DNS |
+
+Health checks: monitoram endpoints e alimentam failover — podem monitorar até outros health checks (calculated) e alarmes do CloudWatch.
+
+## CloudFront — o CDN
+
+- Cache de conteúdo nas **edge locations**; origem = S3, ALB, qualquer HTTP.
+- **OAC (Origin Access Control)**: o bucket S3 fica **privado** e só o CloudFront lê. Padrão obrigatório em site estático de produção.
+- TTL e invalidations controlam o cache; cache behaviors por path (`/api/*` sem cache, `/img/*` com TTL longo).
+- HTTPS com certificado do **ACM** (na região us-east-1 para o CloudFront!).
+- Signed URLs/cookies: conteúdo pago/restrito (vídeo sob demanda).
+- **Field-level encryption** e compressão automática.
+
+## Global Accelerator vs CloudFront (pegadinha recorrente)
+
+| | CloudFront | Global Accelerator |
+|---|---|---|
+| O que faz | **Cacheia conteúdo** HTTP | Roteia **pacotes** pela backbone AWS |
+| Protocolos | HTTP/HTTPS | TCP e UDP (jogos, VoIP, APIs) |
+| IPs | Muda por edge | **2 IPs estáticos anycast** |
+| Cenário | Site, vídeo, assets | Latência global de aplicação não-HTTP, IP fixo, failover regional rápido |
+
+"IP estático global" ou "UDP" → Global Accelerator. "Cache/conteúdo" → CloudFront.
+
+## WAF e Shield — proteção na borda
+
+- **Shield Standard**: DDoS L3/L4, grátis, automático.
+- **Shield Advanced**: proteção estendida + equipe de resposta (SRT) + proteção de custo — para quem sofre DDoS de verdade.
+- **WAF**: regras L7 (SQL injection, XSS, rate limiting por IP, geo-bloqueio). Acopla em CloudFront, ALB, API Gateway, AppSync.
+- Ordem mental: Shield cuida de volume bruto; WAF cuida de requisições maliciosas.
+
+## Sinais de prova
+
+- "Bucket não pode ser público mas o site precisa funcionar" → **CloudFront + OAC**.
+- "Bloquear requisições de um país / limitar taxa por IP" → **WAF**.
+- "Dois IPs estáticos para whitelist corporativa, app global TCP" → **Global Accelerator**.
+- "Apontar o domínio raiz para o ALB" → **registro Alias** (CNAME não funciona no apex).
+- "10% dos usuários para a nova versão" → **weighted routing**.
+
+## Armadilhas comuns
+
+- Certificado para CloudFront: ACM **us-east-1**, não importa onde está a origem.
+- CloudFront não é para conteúdo dinâmico por si — mas reduz latência de TLS/handshake mesmo sem cache (e a prova às vezes aceita isso).
+- Geolocation ≠ latency: um segue fronteiras, o outro segue o ping.
+
+## Checklist antes de avançar
+
+- [ ] Sei as 6 políticas do Route 53 com um cenário cada
+- [ ] Sei montar S3 privado + CloudFront + OAC
+- [ ] Sei CloudFront × Global Accelerator sem hesitar
+- [ ] Sei o que WAF bloqueia que Shield não cobre

@@ -1,0 +1,67 @@
+---
+title: "Casos de Arquitetura Completos"
+description: "Quatro arquiteturas de ponta a ponta, montadas peça por peça como as questões esperam que você pense."
+domain: "Arquiteturas Resilientes"
+order: 28
+durationMinutes: 60
+type: "revisao"
+week: 9
+---
+
+## Caso 1 — E-commerce clássico (3 camadas, alta disponibilidade)
+
+**Requisitos**: HA, picos de Black Friday, sessões de usuário, banco relacional.
+
+- **Borda**: Route 53 → CloudFront (estáticos) + WAF
+- **Web**: ALB multi-AZ → ASG (EC2 em 2+ AZs, subnets privadas)
+- **Estado**: sessões no **ElastiCache Redis** (instâncias stateless!)
+- **Dados**: RDS Multi-AZ + read replicas para catálogo; carrinho no DynamoDB (escala de pico)
+- **Pedidos**: web → **SQS** → workers em ASG (absorve o pico, nada se perde)
+- **Custos**: base em Savings Plans, pico em On-Demand, workers em Spot
+
+Onde a prova te pega: sessão na instância (quebra o scaling), pedido síncrono direto no banco (perde em pico), RDS single-AZ.
+
+## Caso 2 — SPA serverless (mínima operação)
+
+**Requisitos**: site React + API, praticamente zero gestão, custo proporcional ao uso.
+
+- **Front**: S3 (privado) + CloudFront com OAC + ACM (us-east-1)
+- **API**: API Gateway → Lambda → DynamoDB on-demand
+- **Auth**: Cognito User Pool (login social incluído)
+- **Uploads**: presigned URLs direto ao S3 (nunca pela Lambda)
+- **Assíncrono**: S3 event → Lambda para processar uploads; SQS para tarefas pesadas
+
+Onde a prova te pega: upload passando pela Lambda (limite 6 MB), API Gateway timeout 29s para tarefa longa (mande para fila).
+
+## Caso 3 — Processamento de dados quase em tempo real
+
+**Requisitos**: telemetria de milhares de dispositivos, dashboards em minutos, histórico consultável barato.
+
+- **Ingestão**: Kinesis Data Streams (tempo real) → Lambda para alertas imediatos
+- **Entrega**: Kinesis Data Firehose → S3 em **Parquet** particionado
+- **Consulta**: Athena (ad-hoc) + QuickSight (dashboards)
+- **Arquivo**: lifecycle S3 → Glacier após 90 dias
+
+Onde a prova te pega: Firehose quando precisa de replay (é Streams), formato JSON puro no S3 (Parquet corta o custo do Athena), EMR quando Athena bastava.
+
+## Caso 4 — DR multi-região com RTO de minutos
+
+**Requisitos**: aplicação crítica, RTO 15 min, RPO ~1 min, custo controlado.
+
+- **Estratégia**: **warm standby** na região secundária (escala reduzida)
+- **Dados**: Aurora Global Database (replicação <1s); S3 com CRR; DynamoDB Global Tables
+- **Infra**: CloudFormation para escalar a secundária no failover
+- **Tráfego**: Route 53 failover + health checks
+- **Prova do plano**: GameDays regulares testando o failover
+
+Onde a prova te pega: backup & restore não cumpre RTO de minutos; ativo-ativo cumpre mas estoura o "custo controlado"; esquecerem do health check no Route 53.
+
+## Como estudar estes casos
+
+Para cada um: desenhe de memória, explique POR QUE cada peça está lá e o que quebra se você trocá-la pela alternativa errada. As questões do exame são fragmentos destes 4 desenhos.
+
+## Checklist antes de avançar
+
+- [ ] Desenho os 4 casos de memória
+- [ ] Sei justificar cada componente pelo requisito que atende
+- [ ] Sei as pegadinhas embutidas em cada caso

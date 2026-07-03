@@ -25,7 +25,6 @@ export default async function SimuladoPage({
       <div className="mt-8">
         <SimuladoRunner
           certId={cert}
-          certName={certInfo.name}
           domains={certInfo.domains}
           fullDurationMinutes={certInfo.examDurationMinutes}
           fullQuestionCount={certInfo.examQuestionCount}

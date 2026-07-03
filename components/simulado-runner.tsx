@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type Choice = { id: string; text: string };
@@ -9,37 +10,68 @@ type Question = {
   prompt: string;
   choices: Choice[];
   difficulty: string;
+  hasHint: boolean;
 };
 
 type ReviewItem = {
   questionId: string;
   prompt: string;
+  domain: string;
   choices: Choice[];
   yourChoiceIds: string[];
   correctChoiceIds: string[];
   explanation: string | null;
   correct: boolean;
+  hintUsed: boolean;
+  timeSeconds: number | null;
 };
 
 type Results = {
   score: number;
+  scoreNoPenalty: number;
+  hintsUsedCount: number;
+  overtimeSeconds: number;
   correctCount: number;
   total: number;
   domainBreakdown: Record<string, { correct: number; total: number }>;
+  slowest: Array<{
+    prompt: string;
+    domain: string;
+    timeSeconds: number;
+    correct: boolean;
+    hintUsed: boolean;
+  }>;
+  recommendations: Array<{
+    domain: string;
+    pct: number;
+    modules: Array<{ slug: string; title: string }>;
+  }>;
   review: ReviewItem[];
 };
 
 type Phase = "idle" | "loading" | "running" | "submitting" | "results";
 
+function formatClock(totalSeconds: number): string {
+  const negative = totalSeconds < 0;
+  const abs = Math.abs(totalSeconds);
+  const m = Math.floor(abs / 60);
+  const s = abs % 60;
+  return `${negative ? "-" : ""}${m}:${s.toString().padStart(2, "0")}`;
+}
+
+function formatDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = Math.round(seconds % 60);
+  return m > 0 ? `${m}min ${s}s` : `${s}s`;
+}
+
 export function SimuladoRunner({
   certId,
-  certName,
   domains,
   fullDurationMinutes,
   fullQuestionCount,
 }: {
   certId: string;
-  certName: string;
   domains: readonly string[];
   fullDurationMinutes: number;
   fullQuestionCount: number;
@@ -52,7 +84,39 @@ export function SimuladoRunner({
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [results, setResults] = useState<Results | null>(null);
+  const [hints, setHints] = useState<Record<string, string>>({});
+  const [hintLoading, setHintLoading] = useState(false);
+
   const startedAtRef = useRef<number>(0);
+  // Tempo por questão: acumula ao sair da questão (navegação ou envio).
+  const timingsRef = useRef<Record<string, number>>({});
+  const enteredAtRef = useRef<number>(0);
+  const currentIdRef = useRef<string | null>(null);
+
+  const flushTiming = useCallback(() => {
+    const id = currentIdRef.current;
+    if (!id || !enteredAtRef.current) return;
+    const elapsed = (Date.now() - enteredAtRef.current) / 1000;
+    timingsRef.current[id] = (timingsRef.current[id] ?? 0) + elapsed;
+    enteredAtRef.current = Date.now();
+  }, []);
+
+  const goTo = useCallback(
+    (index: number) => {
+      flushTiming();
+      setCurrent(index);
+    },
+    [flushTiming]
+  );
+
+  // Ao trocar de questão, reinicia o relógio daquela questão.
+  useEffect(() => {
+    if (phase !== "running") return;
+    const q = questions[current];
+    if (!q) return;
+    currentIdRef.current = q.id;
+    enteredAtRef.current = Date.now();
+  }, [phase, current, questions]);
 
   async function start(mode: "full" | "domain", domain?: string) {
     setPhase("loading");
@@ -72,9 +136,13 @@ export function SimuladoRunner({
       setAttemptId(data.attemptId);
       setQuestions(data.questions);
       setAnswers({});
+      setHints({});
       setCurrent(0);
       setSecondsLeft(data.durationMinutes * 60);
       startedAtRef.current = Date.now();
+      timingsRef.current = {};
+      enteredAtRef.current = Date.now();
+      currentIdRef.current = data.questions[0]?.id ?? null;
       setPhase("running");
     } catch {
       setError("Erro de rede ao iniciar o simulado.");
@@ -84,8 +152,13 @@ export function SimuladoRunner({
 
   const submit = useCallback(async () => {
     if (!attemptId) return;
+    flushTiming();
     setPhase("submitting");
     try {
+      const timings: Record<string, number> = {};
+      for (const [k, v] of Object.entries(timingsRef.current)) {
+        timings[k] = Math.round(v);
+      }
       const res = await fetch("/api/simulado/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -93,6 +166,8 @@ export function SimuladoRunner({
           attemptId,
           answers,
           timeSpentSeconds: Math.round((Date.now() - startedAtRef.current) / 1000),
+          questionTimings: timings,
+          overtimeSeconds: secondsLeft < 0 ? -secondsLeft : 0,
         }),
       });
       const data = await res.json();
@@ -107,18 +182,33 @@ export function SimuladoRunner({
       setError("Erro de rede ao enviar respostas.");
       setPhase("running");
     }
-  }, [attemptId, answers]);
+  }, [attemptId, answers, secondsLeft, flushTiming]);
 
-  // Countdown: auto-submit when time runs out.
+  // Cronômetro: NÃO envia sozinho ao zerar — passa a contar negativo
+  // (tempo excedido), como o usuário veria na prova de verdade o estouro.
   useEffect(() => {
     if (phase !== "running") return;
-    if (secondsLeft <= 0) {
-      submit();
-      return;
-    }
     const t = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
     return () => clearTimeout(t);
-  }, [phase, secondsLeft, submit]);
+  }, [phase, secondsLeft]);
+
+  async function fetchHint(questionId: string) {
+    if (hints[questionId] || hintLoading) return;
+    setHintLoading(true);
+    try {
+      const res = await fetch("/api/simulado/hint", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attemptId, questionId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setHints((prev) => ({ ...prev, [questionId]: data.hint }));
+      }
+    } finally {
+      setHintLoading(false);
+    }
+  }
 
   function toggleChoice(questionId: string, choiceId: string, multi: boolean) {
     setAnswers((prev) => {
@@ -145,7 +235,11 @@ export function SimuladoRunner({
           <h2 className="font-semibold">Simulado completo</h2>
           <p className="mt-1 text-sm text-gray-600">
             Formato oficial: {fullQuestionCount} questões em {fullDurationMinutes}{" "}
-            minutos. O cronômetro envia automaticamente ao zerar.
+            minutos. Se o tempo acabar, o cronômetro continua em negativo — você
+            decide quando entregar.
+          </p>
+          <p className="mt-2 text-xs text-gray-500">
+            💡 Cada questão tem uma dica, mas usá-la faz a questão valer meio ponto.
           </p>
           <button
             onClick={() => start("full")}
@@ -180,22 +274,30 @@ export function SimuladoRunner({
 
   // ---------- results ----------
   if (phase === "results" && results) {
-    const passed = results.score >= 72; // aproximação da nota de corte oficial
+    const passed = results.score >= 72;
     return (
       <div className="space-y-8">
-        <div
-          className={`rounded-xl p-6 text-center ${
-            passed ? "bg-green-50" : "bg-red-50"
-          }`}
-        >
+        <div className={`rounded-xl p-6 text-center ${passed ? "bg-green-50" : "bg-red-50"}`}>
           <p className="text-5xl font-bold">{results.score}%</p>
           <p className="mt-2 text-gray-700">
-            {results.correctCount} de {results.total} questões corretas
+            {results.correctCount} de {results.total} corretas
+            {results.hintsUsedCount > 0 && (
+              <span className="block text-sm text-gray-500">
+                {results.hintsUsedCount} dica(s) usada(s) — sem a penalidade seria{" "}
+                {results.scoreNoPenalty}%
+              </span>
+            )}
           </p>
+          {results.overtimeSeconds > 0 && (
+            <p className="mt-1 text-sm font-medium text-amber-700">
+              ⏱ Você excedeu o tempo oficial em {formatDuration(results.overtimeSeconds)} —
+              na prova real, a entrega seria automática.
+            </p>
+          )}
           <p className={`mt-1 font-medium ${passed ? "text-green-700" : "text-red-700"}`}>
             {passed
               ? "Acima da faixa de aprovação — continue assim!"
-              : "Abaixo da faixa de aprovação — veja onde melhorar abaixo."}
+              : "Abaixo da faixa de aprovação — plano de recuperação logo abaixo."}
           </p>
         </div>
 
@@ -224,6 +326,66 @@ export function SimuladoRunner({
           </div>
         </div>
 
+        {results.recommendations.length > 0 && (
+          <div className="rounded-xl border border-orange-200 bg-orange-50/50 p-5">
+            <h2 className="font-semibold">📚 O que estudar antes do próximo simulado</h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Com base nos seus erros, revise estes módulos (do domínio mais fraco para o menos):
+            </p>
+            <div className="mt-3 space-y-3">
+              {results.recommendations.map((rec) => (
+                <div key={rec.domain}>
+                  <p className="text-sm font-medium">
+                    {rec.domain} <span className="text-red-600">({rec.pct}%)</span>
+                  </p>
+                  <ul className="mt-1 space-y-1">
+                    {rec.modules.map((m) => (
+                      <li key={m.slug}>
+                        <Link
+                          href={`/course/${certId}/${m.slug}`}
+                          className="text-sm text-orange-700 underline hover:text-orange-900"
+                        >
+                          → {m.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {results.slowest.length > 0 && (
+          <div>
+            <h2 className="font-semibold">⏱ Onde você levou mais tempo</h2>
+            <ul className="mt-3 space-y-2">
+              {results.slowest.map((s, i) => (
+                <li
+                  key={i}
+                  className="flex items-start justify-between gap-3 rounded-lg border border-gray-200 p-3 text-sm"
+                >
+                  <span className="text-gray-700">
+                    {s.correct ? "✓" : "✗"} {s.prompt.slice(0, 110)}
+                    {s.prompt.length > 110 ? "…" : ""}
+                    <span className="block text-xs text-gray-400">
+                      {s.domain}
+                      {s.hintUsed ? " · usou dica" : ""}
+                    </span>
+                  </span>
+                  <span
+                    className={`shrink-0 font-mono text-xs font-medium ${
+                      s.correct ? "text-gray-600" : "text-red-600"
+                    }`}
+                  >
+                    {formatDuration(s.timeSeconds)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <div>
           <h2 className="font-semibold">Revisão das questões</h2>
           <div className="mt-3 space-y-4">
@@ -240,6 +402,10 @@ export function SimuladoRunner({
                 >
                   <summary className="cursor-pointer text-sm font-medium">
                     {item.correct ? "✓" : "✗"} {item.prompt}
+                    <span className="ml-1 text-xs font-normal text-gray-400">
+                      {item.timeSeconds !== null ? ` · ${formatDuration(item.timeSeconds)}` : ""}
+                      {item.hintUsed ? " · 💡 dica usada (meio ponto)" : ""}
+                    </span>
                   </summary>
                   <ul className="mt-3 space-y-1 text-sm">
                     {item.choices.map((c) => {
@@ -291,8 +457,8 @@ export function SimuladoRunner({
   if (!q) return null;
   const multi = q.prompt.includes("DUAS") || q.prompt.includes("Choose TWO");
   const answeredCount = Object.keys(answers).filter((k) => answers[k]?.length).length;
-  const minutes = Math.floor(secondsLeft / 60);
-  const seconds = secondsLeft % 60;
+  const overtime = secondsLeft < 0;
+  const hintShown = hints[q.id];
 
   return (
     <div>
@@ -302,20 +468,28 @@ export function SimuladoRunner({
         </span>
         <span
           className={`rounded-md px-3 py-1 font-mono text-sm font-medium ${
-            secondsLeft < 300 ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"
+            overtime
+              ? "bg-red-600 text-white"
+              : secondsLeft < 300
+                ? "bg-red-100 text-red-700"
+                : "bg-gray-100 text-gray-700"
           }`}
+          title={overtime ? "Tempo oficial excedido" : "Tempo restante"}
         >
-          {minutes}:{seconds.toString().padStart(2, "0")}
+          {formatClock(secondsLeft)}
+          {overtime ? " ⚠" : ""}
         </span>
       </div>
 
-      <p className="text-xs font-medium uppercase tracking-wide text-orange-600">
-        {q.domain}
-      </p>
-      <h2 className="mt-2 text-lg font-medium leading-relaxed">{q.prompt}</h2>
-      {multi && (
-        <p className="mt-1 text-sm text-gray-500">Selecione todas as corretas.</p>
+      {overtime && (
+        <p className="mb-4 rounded-md bg-red-50 p-2 text-center text-xs font-medium text-red-700">
+          Tempo oficial esgotado — você pode continuar, mas o excedente será registrado.
+        </p>
       )}
+
+      <p className="text-xs font-medium uppercase tracking-wide text-orange-600">{q.domain}</p>
+      <h2 className="mt-2 text-lg font-medium leading-relaxed">{q.prompt}</h2>
+      {multi && <p className="mt-1 text-sm text-gray-500">Selecione todas as corretas.</p>}
 
       <div className="mt-5 space-y-2">
         {q.choices.map((c) => {
@@ -336,9 +510,30 @@ export function SimuladoRunner({
         })}
       </div>
 
+      {q.hasHint && (
+        <div className="mt-4">
+          {hintShown ? (
+            <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+              💡 {hintShown}
+              <span className="mt-1 block text-xs text-amber-700">
+                Dica usada — esta questão agora vale meio ponto.
+              </span>
+            </p>
+          ) : (
+            <button
+              onClick={() => fetchHint(q.id)}
+              disabled={hintLoading}
+              className="text-sm text-amber-700 underline decoration-dotted hover:text-amber-900 disabled:opacity-50"
+            >
+              💡 Usar dica (a questão passa a valer meio ponto)
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="mt-8 flex items-center justify-between">
         <button
-          onClick={() => setCurrent((c) => Math.max(0, c - 1))}
+          onClick={() => goTo(Math.max(0, current - 1))}
           disabled={current === 0}
           className="rounded-md border border-gray-300 px-4 py-2 text-sm disabled:opacity-40"
         >
@@ -347,7 +542,7 @@ export function SimuladoRunner({
 
         {current < questions.length - 1 ? (
           <button
-            onClick={() => setCurrent((c) => c + 1)}
+            onClick={() => goTo(current + 1)}
             className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white"
           >
             Próxima →
@@ -367,7 +562,7 @@ export function SimuladoRunner({
         {questions.map((question, i) => (
           <button
             key={question.id}
-            onClick={() => setCurrent(i)}
+            onClick={() => goTo(i)}
             className={`h-7 w-7 rounded text-xs font-medium ${
               i === current
                 ? "bg-gray-900 text-white"

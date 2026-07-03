@@ -1,0 +1,104 @@
+---
+title: "Glossário CLF-C02"
+description: "Todos os serviços da trilha em uma linha cada — consulta rápida para revisão."
+domain: "Conceitos de Nuvem"
+order: 14
+durationMinutes: 25
+type: "revisao"
+week: 4
+---
+
+## Computação
+
+- **EC2** — servidores virtuais (IaaS); você administra o SO.
+- **Lambda** — código por evento, sem servidor, paga por execução.
+- **Fargate** — containers serverless (com ECS/EKS).
+- **ECS / EKS** — orquestração de containers / Kubernetes gerenciado.
+- **Elastic Beanstalk** — PaaS: sobe o código, AWS monta o resto.
+- **Lightsail** — VPS simplificado com preço fixo.
+- **Batch** — processamento em lote gerenciado.
+- **Outposts** — hardware AWS no SEU datacenter (híbrido).
+
+## Armazenamento
+
+- **S3** — objetos com 11 noves de durabilidade; classes por frequência de acesso.
+- **S3 Glacier** — arquivamento (Instant/Flexible/Deep Archive).
+- **EBS** — disco de bloco de uma instância EC2.
+- **EFS** — sistema de arquivos de rede elástico (Linux, multi-instância).
+- **FSx** — file systems especializados (Windows/Lustre).
+- **Storage Gateway** — ponte de armazenamento híbrida.
+- **Snow Family** — migração física de dados (Snowcone/Snowball/Snowmobile).
+- **AWS Backup** — backups centralizados.
+
+## Banco de dados
+
+- **RDS** — relacional gerenciado (MySQL, PostgreSQL...).
+- **Aurora** — relacional da AWS, mais rápido e resiliente.
+- **DynamoDB** — NoSQL chave-valor serverless.
+- **ElastiCache** — cache em memória (Redis/Memcached).
+- **Redshift** — data warehouse para análise (OLAP).
+- **Neptune / DocumentDB / QLDB** — grafos / documentos / ledger imutável.
+
+## Rede
+
+- **VPC** — sua rede privada na AWS.
+- **Subnet pública/privada** — com/sem rota para o Internet Gateway.
+- **NAT Gateway** — saída à internet para subnets privadas.
+- **Security Group / NACL** — firewall da instância / da subnet.
+- **Route 53** — DNS gerenciado.
+- **CloudFront** — CDN nas edge locations.
+- **Global Accelerator** — aceleração de tráfego TCP/UDP.
+- **Direct Connect / VPN** — link dedicado / túnel criptografado.
+- **API Gateway** — porta de entrada gerenciada para APIs.
+
+## Segurança e identidade
+
+- **IAM** — usuários, grupos, roles e políticas.
+- **IAM Identity Center** — SSO para várias contas.
+- **Cognito** — login de usuários dos SEUS apps.
+- **KMS** — chaves de criptografia gerenciadas.
+- **CloudHSM** — HSM dedicado.
+- **Secrets Manager** — segredos com rotação automática.
+- **ACM** — certificados TLS grátis.
+- **WAF / Shield** — firewall web / anti-DDoS.
+- **GuardDuty / Inspector / Macie** — ameaças / vulnerabilidades / PII no S3.
+- **Artifact** — relatórios de conformidade da AWS.
+
+## Gestão, custos e suporte
+
+- **CloudWatch / CloudTrail / Config** — monitoramento / auditoria / conformidade.
+- **Organizations** — várias contas, fatura única, SCPs.
+- **Control Tower** — ambiente multi-conta com boas práticas.
+- **Trusted Advisor** — recomendações em 5 pilares.
+- **Health Dashboard** — eventos que afetam SEUS recursos.
+- **CloudFormation** — infraestrutura como código.
+- **Systems Manager** — operação de frota (patches, sessões).
+- **Pricing Calculator / Cost Explorer / Budgets / CUR** — estimar / analisar / alertar / detalhar.
+- **Compute Optimizer** — recomendações de dimensionamento.
+- **Support Plans** — Basic, Developer, Business, Enterprise On-Ramp, Enterprise.
+
+## Integração e dados
+
+- **SQS / SNS / EventBridge** — fila / pub-sub / barramento de eventos.
+- **Step Functions** — orquestração visual de fluxos.
+- **Athena** — SQL direto no S3.
+- **Glue** — ETL serverless.
+- **Kinesis** — streaming em tempo real.
+- **QuickSight** — dashboards de BI.
+
+## IA/ML
+
+- **SageMaker** — construir e treinar modelos.
+- **Bedrock** — IA generativa via API.
+- **Rekognition / Textract / Comprehend** — imagem / documento / texto.
+- **Polly / Transcribe / Translate / Lex** — fala / transcrição / tradução / chatbot.
+
+## Conceitos
+
+- **CAPEX → OPEX** — investimento vira custo variável.
+- **Elasticidade** — escalar para cima E para baixo conforme demanda.
+- **Alta disponibilidade** — continuar operando apesar de falhas (multi-AZ).
+- **Responsabilidade compartilhada** — AWS: DA nuvem; cliente: NA nuvem.
+- **Menor privilégio** — só as permissões necessárias.
+- **Well-Architected / CAF** — boas práticas de workload / adoção organizacional.
+- **7 Rs** — estratégias de migração (rehost, replatform, repurchase, refactor, retire, retain, relocate).

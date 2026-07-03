@@ -1,0 +1,60 @@
+---
+title: "Organizations, Governança Multi-Conta e Custos"
+description: "SCPs, Control Tower, RAM e as alavancas de governança que aparecem nas questões corporativas."
+domain: "Arquiteturas Seguras"
+order: 25
+durationMinutes: 55
+type: "teoria"
+week: 8
+---
+
+## Por que multi-conta
+
+O padrão corporativo AWS: contas separadas por ambiente/equipe (prod, dev, segurança, log-archive) sob um **AWS Organizations**. Isolamento de blast radius, limites, cobrança clara.
+
+## Organizations — as peças
+
+- **OUs (unidades organizacionais)**: agrupam contas (Prod OU, Sandbox OU).
+- **SCPs (Service Control Policies)**: definem o **teto** de permissões de contas/OUs. Não concedem nada — limitam. Nem o root da conta-membro escapa de uma SCP.
+- **Fatura consolidada**: agrega uso → faixas de desconto por volume; RIs/Savings Plans **compartilhados** entre contas.
+- Cenários de SCP clássicos: negar regiões fora das permitidas, negar desligar o CloudTrail, negar serviços caros em sandbox.
+
+## Control Tower
+
+Configura a landing zone multi-conta com melhores práticas: OUs padrão, guardrails (SCPs + Config rules prontos), Account Factory (criar contas padronizadas). Sinal: "configurar ambiente multi-conta governado **rapidamente**".
+
+## RAM — Resource Access Manager
+
+Compartilha **recursos** entre contas sem duplicá-los: subnets de VPC, Transit Gateway, License Manager. Sinal: "várias contas usando a MESMA VPC/subnets" → RAM (não peering!).
+
+## Identidade multi-conta
+
+- **IAM Identity Center**: SSO humano para todas as contas com permission sets.
+- Cross-account role: acesso programático/pontual entre contas.
+
+## Cobrança e tags
+
+- **Cost allocation tags** + **Cost Categories**: quebrar custo por projeto/time.
+- **AWS Budgets** por conta/OU com alertas; **Budget Actions** podem aplicar política restritiva ao estourar (isso bloqueia — Budgets sozinho só alerta).
+- **Compute Optimizer** e **Cost Explorer rightsizing**: recomendações de dimensionamento.
+
+## Padrões de questão corporativa
+
+- "Impedir QUALQUER conta de sair das regiões aprovadas" → **SCP na raiz/OU**.
+- "Nova subsidiária precisa de contas padronizadas com guardrails" → **Control Tower / Account Factory**.
+- "Compartilhar o Transit Gateway com 20 contas" → **RAM**.
+- "RI comprada na conta de pagamento beneficia todas" → **fatura consolidada** (compartilhamento de desconto).
+- "Login único corporativo nas contas AWS" → **IAM Identity Center**.
+
+## Armadilhas comuns
+
+- SCP não afeta a **conta de gestão** (management account) — e não concede permissões, só limita.
+- RAM compartilha o recurso em si; peering conecta redes distintas. "Mesma subnet" = RAM.
+- Budgets alerta; **Budget Actions** age. Leia o que a questão pede: avisar ou impedir?
+
+## Checklist antes de avançar
+
+- [ ] Sei o que SCP faz e não faz (3 pontos)
+- [ ] Sei quando Control Tower vence Organizations puro
+- [ ] Sei RAM × peering
+- [ ] Sei como descontos fluem na fatura consolidada

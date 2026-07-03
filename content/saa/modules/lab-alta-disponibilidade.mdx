@@ -1,0 +1,66 @@
+---
+title: "Lab: ALB + Auto Scaling Multi-AZ"
+description: "Monte o padrão resiliente clássico da prova: balanceador + grupo de auto scaling em 2 AZs, e derrube uma instância para ver a mágica."
+domain: "Arquiteturas Resilientes"
+order: 5
+durationMinutes: 90
+type: "lab"
+week: 2
+---
+
+## Objetivo
+
+Construir **ALB → Auto Scaling Group em 2 AZs** e provar a autocura: matar uma instância e ver o ASG substituí-la sozinho. Este é O padrão de resiliência do exame.
+
+**Custo estimado**: ~R$ 1-2 se concluir em 1h e limpar (ALB não tem free tier — apague ao final!). **Região**: us-east-1.
+
+## Passo a passo
+
+1. **Launch Template**: EC2 → Launch Templates → Create:
+   - AMI Amazon Linux 2023, tipo t2.micro
+   - User data (instala um site que mostra a AZ da instância):
+   ```bash
+   #!/bin/bash
+   dnf install -y httpd
+   echo "<h1>Servidor na AZ: $(ec2-metadata -z | cut -d' ' -f2)</h1>" > /var/www/html/index.html
+   systemctl enable --now httpd
+   ```
+   - Security group: liberar HTTP (80) de qualquer origem
+
+2. **Target Group**: EC2 → Target Groups → Create (HTTP, porta 80, health check `/`).
+
+3. **ALB**: Load Balancers → Create Application Load Balancer:
+   - Internet-facing, selecione **2 AZs** (obrigatório!)
+   - Listener HTTP:80 → forward para o target group
+
+4. **Auto Scaling Group**: usando o launch template:
+   - **2 AZs** (as mesmas do ALB), attach ao target group
+   - Min 2, Desired 2, Max 4
+   - Health check type: **ELB** (não só EC2!)
+   - Target tracking policy: CPU média 50%
+
+5. **Teste de carga da AZ**: abra o DNS do ALB no navegador e recarregue várias vezes — você verá as duas AZs alternando (round robin entre targets saudáveis).
+
+6. **Teste de autocura**: termine (Terminate) uma das instâncias manualmente. Acompanhe:
+   - Target group marca a instância como unhealthy
+   - ALB para de enviar tráfego para ela (o site continua no ar!)
+   - ASG detecta e sobe uma substituta em ~2 minutos
+
+## Validação
+
+- [ ] Site alterna entre 2 AZs no refresh
+- [ ] Ao terminar uma instância, o site **não caiu**
+- [ ] ASG restaurou o desired count sozinho
+
+## Limpeza (IMPORTANTE — o ALB cobra por hora!)
+
+1. Delete o Auto Scaling Group (min/desired 0 primeiro, ou delete direto)
+2. Delete o ALB e o Target Group
+3. Delete o Launch Template
+4. Confirme em EC2 → Instances que nada ficou rodando
+
+## O que este lab prova para o exame
+
+- Health check **ELB** no ASG: substitui instâncias que falham na aplicação, não só no hardware
+- Multi-AZ + ASG = sobrevive à falha de instância E de AZ
+- O usuário final não percebe a falha — essa é a definição de alta disponibilidade

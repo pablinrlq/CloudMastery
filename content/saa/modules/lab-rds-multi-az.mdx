@@ -1,0 +1,53 @@
+---
+title: "Lab: RDS Multi-AZ e Read Replica"
+description: "Crie um RDS, ative Multi-AZ, adicione uma read replica e force um failover para ver o DNS virar."
+domain: "Arquiteturas Resilientes"
+order: 12
+durationMinutes: 75
+type: "lab"
+week: 4
+---
+
+## Objetivo
+
+Ver com os próprios olhos a diferença que a prova mais cobra: **Multi-AZ** (failover automático, mesma endpoint) vs **read replica** (endpoint separado, para leitura).
+
+**Custo estimado**: ~R$ 2-3 na hora do lab (db.t3.micro tem free tier em single-AZ; Multi-AZ e a replica cobram). **Limpe ao final!** **Região**: us-east-1.
+
+## Passo a passo
+
+1. **Crie o banco**: RDS → Create database:
+   - MySQL, template **Free tier** (single-AZ por enquanto), db.t3.micro
+   - Identifier `lab-rds`, senha gerenciada manualmente (anote), storage 20 GB
+   - Public access: **No** (boa prática mesmo em lab)
+
+2. **Observe o endpoint**: `lab-rds.xxxx.us-east-1.rds.amazonaws.com` — a aplicação só conhece esse nome; é ele que o failover atualiza.
+
+3. **Converta para Multi-AZ**: Modify → Availability & durability → "Create a standby instance" → Apply immediately. Acompanhe em ~10 min o status.
+
+4. **Crie a read replica**: Actions → Create read replica → `lab-rds-replica` (mesma região). Repare: ela ganha **endpoint próprio** — leituras precisam apontar para ele explicitamente.
+
+5. **Force um failover** (o teste que vale o lab): Actions → **Reboot with failover**:
+   - O endpoint continua o MESMO
+   - Em Events, veja "Multi-AZ failover completed"
+   - A AZ da instância primária trocou (compare antes/depois em Configuration)
+   - Downtime: ~1-2 minutos, sem tocar em nada
+
+6. **Compare com a replica**: reiniciar a primária **não** promove a replica — promoção é manual (Actions → Promote), e ela vira um banco independente.
+
+## Validação
+
+- [ ] Failover automático trocou a AZ mantendo o endpoint
+- [ ] Read replica tem endpoint separado
+- [ ] Sabe dizer qual mecanismo serve para HA e qual para escala de leitura
+
+## Limpeza (RDS Multi-AZ cobra!)
+
+1. Delete a read replica
+2. Delete o `lab-rds` (desmarque "create final snapshot" — é lab)
+
+## O que este lab prova para o exame
+
+- Multi-AZ: mesmo endpoint, failover automático de DNS, standby **não atende leitura**
+- Read replica: endpoint próprio, assíncrona, promoção **manual**
+- "Failover sem mudança na aplicação" = Multi-AZ, sempre

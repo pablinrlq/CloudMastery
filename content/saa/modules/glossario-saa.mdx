@@ -1,0 +1,104 @@
+---
+title: "Glossário SAA"
+description: "Todos os serviços e termos citados na trilha, em uma linha cada — para consulta rápida durante a revisão."
+domain: "Arquiteturas Resilientes"
+order: 30
+durationMinutes: 30
+type: "revisao"
+week: 9
+---
+
+## Computação
+
+- **EC2** — máquinas virtuais; controle total do SO.
+- **Auto Scaling Group** — mantém/ajusta a frota de instâncias automaticamente.
+- **ELB (ALB/NLB/GWLB)** — balanceadores L7/L4/L3.
+- **Lambda** — código por evento, até 15 min, paga por ms.
+- **Fargate** — containers sem gerenciar servidores.
+- **ECS / EKS** — orquestração de containers nativa / Kubernetes.
+- **ECR** — registro de imagens.
+- **App Runner** — do container à URL com o mínimo de setup.
+- **Batch** — jobs em lote gerenciados.
+- **Elastic Beanstalk** — PaaS: sobe o código, AWS provisiona.
+- **Graviton** — CPUs ARM da AWS, melhor preço/performance.
+
+## Armazenamento
+
+- **S3** — objetos, 11 noves, classes por padrão de acesso.
+- **EBS** — disco de bloco de UMA instância, em UMA AZ.
+- **EFS** — NFS elástico multi-AZ para Linux.
+- **FSx** — file systems especializados (Windows, Lustre, NetApp, OpenZFS).
+- **Storage Gateway** — ponte híbrida (File/Volume/Tape).
+- **AWS Backup** — backups centralizados com políticas.
+- **Snow Family** — transferência física de dados.
+
+## Banco de dados
+
+- **RDS** — relacional gerenciado (Multi-AZ = HA; read replica = leitura).
+- **Aurora** — engine AWS compatível MySQL/PostgreSQL, 6 cópias/3 AZs.
+- **DynamoDB** — chave-valor serverless (DAX, Streams, Global Tables, TTL).
+- **ElastiCache** — Redis/Memcached em memória.
+- **Redshift** — data warehouse OLAP.
+- **Neptune / DocumentDB / QLDB / Timestream** — grafos / MongoDB-like / ledger / séries temporais.
+
+## Rede e borda
+
+- **VPC** — rede virtual isolada; subnets, route tables, IGW, NAT.
+- **Security Group / NACL** — firewall stateful da instância / stateless da subnet.
+- **VPC Endpoint** — acesso privado a serviços (Gateway: S3/DynamoDB grátis; Interface: pago).
+- **VPC Peering / Transit Gateway** — 1:1 não transitivo / hub-and-spoke.
+- **PrivateLink** — expõe um serviço a outras VPCs.
+- **Direct Connect / Site-to-Site VPN** — link dedicado / túnel IPsec.
+- **Route 53** — DNS com políticas (failover, latency, geo, weighted).
+- **CloudFront** — CDN (+ OAC para S3 privado).
+- **Global Accelerator** — anycast TCP/UDP com 2 IPs estáticos.
+- **WAF / Shield** — firewall L7 / anti-DDoS.
+
+## Integração
+
+- **SQS** — fila (Standard/FIFO, DLQ, visibility timeout).
+- **SNS** — pub/sub; fan-out com SQS.
+- **EventBridge** — barramento de eventos com regras.
+- **Step Functions** — orquestração de workflows.
+- **Amazon MQ** — RabbitMQ/ActiveMQ gerenciado (migração).
+- **Kinesis (Streams/Firehose)** — streaming tempo real / entrega gerenciada.
+- **API Gateway** — APIs gerenciadas (REST/HTTP/WebSocket, timeout 29s).
+
+## Segurança e identidade
+
+- **IAM** — usuários, grupos, roles, políticas; deny explícito vence.
+- **STS** — credenciais temporárias (AssumeRole).
+- **IAM Identity Center** — SSO multi-conta.
+- **Cognito** — identidade de usuários finais de apps.
+- **KMS / CloudHSM** — chaves gerenciadas / HSM dedicado.
+- **Secrets Manager / Parameter Store** — segredos com rotação / parâmetros.
+- **ACM** — certificados TLS gratuitos.
+- **GuardDuty / Macie / Inspector / Security Hub / Detective** — ameaças / PII / CVEs / agregação / investigação.
+
+## Observabilidade e governança
+
+- **CloudWatch** — métricas, logs, alarmes.
+- **CloudTrail** — auditoria de chamadas de API.
+- **Config** — conformidade de configuração + remediação.
+- **Organizations / SCP / Control Tower** — multi-conta / teto de permissões / landing zone.
+- **RAM** — compartilhar recursos entre contas.
+- **Trusted Advisor** — recomendações (custo, segurança, resiliência...).
+- **CloudFormation** — infraestrutura como código.
+- **Systems Manager** — operação de frota (Session Manager, Patch, Automation).
+
+## Migração e dados
+
+- **DMS / SCT** — migrar bancos / converter schemas.
+- **MGN** — rehost de servidores.
+- **DataSync / Transfer Family** — sync de arquivos / SFTP gerenciado.
+- **Athena / Glue / EMR / QuickSight** — SQL no S3 / ETL + catálogo / Spark-Hadoop / BI.
+- **Lake Formation** — governança do data lake.
+- **OpenSearch** — busca e análise de logs.
+
+## Conceitos
+
+- **RPO / RTO** — perda de dados aceitável / tempo de recuperação aceitável.
+- **HA × DR** — resistir a falhas na região × sobreviver à perda da região.
+- **Stateless** — sessão fora da instância; pré-requisito de auto scaling.
+- **Envelope encryption** — KMS protege a data key, a data key protege os dados.
+- **Menor privilégio** — só as permissões necessárias, nada além.

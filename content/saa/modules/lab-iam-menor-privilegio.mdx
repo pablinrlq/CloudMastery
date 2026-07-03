@@ -1,0 +1,69 @@
+---
+title: "Lab: IAM na Prática — Menor Privilégio"
+description: "Mão na massa: crie roles, políticas restritas e teste o acesso cross-service como a prova cobra."
+domain: "Arquiteturas Seguras"
+order: 3
+durationMinutes: 60
+type: "lab"
+week: 1
+---
+
+## Objetivo
+
+Construir na sua conta o padrão que mais cai na prova: **EC2 acessando S3 via role**, com política de menor privilégio — e provar que funciona sem nenhuma credencial salva na instância.
+
+**Custo estimado**: R$ 0 (free tier: t2.micro/t3.micro + S3 < 5 GB). **Região**: us-east-1.
+
+## Pré-requisitos
+
+- Conta AWS com usuário administrador (nunca use o root para labs)
+- Um bucket S3 de teste criado (ex: `lab-iam-seunome-0001`)
+
+## Passo a passo
+
+1. **Crie a política restrita**: IAM → Policies → Create policy → JSON:
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [{
+       "Effect": "Allow",
+       "Action": ["s3:GetObject", "s3:ListBucket"],
+       "Resource": [
+         "arn:aws:s3:::lab-iam-seunome-0001",
+         "arn:aws:s3:::lab-iam-seunome-0001/*"
+       ]
+     }]
+   }
+   ```
+   Nomeie `LabS3LeituraRestrita`. Repare: **só leitura, só neste bucket**.
+
+2. **Crie a role**: IAM → Roles → Create role → Trusted entity: **AWS service → EC2** → anexe `LabS3LeituraRestrita` → nomeie `LabRoleEC2S3`.
+
+3. **Suba uma instância** t2.micro (Amazon Linux) e, em "Advanced → IAM instance profile", selecione `LabRoleEC2S3`.
+
+4. **Teste na instância** (Connect → EC2 Instance Connect):
+   ```bash
+   aws s3 ls s3://lab-iam-seunome-0001        # ✓ funciona
+   aws s3 cp teste.txt s3://lab-iam-seunome-0001/  # ✗ AccessDenied (esperado!)
+   aws s3 ls                                   # ✗ AccessDenied (esperado!)
+   ```
+
+5. **Observe o menor privilégio em ação**: o upload falha porque a política não tem `s3:PutObject`; listar outros buckets falha porque o `Resource` é restrito.
+
+## Validação
+
+- [ ] `aws s3 ls` no bucket funciona **sem** `aws configure` (credenciais vieram da role)
+- [ ] Upload negado com `AccessDenied`
+- [ ] No CloudTrail (Event history), você encontra as chamadas `GetObject`/`PutObject` da role
+
+## Limpeza (importante!)
+
+1. Terminate na instância EC2
+2. Delete o bucket (esvazie antes)
+3. Delete a role e a política
+
+## O que este lab prova para o exame
+
+- Role + instance profile = credenciais temporárias automáticas (a resposta padrão contra "credenciais na instância")
+- Política nega por default: o que não está em `Action`/`Resource` é negado
+- CloudTrail audita cada chamada — "quem fez o quê" é sempre CloudTrail

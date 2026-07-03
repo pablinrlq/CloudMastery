@@ -11,6 +11,10 @@ export type ModuleFrontmatter = {
   domain: string;
   order: number;
   durationMinutes: number;
+  /** teoria (padrão), lab (mão na massa) ou revisao (reta final) */
+  type?: "teoria" | "lab" | "revisao";
+  /** semana sugerida no mapa de estudos */
+  week?: number;
 };
 
 export type ModuleMeta = ModuleFrontmatter & {

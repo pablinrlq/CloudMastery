@@ -1,0 +1,58 @@
+---
+title: "Armadilhas e Comparações Definitivas"
+description: "As confusões que mais reprovam candidatos, lado a lado — leia na véspera da prova."
+domain: "Arquiteturas Resilientes"
+order: 29
+durationMinutes: 50
+type: "revisao"
+week: 9
+---
+
+## As comparações que decidem a sua nota
+
+| Confusão | Use A quando | Use B quando | Armadilha típica |
+|---|---|---|---|
+| **SQS × SNS** | Fila com UM grupo consumidor, buffer | Broadcast para VÁRIOS assinantes | Fan-out = os dois juntos (SNS→SQS) |
+| **SQS Standard × FIFO** | Throughput alto, tolera duplicata | Ordem estrita, sem duplicatas | FIFO "por garantia" perde escala à toa |
+| **Multi-AZ × Read Replica** | Failover automático (HA) | Escalar leitura / relatórios | Achar que Multi-AZ atende leitura |
+| **NAT Gateway × VPC Endpoint** | Saída geral para a internet | Acesso privado a serviços AWS | Pagar NAT para falar com S3 (Gateway Endpoint é grátis) |
+| **ALB × NLB** | HTTP/S, rotas por path/host | TCP/UDP, IP estático, latência mínima | Pedir IP fixo no ALB (não tem) |
+| **CloudFront × Global Accelerator** | Cachear conteúdo HTTP | TCP/UDP global, 2 IPs estáticos | "Acelerar" ≠ "cachear" |
+| **EBS × EFS × FSx** | Bloco, 1 instância, 1 AZ | NFS multi-AZ, N instâncias Linux | FSx: Windows/AD ou Lustre/HPC |
+| **S3 IA × One Zone-IA × Glacier** | Infrequente, crítico | Infrequente, recriável | Latência e mínimos de retenção de cada Glacier |
+| **Secrets Manager × Parameter Store** | Rotação automática de segredos | Config/parâmetros, grátis | KMS não guarda segredos — gerencia chaves |
+| **KMS × CloudHSM** | Praticamente sempre | Requisito explícito de HSM dedicado/FIPS L3 | Escolher HSM "por segurança" sem requisito |
+| **VPC Peering × Transit Gateway** | 2-3 VPCs, menor custo | Muitas VPCs + on-premises, hub central | Peering não é transitivo |
+| **PrivateLink × Peering** | Expor UM serviço, CIDRs sobrepostos ok | Conectar redes inteiras | PrivateLink não dá acesso à rede toda |
+| **DataSync × Storage Gateway** | Migração/sync pontual | Acesso híbrido contínuo com cache | "Mover e terminar" vs "conviver" |
+| **Kinesis Streams × Firehose** | Tempo real, replay, N consumidores | Entrega gerenciada para S3/Redshift | Firehose não faz replay |
+| **Athena × Redshift** | SQL ad-hoc no S3, paga por consulta | Warehouse dedicado, BI intenso | Carregar tudo no Redshift para 1 consulta/mês |
+| **DAX × ElastiCache** | Cache do DynamoDB sem mudar código | Cache genérico (RDS, sessões) | DAX só serve DynamoDB |
+| **Cognito × IAM** | Usuários DO SEU APP | Pessoas/serviços operando a AWS | Criar usuário IAM para cliente de app |
+| **Inspector × GuardDuty** | Vulnerabilidades (CVE) | Ameaças ativas (comportamento) | "Poderia ser invadido" vs "está sendo" |
+| **CloudTrail × CloudWatch × Config** | QUEM chamou a API | COMO o recurso performa | Config = o recurso ESTÁ conforme? |
+| **Reserved/Savings × Spot** | Carga estável 1-3 anos | Tolerante a interrupção | Spot em produção crítica |
+
+## Números que caem (decore estes, só estes)
+
+- Lambda: **15 min** máx, payload síncrono ~**6 MB**
+- API Gateway: timeout **29 s**
+- S3: objetos até **5 TB**; multipart recomendado > **100 MB**
+- SQS: mensagem até **256 KB**, retenção máx **14 dias**, visibility timeout padrão 30 s
+- Glacier mínimos: IA **30d**, Flexible **90d**, Deep Archive **180d**
+- RDS read replicas: até **15** (Aurora), **5** (RDS padrão)
+- Nota de corte: **720/1000** (~72%)
+
+## Frases-gatilho de eliminação instantânea
+
+- "Sem alterar a aplicação" → elimina refactor; procure infraestrutura (gateway, endpoint, DNS).
+- "Menor esforço operacional" → elimina EC2 autogerido; procure serverless/gerenciado.
+- "Mais econômico" → elimina superprovisionamento; procure Spot/IA/lifecycle/endpoint.
+- "Imutável por regulação" → Object Lock compliance / Glacier Vault Lock.
+- "Milissegundos em qualquer escala" → DynamoDB. "Microssegundos" → DAX.
+
+## Checklist de véspera
+
+- [ ] Reli a tabela inteira sem errar nenhuma linha
+- [ ] Decorei os números
+- [ ] Treinei as frases-gatilho em 10 questões antigas

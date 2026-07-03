@@ -1,0 +1,66 @@
+---
+title: "Detecção e Resposta: GuardDuty, Macie, Inspector e Cia"
+description: "O time de segurança gerenciado da AWS — quem detecta o quê, e como diferenciá-los em 5 segundos."
+domain: "Arquiteturas Seguras"
+order: 21
+durationMinutes: 50
+type: "teoria"
+week: 7
+---
+
+## O mapa de uma linha por serviço
+
+| Serviço | Detecta/faz | Frase-gatilho na prova |
+|---|---|---|
+| **GuardDuty** | Ameaças analisando CloudTrail, VPC Flow Logs e DNS com ML | "detecção inteligente de ameaças", "atividade anômala" |
+| **Macie** | Dados sensíveis (PII) em S3 | "encontrar CPFs/cartões em buckets" |
+| **Inspector** | Vulnerabilidades (CVEs) em EC2, ECR e Lambda | "varredura de vulnerabilidades" |
+| **Security Hub** | Agrega achados de todos + score de conformidade | "visão central de segurança", "CIS benchmark" |
+| **Detective** | Investigação da causa raiz (grafo de relações) | "investigar COMO o incidente aconteceu" |
+| **Config** | Conformidade de configuração + remediação | "recurso fora do padrão corrigido automaticamente" |
+| **Firewall Manager** | Políticas WAF/SG centralizadas multi-conta | "aplicar regras de firewall em todas as contas" |
+| **Audit Manager** | Evidências para auditorias contínuas | "coletar evidências de compliance" |
+
+A prova raramente aprofunda — ela testa se você escolhe o serviço certo pela frase.
+
+## O fluxo de detecção → resposta que cai
+
+1. **GuardDuty** encontra algo (ex: mineração de cripto numa instância)
+2. Finding vai para o **EventBridge**
+3. EventBridge dispara **Lambda/SSM Automation** (ex: isolar a instância trocando o SG)
+4. **Security Hub** agrega tudo; **Detective** investiga a linha do tempo
+
+"Resposta automática a ameaças" = GuardDuty + EventBridge + Lambda. Decore o trio.
+
+## VPC Flow Logs
+
+- Metadados de tráfego (aceito/rejeitado, IPs, portas) — **não** o conteúdo dos pacotes.
+- Destino: CloudWatch Logs ou S3 (Athena para analisar).
+- "Diagnosticar por que o tráfego não chega" e "análise forense de rede" → Flow Logs.
+
+## Amazon Macie em detalhe
+
+- ML para classificar objetos S3 com dados sensíveis (PII, credenciais, financeiro).
+- Gera findings por bucket público/não criptografado/compartilhado.
+- LGPD/GDPR em cenário brasileiro → Macie no S3.
+
+## Sinais de prova
+
+- "Instância comprometida minerando bitcoin" → **GuardDuty** detecta.
+- "Isolar automaticamente a instância comprometida" → GuardDuty → **EventBridge → Lambda**.
+- "Relatório de vulnerabilidades das AMIs/containers" → **Inspector**.
+- "Painel único de postura de segurança multi-conta" → **Security Hub**.
+- "Entender a sequência do ataque" → **Detective**.
+- "Saber se dados pessoais estão expostos no S3" → **Macie**.
+
+## Armadilhas comuns
+
+- GuardDuty **detecta**, não bloqueia. Bloquear é WAF/NACL/SG/Lambda de resposta.
+- Inspector ≠ GuardDuty: vulnerabilidade (o que PODE ser explorado) vs ameaça ativa (o que ESTÁ acontecendo).
+- Security Hub não detecta nada sozinho — agrega os outros.
+
+## Checklist antes de avançar
+
+- [ ] Sei a tabela de uma linha inteira
+- [ ] Sei montar o fluxo de resposta automática
+- [ ] Sei Inspector × GuardDuty × Detective sem confundir

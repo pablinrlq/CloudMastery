@@ -1,0 +1,57 @@
+---
+title: "IA e ML para o Arquiteto"
+description: "Os serviços de IA que aparecem no SAA e como encaixá-los em arquiteturas — sem precisar ser cientista de dados."
+domain: "Arquiteturas de Alta Performance"
+order: 26
+durationMinutes: 40
+type: "teoria"
+week: 8
+---
+
+## O que o SAA cobra de IA/ML
+
+Pouco e raso: escolher o serviço certo pelo caso de uso e encaixá-lo na arquitetura. Uma linha por serviço resolve:
+
+| Serviço | Caso de uso |
+|---|---|
+| **SageMaker** | Construir/treinar/hospedar modelos próprios (cientistas de dados) |
+| **Bedrock** | IA generativa via API (modelos de fundação gerenciados) |
+| **Rekognition** | Imagens/vídeo: rostos, objetos, moderação de conteúdo |
+| **Textract** | Extrair texto/tabelas de documentos escaneados |
+| **Comprehend** | Sentimento e entidades em texto |
+| **Transcribe** / **Polly** | Fala→texto / texto→fala |
+| **Translate** | Tradução |
+| **Lex** | Chatbots |
+| **Kendra** | Busca inteligente em documentos corporativos |
+| **Personalize** | Recomendações estilo e-commerce |
+| **Forecast** | Previsão de séries temporais (demanda, estoque) |
+
+## Como aparecem nas questões
+
+Quase sempre como **um componente do pipeline**, não o foco:
+
+- "Moderar imagens enviadas por usuários antes de publicar" → S3 event → Lambda → **Rekognition** → aprova/rejeita.
+- "Digitalizar notas fiscais e indexar" → S3 → **Textract** → DynamoDB/OpenSearch.
+- "Call center: transcrever e analisar sentimento" → **Transcribe** → **Comprehend**.
+- "Chatbot de atendimento no site" → **Lex** (+ Lambda para lógica).
+- "Busca em milhares de PDFs internos com linguagem natural" → **Kendra**.
+
+## SageMaker vs serviços prontos
+
+Regra do menor esforço (o SAA ama): se um serviço pronto resolve (Rekognition etc.), ele **vence** o SageMaker. SageMaker só quando a questão diz "modelo customizado/próprio", "treinar com nossos dados", "cientistas de dados".
+
+## Bedrock em uma linha
+
+Acesso gerenciado a modelos de fundação (texto/imagem) via API, com privacidade dos dados (não treinam o modelo público). Sinal: "adicionar IA generativa sem gerenciar infraestrutura de GPU".
+
+## Armadilhas comuns
+
+- Não escolha SageMaker para caso de uso que um serviço de prateleira resolve.
+- Comprehend analisa texto; Textract extrai texto de imagem/PDF. Ordem: Textract primeiro, Comprehend depois.
+- Kendra (busca semântica corporativa) ≠ OpenSearch (busca/logs full-text técnica).
+
+## Checklist antes de avançar
+
+- [ ] Sei a tabela de uma linha
+- [ ] Sei encaixar os serviços em pipelines com S3/Lambda
+- [ ] Sei quando SageMaker é (e não é) a resposta

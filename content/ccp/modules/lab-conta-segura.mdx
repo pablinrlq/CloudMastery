@@ -1,0 +1,56 @@
+---
+title: "Lab: Sua Conta AWS Segura do Dia Zero"
+description: "Crie a conta do jeito certo: MFA no root, usuário administrador, alerta de gastos e primeira exploração do console."
+domain: "Segurança e Conformidade"
+order: 2
+durationMinutes: 45
+type: "lab"
+week: 1
+---
+
+## Objetivo
+
+Configurar uma conta AWS nova com as 4 proteções que TODO material de prova assume como feitas — e que viram questões: MFA no root, usuário administrador separado, alerta de cobrança e free tier vigiado.
+
+**Custo estimado**: R$ 0. **Região**: us-east-1 (padrão dos labs).
+
+## Passo a passo
+
+### 1. MFA no usuário root (a questão mais garantida da prova)
+
+1. Logado como root → menu da conta → **Security credentials**
+2. Multi-factor authentication → **Assign MFA device** → Authenticator app (Google Authenticator/Authy)
+3. Escaneie o QR e confirme dois códigos
+
+### 2. Usuário administrador (e aposente o root)
+
+1. Console IAM → Users → **Create user** → `admin-seunome`
+2. Marque "Provide user access to the Management Console"
+3. Attach policies directly → **AdministratorAccess**
+4. Crie, anote a senha e **ative MFA para ele também**
+5. Deslogue do root. Daqui em diante, use SEMPRE este usuário. Root só para: fechar conta, mudar plano de suporte, alterar dados de cobrança (decore — isso cai!)
+
+### 3. Alerta de gastos (Budgets)
+
+1. Console → Billing and Cost Management → **Budgets** → Create budget
+2. Template: **Zero spend budget** (avisa com QUALQUER cobrança) — perfeito para estudar sem sustos
+3. E-mail para alerta: o seu
+
+### 4. Tour de 10 minutos pelo console
+
+- Selecione a região no canto superior direito (note que IAM é "Global")
+- Abra EC2, S3 e IAM — só para reconhecer o terreno
+- Barra de busca (Alt+S): a forma mais rápida de navegar
+
+## Validação
+
+- [ ] Root com MFA e sem uso no dia a dia
+- [ ] `admin-seunome` com MFA funcionando
+- [ ] Budget de gasto zero ativo com seu e-mail
+- [ ] Você sabe as 3 tarefas exclusivas do root
+
+## O que este lab prova para o exame
+
+- MFA no root = responsabilidade do CLIENTE (responsabilidade compartilhada)
+- Menor privilégio começa em não usar root
+- Budgets alerta, não bloqueia — decore a diferença

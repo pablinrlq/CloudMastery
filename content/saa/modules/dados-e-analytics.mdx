@@ -1,0 +1,74 @@
+---
+title: "Dados e Analytics: Kinesis, Glue, Athena e Cia"
+description: "Streaming, ETL, data lake e consulta — o pipeline de dados que o exame monta peça por peça."
+domain: "Arquiteturas de Alta Performance"
+order: 19
+durationMinutes: 65
+type: "teoria"
+week: 6
+---
+
+## O pipeline mental
+
+Toda questão de dados descreve um pedaço deste fluxo:
+
+**Ingestão** (Kinesis/Firehose/MSK) → **Armazenamento** (S3 data lake) → **Catálogo/ETL** (Glue) → **Consulta** (Athena/Redshift/EMR) → **Visualização** (QuickSight)
+
+## Ingestão — a família Kinesis
+
+| Serviço | O que faz | Sinal na prova |
+|---|---|---|
+| **Kinesis Data Streams** | Streaming em tempo real, ordem por shard, replay, múltiplos consumidores | "tempo real", "milissegundos", "reprocessar" |
+| **Data Firehose** | Entrega gerenciada para S3/Redshift/OpenSearch, com buffer e transformação | "quase em tempo real (near real-time), SEM administrar" |
+| **MSK** | Kafka gerenciado | "já usamos Kafka" |
+
+Streams = você processa (Lambda, KCL); Firehose = a AWS entrega no destino. "Sem código, direto no S3" → Firehose.
+
+## Armazenamento e catálogo
+
+- **S3 como data lake**: barato, durável, integra com tudo. Formato colunar (Parquet) reduz custo de consulta — a prova cobra "converter para Parquet" como otimização.
+- **Glue Data Catalog**: o "índice" central de schemas (usado por Athena, EMR, Redshift Spectrum).
+- **Glue ETL**: jobs Spark serverless para transformar dados ("ETL sem gerenciar cluster").
+- **Lake Formation**: governança e permissões granulares (linha/coluna) sobre o data lake.
+
+## Consulta — escolha pelo cenário
+
+| Cenário | Serviço |
+|---|---|
+| SQL ad-hoc em arquivos no S3, sem infraestrutura | **Athena** (paga por TB escaneado) |
+| BI/dashboards com consultas repetidas em PB | **Redshift** (warehouse dedicado) |
+| Consultar S3 a partir do Redshift sem carregar | Redshift **Spectrum** |
+| Spark/Hadoop com controle do cluster | **EMR** |
+| Busca full-text / análise de logs | **OpenSearch** |
+
+## Visualização
+
+**QuickSight**: dashboards serverless de BI, paga por sessão/usuário. Fim de papo — a prova não aprofunda.
+
+## Padrões clássicos de questão
+
+- **Clickstream em tempo real**: Kinesis Data Streams → Lambda → DynamoDB (ou → Firehose → S3 para histórico).
+- **Logs para análise SQL barata**: Firehose → S3 (Parquet) → Athena.
+- **Warehouse corporativo**: pipelines → Redshift → QuickSight.
+- **"Reduzir custo do Athena"**: particionar dados + converter para Parquet/ORC + comprimir.
+
+## Sinais de prova
+
+- "Analisar logs no S3 com SQL, menor custo/esforço" → **Athena**.
+- "Entregar streaming no S3 sem gerenciar nada" → **Firehose**.
+- "Reprocessar eventos das últimas 24h" → **Kinesis Data Streams** (retenção/replay).
+- "Permissões por coluna no data lake" → **Lake Formation**.
+- "ETL serverless" → **Glue**.
+
+## Armadilhas comuns
+
+- Athena consulta **no lugar** (dados ficam no S3); Redshift carrega para dentro. Custo/latência diferentes.
+- Firehose não faz replay nem múltiplos consumidores — isso é Streams.
+- EMR raramente é a resposta "de menor esforço" — só quando pedem Spark/Hadoop explícito ou controle fino.
+
+## Checklist antes de avançar
+
+- [ ] Sei desenhar o pipeline completo de ponta a ponta
+- [ ] Sei Streams × Firehose × MSK em uma frase cada
+- [ ] Sei quando Athena vence Redshift (e vice-versa)
+- [ ] Sei as 3 otimizações de custo do Athena

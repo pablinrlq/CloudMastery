@@ -1,0 +1,69 @@
+---
+title: "Lab: Site Estático no S3"
+description: "Publique seu primeiro site na AWS e veja na prática buckets, objetos, permissões e classes de armazenamento."
+domain: "Tecnologia e Serviços"
+order: 6
+durationMinutes: 45
+type: "lab"
+week: 2
+---
+
+## Objetivo
+
+Publicar um site estático no S3 do zero, entendendo cada conceito que a prova cobra: bucket, objeto, política pública, versionamento e classes.
+
+**Custo estimado**: R$ 0 (free tier: 5 GB). **Região**: us-east-1.
+
+## Passo a passo
+
+1. **Crie o bucket**: S3 → Create bucket → `meusite-seunome-0001` (nome globalmente único — se der erro de nome, é isso, e cai na prova!).
+
+2. **Crie o site**: um arquivo `index.html` local:
+   ```html
+   <!DOCTYPE html>
+   <html lang="pt-BR">
+   <body style="font-family:sans-serif;text-align:center;padding-top:15vh">
+     <h1>Meu primeiro site na AWS ☁️</h1>
+     <p>Servido direto do Amazon S3.</p>
+   </body>
+   </html>
+   ```
+
+3. **Suba o arquivo**: Upload → index.html. Repare nas opções de **storage class** no upload (Standard, IA, Glacier...) — deixe Standard, mas reconheça a tabela da prova ali.
+
+4. **Ative o site estático**: Properties → Static website hosting → Enable → index document `index.html`. Copie a URL do endpoint... e veja o **403**. Por quê? Bucket é privado por padrão!
+
+5. **Libere o acesso público conscientemente**:
+   - Permissions → Block public access → Edit → desmarque (só neste bucket de site!)
+   - Bucket policy:
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [{
+       "Effect": "Allow",
+       "Principal": "*",
+       "Action": "s3:GetObject",
+       "Resource": "arn:aws:s3:::meusite-seunome-0001/*"
+     }]
+   }
+   ```
+   - Recarregue o endpoint: site no ar! 🎉
+
+6. **Versionamento na prática**: ative (Properties → Versioning), mude o `<h1>` do HTML, suba de novo, recarregue. Em "Show versions", as duas versões convivem.
+
+## Validação
+
+- [ ] Site acessível pela URL do endpoint
+- [ ] Você entendeu por que deu 403 antes da policy
+- [ ] Duas versões do index.html no bucket
+
+## Limpeza
+
+Esvazie (com versões) e delete o bucket.
+
+## O que este lab prova para o exame
+
+- Buckets são privados por padrão; público exige decisão explícita (Block Public Access + policy)
+- Nome de bucket é único no MUNDO, não na conta
+- Versionamento guarda tudo — proteção contra sobrescrita/deleção
+- Em produção real: CloudFront + OAC na frente (o site fica privado) — módulo de redes

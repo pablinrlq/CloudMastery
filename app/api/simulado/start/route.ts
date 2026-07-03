@@ -6,6 +6,7 @@ import { CERTIFICATIONS, isValidCert } from "@/lib/content";
 
 // POST { certId, mode: "full" | "domain", domain? }
 // Creates an attempt and returns questions WITHOUT correct answers.
+// "full" usa o número oficial de questões do exame; "domain" usa até 20.
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const {
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
 
   let query = admin
     .from("questions")
-    .select("id, domain, prompt, choices, difficulty")
+    .select("id, domain, prompt, choices, difficulty, hint")
     .eq("cert_id", certId);
 
   if (mode === "domain" && domain) {
@@ -53,10 +54,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Shuffle and cap at the official exam size for full mode.
   const shuffled = [...questions].sort(() => Math.random() - 0.5);
   const cap = mode === "full" ? CERTIFICATIONS[certId].examQuestionCount : 20;
-  const selected = shuffled.slice(0, cap);
+  const selected = shuffled.slice(0, cap).map((q) => ({
+    id: q.id,
+    domain: q.domain,
+    prompt: q.prompt,
+    choices: q.choices,
+    difficulty: q.difficulty,
+    hasHint: Boolean(q.hint), // só o flag — o texto da dica fica no servidor
+  }));
 
   const { data: attempt, error: attemptError } = await admin
     .from("simulado_attempts")
@@ -78,6 +85,6 @@ export async function POST(request: NextRequest) {
     attemptId: attempt.id,
     durationMinutes:
       mode === "full" ? CERTIFICATIONS[certId].examDurationMinutes : 30,
-    questions: selected, // sem correct_choice_ids nem explanation
+    questions: selected,
   });
 }

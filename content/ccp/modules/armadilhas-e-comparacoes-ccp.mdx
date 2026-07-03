@@ -1,0 +1,59 @@
+---
+title: "Armadilhas e Comparações do CLF-C02"
+description: "As confusões clássicas do Cloud Practitioner lado a lado — a leitura obrigatória da véspera."
+domain: "Conceitos de Nuvem"
+order: 13
+durationMinutes: 40
+type: "revisao"
+week: 4
+---
+
+## As comparações que decidem a prova
+
+| Confusão | A | B | Regra de bolso |
+|---|---|---|---|
+| **CloudWatch × CloudTrail** | Métricas/logs/alarmes ("como está?") | Auditoria de API ("quem fez?") | Watch = relógio de saúde; Trail = trilha de auditoria |
+| **CloudTrail × Config** | Registra CHAMADAS | Avalia CONFIGURAÇÃO | "Quem mudou" × "está conforme" |
+| **Pricing Calculator × Cost Explorer** | Estima ANTES | Analisa DEPOIS | Futuro × passado |
+| **Budgets × Cost Explorer** | ALERTA ao passar limite | VISUALIZA tendências | Sentinela × painel |
+| **IAM User × Role** | Identidade permanente c/ credenciais | Identidade temporária assumível | "Sem armazenar credenciais" = role |
+| **Grupo IAM × Role** | Organiza USUÁRIOS | Assumida por serviços/pessoas | Grupo não é identidade executável |
+| **Security Group × NACL** | Instância, stateful, só allow | Subnet, stateless, allow+deny | "Bloquear um IP" = NACL |
+| **Região × AZ × Edge** | Área geográfica | Datacenter(s) isolado(s) | Edge = cache do CloudFront |
+| **S3 × EBS × EFS** | Objetos via URL | Disco de 1 instância | EFS = pasta de rede multi-instância |
+| **Reserved × Spot × On-Demand** | 1-3 anos, estável | Interrompível, -90% | On-Demand = flexível, caro |
+| **EC2 × Lambda × Fargate** | Servidor seu | Função por evento (15 min) | Fargate = container sem servidor |
+| **SQS × SNS** | Fila (1 consumidor) | Aviso (N assinantes) | Fila guarda; aviso espalha |
+| **RDS × DynamoDB** | SQL relacional | Chave-valor serverless | Joins? RDS. Escala bruta? DynamoDB |
+| **Multi-AZ × Read Replica** | Disponibilidade (failover) | Performance (leitura) | HA × velocidade |
+| **Shield × WAF** | DDoS (volume) | Regras L7 (SQLi/XSS) | Músculo × cérebro |
+| **Inspector × GuardDuty × Macie** | Vulnerabilidades EC2 | Ameaças na conta | Macie = PII no S3 |
+| **Artifact × Audit Manager** | BAIXAR relatórios AWS | COLETAR suas evidências | Deles × suas |
+| **CAF × Well-Architected** | Adoção pela ORGANIZAÇÃO | Arquitetura de WORKLOADS | Pessoas × sistemas |
+| **VPN × Direct Connect** | Criptografada, rápida de montar | Dedicada, semanas, sem cripto padrão | Urgência × consistência |
+| **CloudFront × Global Accelerator** | Cache de conteúdo | Rota otimizada TCP/UDP | Conteúdo × conexão |
+
+## Números do CLF-C02
+
+- **65 questões, 90 minutos**, corte ~**700/1000**
+- Domínios: Nuvem 24% · Segurança 30% · Tecnologia 34% · Cobrança 12%
+- Free tier: 12 meses (EC2/RDS/S3) + sempre grátis (Lambda 1M req/mês)
+- Suporte: Basic (grátis) → Developer → Business (1º com 24/7 fone) → Enterprise On-Ramp → Enterprise (TAM)
+
+## Frases-gatilho
+
+- "Sem gerenciar servidores" → Lambda/Fargate/serverless
+- "Pagar apenas pelo uso" → benefício OPEX da nuvem
+- "Quem fez a chamada" → CloudTrail
+- "Relatório SOC/ISO/PCI" → Artifact
+- "Recomendações de economia/segurança" → Trusted Advisor
+- "Consolidar contas e descontos" → Organizations
+- "Dados sensíveis no S3" → Macie
+- "Estimar migração" → Pricing Calculator
+
+## Checklist de véspera
+
+- [ ] Tabela inteira sem hesitar
+- [ ] Números decorados
+- [ ] Os 6 benefícios da nuvem na ponta da língua
+- [ ] Responsabilidade compartilhada: fronteira de EC2, RDS e S3

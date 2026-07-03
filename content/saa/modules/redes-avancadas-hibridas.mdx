@@ -1,0 +1,71 @@
+---
+title: "Redes Avançadas e Conectividade Híbrida"
+description: "Transit Gateway, Direct Connect, VPN, PrivateLink e VPC Peering — quando cada peça conecta o quê."
+domain: "Arquiteturas Seguras"
+order: 10
+durationMinutes: 65
+type: "teoria"
+week: 3
+---
+
+## O problema que este módulo resolve
+
+Questões de conectividade dão um cenário (N VPCs, datacenter, SaaS, banda, criptografia) e pedem a peça certa. A tabela de decisão:
+
+| Cenário | Solução | Por quê |
+|---|---|---|
+| 2 VPCs conversando | VPC Peering | Simples e barato — mas **não transitivo** |
+| 10+ VPCs + datacenter | **Transit Gateway** | Hub central, roteamento transitivo |
+| Datacenter ↔ AWS rápido de montar | Site-to-Site VPN | Horas para subir, IPsec pela internet |
+| Banda garantida, latência estável | **Direct Connect** | Link físico dedicado (semanas p/ provisionar) |
+| DX + criptografia | VPN **sobre** o Direct Connect | DX puro não criptografa |
+| Expor UM serviço a outras VPCs/clientes | **PrivateLink** | Consumidor não "entra" na sua rede |
+| Acessar serviços AWS sem internet | VPC Endpoints | Gateway (S3/DynamoDB, grátis) ou Interface |
+
+## Transit Gateway em detalhe
+
+- Hub-and-spoke: cada VPC/VPN/DX se conecta uma vez ao TGW e alcança as demais (roteamento **transitivo** — o que o peering não faz).
+- Route tables por attachment permitem segmentação (prod não fala com dev).
+- Inter-region peering entre TGWs para topologia global.
+- Custo por attachment + por GB — em cenários "2-3 VPCs apenas", peering ainda vence por custo.
+
+## Direct Connect em detalhe
+
+- Conexão física dedicada (1/10/100 Gbps) via parceiro/colocation.
+- **Não criptografado por padrão** — compliance que exige criptografia = VPN por cima.
+- **Semanas a meses** para instalar — se a questão pede "rápido", DX está errado.
+- Resiliência: a prova adora "como tornar o DX resiliente?" → segundo DX em outra location, ou VPN como backup.
+
+## PrivateLink vs Peering (pegadinha clássica)
+
+- Peering conecta **redes inteiras** (precisa de CIDRs sem sobreposição).
+- PrivateLink expõe **um serviço específico** (NLB por trás) como um endpoint na VPC do consumidor:
+  - CIDRs podem se sobrepor (não importa!)
+  - Consumidor só alcança o serviço, nada mais da sua rede
+  - Padrão para "oferecer nosso SaaS dentro da VPC do cliente"
+
+## Roteamento e DNS híbrido
+
+- **Route 53 Resolver endpoints**: inbound (datacenter resolve nomes da VPC) e outbound (VPC resolve nomes do datacenter) — a resposta para "DNS híbrido".
+- BGP no DX/VPN para troca dinâmica de rotas.
+
+## Sinais de prova
+
+- "Dezenas de VPCs, gestão de conectividade complexa" → **Transit Gateway**.
+- "Latência consistente/previsível com o on-premises" → **Direct Connect**.
+- "Conectividade híbrida criptografada AGORA" → **VPN Site-to-Site**.
+- "Cliente acessa nosso serviço sem expor a rede / CIDRs sobrepostos" → **PrivateLink**.
+- "Resolver nomes on-premises a partir da VPC" → **Route 53 Resolver outbound endpoint**.
+
+## Armadilhas comuns
+
+- Peering não é transitivo e não aceita CIDR sobreposto — duas eliminações instantâneas.
+- DX não é rápido de contratar nem criptografado — duas eliminações instantâneas.
+- TGW resolve tudo, mas se o cenário tem só 2 VPCs e pede MENOR custo, peering ganha.
+
+## Checklist antes de avançar
+
+- [ ] Sei a tabela de decisão completa de cabeça
+- [ ] Sei as 2 limitações do peering e as 2 do DX
+- [ ] Sei quando PrivateLink vence peering
+- [ ] Sei o que Resolver endpoints resolvem

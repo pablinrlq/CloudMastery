@@ -177,4 +177,5 @@ insert into questions (cert_id, domain, prompt, choices, correct_choice_ids, exp
  '[{"id":"a","text":"Comprar Reserved Instances de 3 anos para dev"},{"id":"b","text":"Automatizar parada e inicialização fora do horário comercial"},{"id":"c","text":"Migrar dev para outra Região mais barata"},{"id":"d","text":"Reduzir todas as instâncias para nano"}]',
  '{b}',
  'Desligar recursos ociosos (ex: Instance Scheduler) corta ~65% do custo de dev sem impacto no expediente. Reservar capacidade para algo que fica ocioso é o oposto de otimizar.',
- 'easy');
+ 'easy')
+on conflict do nothing;

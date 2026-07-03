@@ -27,4 +27,5 @@ insert into flashcards (cert_id, domain, front, back) values
 ('saa', 'Arquiteturas de Alta Performance', 'Limites da Lambda que decidem questões', '15 min de timeout · ~6 MB payload síncrono · cold start (mitiga com provisioned concurrency) · conexões RDS (usa RDS Proxy).'),
 ('saa', 'Arquiteturas com Custo Otimizado', 'NAT Gateway caro demais — alternativa?', 'Se o destino é S3/DynamoDB: Gateway Endpoint (grátis, sem internet). NAT só para o que realmente precisa de saída à internet.'),
 ('saa', 'Arquiteturas com Custo Otimizado', 'Compute Savings Plans vs Reserved Instances', 'Savings Plans: desconto por compromisso de $/hora, flexível (família, região, SO). RI padrão: preso à configuração; RI conversível fica no meio.'),
-('saa', 'Arquiteturas com Custo Otimizado', 'Mínimos de dias das classes S3', 'Standard-IA/One Zone-IA: 30 dias. Glacier Flexible: 90. Deep Archive: 180. Objetos < 128 KB não compensam em IA.');
+('saa', 'Arquiteturas com Custo Otimizado', 'Mínimos de dias das classes S3', 'Standard-IA/One Zone-IA: 30 dias. Glacier Flexible: 90. Deep Archive: 180. Objetos < 128 KB não compensam em IA.')
+on conflict do nothing;

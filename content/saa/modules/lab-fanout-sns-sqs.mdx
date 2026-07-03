@@ -1,0 +1,52 @@
+---
+title: "Lab: Fan-out com SNS + SQS"
+description: "Monte o padrão de desacoplamento favorito da prova: um evento, múltiplas filas, consumidores independentes."
+domain: "Arquiteturas Resilientes"
+order: 15
+durationMinutes: 45
+type: "lab"
+week: 5
+---
+
+## Objetivo
+
+Implementar o **fan-out**: uma mensagem publicada em um tópico SNS entregue simultaneamente a duas filas SQS — o padrão "um pedido dispara faturamento E logística" que a prova cobra direto.
+
+**Custo estimado**: R$ 0 (free tier cobre milhões de mensagens). **Região**: us-east-1.
+
+## Passo a passo
+
+1. **Crie as filas**: SQS → Create queue (Standard):
+   - `lab-fila-faturamento`
+   - `lab-fila-logistica`
+
+2. **Crie o tópico**: SNS → Topics → Create (Standard) → `lab-pedidos`.
+
+3. **Inscreva as filas no tópico**: em cada fila → Subscribe to Amazon SNS topic → `lab-pedidos`. (Isso ajusta a access policy da fila automaticamente — repare nela: o SNS ganhou permissão `sqs:SendMessage`.)
+
+4. **Publique um evento**: no tópico → Publish message:
+   ```json
+   { "pedidoId": "12345", "valor": 249.90, "cliente": "Maria" }
+   ```
+
+5. **Confira o fan-out**: em CADA fila → Send and receive messages → Poll for messages: a mesma mensagem chegou nas duas, de forma independente.
+
+6. **Prove o desacoplamento**: apague a mensagem só da `lab-fila-faturamento`. A da `lab-fila-logistica` continua lá — um consumidor lento/quebrado não afeta o outro.
+
+7. **Bônus — DLQ**: crie `lab-dlq`, configure na `lab-fila-faturamento` como Dead-letter queue (Maximum receives: 3). Receba a mesma mensagem 4 vezes sem apagar (Poll repetidamente) e veja-a ser movida para a DLQ.
+
+## Validação
+
+- [ ] Uma publicação chegou nas duas filas
+- [ ] Consumo em uma fila não afeta a outra
+- [ ] Mensagem "envenenada" foi parar na DLQ após 3 tentativas
+
+## Limpeza
+
+Delete as 3 filas e o tópico (sem custo se esquecer, mas higiene conta).
+
+## O que este lab prova para o exame
+
+- SNS = broadcast; SQS = buffer durável; juntos = fan-out
+- Cada consumidor processa no seu ritmo com sua própria fila
+- DLQ captura mensagens com falha repetida para análise — sempre a resposta para "mensagens problemáticas"

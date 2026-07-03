@@ -1,0 +1,66 @@
+---
+title: "Migração e Transferência de Dados"
+description: "DMS, MGN, DataSync, Snow Family e Transfer Family — mover servidores, bancos e petabytes para a AWS."
+domain: "Arquiteturas Resilientes"
+order: 23
+durationMinutes: 55
+type: "teoria"
+week: 8
+---
+
+## Ferramenta certa para cada coisa que se move
+
+| O que mover | Ferramenta | Detalhe-chave |
+|---|---|---|
+| Servidores inteiros (VMs) | **MGN** (Application Migration Service) | Rehost automatizado, replicação contínua, cutover rápido |
+| Bancos de dados | **DMS** (+ SCT) | Banco de origem continua NO AR durante a migração |
+| Arquivos via rede (NFS/SMB → S3/EFS/FSx) | **DataSync** | Transferência acelerada, agendada, com validação |
+| Dezenas de TB a PB com rede ruim | **Snow Family** | Dispositivos físicos |
+| Parceiros enviando arquivos via SFTP/FTPS | **Transfer Family** | Endpoint SFTP gerenciado com S3/EFS atrás |
+| Compartilhamento híbrido contínuo | **Storage Gateway** | Cache local, dados na nuvem |
+
+## DMS + SCT
+
+- **DMS**: replica dados com a origem em produção (CDC — mudanças contínuas). Migração homogênea (MySQL→MySQL) ou heterogênea.
+- **SCT (Schema Conversion Tool)**: converte schema/código entre engines (Oracle → Aurora PostgreSQL). Heterogênea = SCT primeiro, DMS depois.
+- Cenário contínuo: DMS também serve para **replicação contínua** (alimentar réplica analítica).
+
+## Snow Family — matemática da prova
+
+Regra prática: transferir pela rede leva `dados / banda`. 100 TB em 100 Mbps ≈ 100+ dias → inviável → **Snowball Edge** (80 TB úteis por device). Snowcone (8 TB, portátil), Snowmobile (100 PB, caminhão — raríssimo).
+
+- Além de transporte, Snowball Edge tem compute (EC2/Lambda local) para **edge computing** em locais sem conectividade.
+
+## DataSync vs Storage Gateway (pegadinha)
+
+- **DataSync**: migração/transferência **pontual ou agendada** — "mover e terminar".
+- **Storage Gateway**: acesso **híbrido contínuo** — on-premises continua usando os dados na nuvem como se fossem locais:
+  - **File Gateway** (NFS/SMB → S3, cache local)
+  - **Volume Gateway** (iSCSI, volumes com snapshot no S3)
+  - **Tape Gateway** (backup em "fitas virtuais" no S3/Glacier)
+
+## Transfer Family
+
+SFTP/FTPS/FTP gerenciado com autenticação e S3/EFS como backend. Sinal: "parceiros já enviam arquivos por SFTP e não podem mudar o processo".
+
+## Sinais de prova
+
+- "Migrar 200 VMs com mínimo downtime" → **MGN**.
+- "Oracle para Aurora PostgreSQL" → **SCT + DMS**.
+- "500 TB, link de 100 Mbps, 3 semanas de prazo" → **Snowball**.
+- "Sincronizar NFS on-premises com S3 toda noite" → **DataSync**.
+- "Backup em fita sem mudar o software de backup" → **Tape Gateway**.
+- "Manter SFTP dos parceiros, dados no S3" → **Transfer Family**.
+
+## Armadilhas comuns
+
+- DMS não converte schema — quem converte é o SCT.
+- DataSync não é para acesso contínuo (Storage Gateway é); Storage Gateway não é para migração em massa (DataSync/Snow são).
+- Faça a conta da banda antes de descartar a rede — a prova dá os números de propósito.
+
+## Checklist antes de avançar
+
+- [ ] Sei a tabela "o que mover × ferramenta" completa
+- [ ] Sei quando SCT entra junto com DMS
+- [ ] Sei DataSync × Storage Gateway × Snow pela natureza do acesso
+- [ ] Sei fazer a matemática de transferência
