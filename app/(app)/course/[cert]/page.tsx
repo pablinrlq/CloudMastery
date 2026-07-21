@@ -5,9 +5,9 @@ import { requireAccess } from "@/lib/dal";
 import { getProgressForCert } from "@/lib/progress";
 
 const TYPE_BADGE: Record<string, { label: string; className: string }> = {
-  teoria: { label: "Teoria", className: "bg-blue-50 text-blue-700" },
-  lab: { label: "Lab", className: "bg-purple-50 text-purple-700" },
-  revisao: { label: "Revisão", className: "bg-emerald-50 text-emerald-700" },
+  teoria: { label: "Teoria", className: "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300" },
+  lab: { label: "Lab", className: "bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300" },
+  revisao: { label: "Revisão", className: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" },
 };
 
 export default async function CoursePage({
@@ -49,22 +49,22 @@ export default async function CoursePage({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <p className="text-sm text-gray-500">{certInfo.code}</p>
-      <h1 className="text-2xl font-bold">{certInfo.name}</h1>
-      <p className="mt-2 text-sm text-gray-600">
+      <p className="text-sm text-gray-500 dark:text-gray-400">{certInfo.code}</p>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{certInfo.name}</h1>
+      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
         {modules.length} módulos ({labCount} labs práticos) · ~
         {Math.round(totalMinutes / 60)}h de estudo · {sortedWeeks.length} semanas
         sugeridas
       </p>
 
       <div className="mt-5">
-        <div className="flex justify-between text-sm text-gray-600">
+        <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
           <span>
             {completed} de {modules.length} módulos concluídos
           </span>
           <span>{Math.round((completed / modules.length) * 100)}%</span>
         </div>
-        <div className="mt-1 h-2 rounded-full bg-gray-100">
+        <div className="mt-1 h-2 rounded-full bg-gray-100 dark:bg-gray-800">
           <div
             className="h-2 rounded-full bg-orange-500 transition-all"
             style={{ width: `${(completed / modules.length) * 100}%` }}
@@ -75,7 +75,7 @@ export default async function CoursePage({
       {nextModule && (
         <Link
           href={`/course/${cert}/${nextModule.slug}`}
-          className="mt-5 flex items-center justify-between rounded-xl bg-gray-900 p-4 text-white hover:bg-gray-800"
+          className="mt-5 flex items-center justify-between rounded-xl bg-gray-900 p-4 text-white hover:bg-gray-800 dark:bg-gradient-to-r dark:from-orange-600 dark:to-amber-600"
         >
           <span>
             <span className="block text-xs text-gray-300">
@@ -87,21 +87,21 @@ export default async function CoursePage({
         </Link>
       )}
 
-      <section className="mt-8 rounded-xl border border-gray-200 p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+      <section className="mt-8 rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
           Domínios do exame
         </h2>
-        <div className="mt-3 grid gap-2 text-sm">
+        <div className="mt-3 grid gap-2 text-sm text-gray-800 dark:text-gray-200">
           {domainStats.map(({ domain, total, done }) => (
             <div key={domain} className="flex items-center justify-between gap-3">
               <span>{domain}</span>
-              <span className="shrink-0 text-xs text-gray-500">
+              <span className="shrink-0 text-xs text-gray-500 dark:text-gray-400">
                 {done}/{total} módulos
               </span>
             </div>
           ))}
         </div>
-        <p className="mt-3 text-xs text-gray-400">
+        <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
           Formato oficial: {certInfo.examQuestionCount} questões ·{" "}
           {certInfo.examDurationMinutes} minutos
         </p>
@@ -110,7 +110,7 @@ export default async function CoursePage({
       <div className="mt-8 space-y-8">
         {sortedWeeks.map(([week, weekModules]) => (
           <section key={week}>
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Semana {week}
             </h2>
             <ol className="mt-3 space-y-3">
@@ -121,30 +121,32 @@ export default async function CoursePage({
                   <li key={mod.slug}>
                     <Link
                       href={`/course/${cert}/${mod.slug}`}
-                      className="flex items-start gap-4 rounded-xl border border-gray-200 p-4 hover:border-orange-300 hover:bg-orange-50/40"
+                      className="flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-4 hover:border-orange-300 hover:bg-orange-50/40 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-orange-500/50 dark:hover:bg-gray-800"
                     >
                       <span
                         className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-medium ${
                           done
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-600"
+                            ? "bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-400"
+                            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"
                         }`}
                       >
                         {done ? "✓" : mod.order}
                       </span>
                       <span className="min-w-0">
                         <span className="flex flex-wrap items-center gap-2">
-                          <span className="font-medium">{mod.title}</span>
+                          <span className="font-medium text-gray-900 dark:text-white">
+                            {mod.title}
+                          </span>
                           <span
                             className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${badge.className}`}
                           >
                             {badge.label}
                           </span>
                         </span>
-                        <span className="mt-0.5 block text-sm text-gray-500">
+                        <span className="mt-0.5 block text-sm text-gray-500 dark:text-gray-400">
                           {mod.description}
                         </span>
-                        <span className="mt-1 block text-xs text-gray-400">
+                        <span className="mt-1 block text-xs text-gray-400 dark:text-gray-500">
                           {mod.domain} · ~{mod.durationMinutes} min
                         </span>
                       </span>
@@ -158,9 +160,9 @@ export default async function CoursePage({
       </div>
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl bg-gray-50 p-6">
-          <h2 className="font-semibold">Simulados</h2>
-          <p className="mt-1 text-sm text-gray-600">
+        <div className="rounded-xl bg-gray-50 p-6 dark:bg-gray-900">
+          <h2 className="font-semibold text-gray-900 dark:text-white">Simulados</h2>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
             Formato oficial ({certInfo.examQuestionCount} questões,{" "}
             {certInfo.examDurationMinutes} min), dicas com penalidade e análise de
             tempo por questão.
@@ -172,14 +174,14 @@ export default async function CoursePage({
             Fazer simulado
           </Link>
         </div>
-        <div className="rounded-xl bg-gray-50 p-6">
-          <h2 className="font-semibold">Flashcards</h2>
-          <p className="mt-1 text-sm text-gray-600">
+        <div className="rounded-xl bg-gray-50 p-6 dark:bg-gray-900">
+          <h2 className="font-semibold text-gray-900 dark:text-white">Flashcards</h2>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
             Revisão espaçada dos conceitos que mais caem na prova.
           </p>
           <Link
             href={`/flashcards/${cert}`}
-            className="mt-3 inline-block rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:border-orange-400"
+            className="mt-3 inline-block rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-orange-400 dark:border-gray-700 dark:text-gray-300 dark:hover:border-orange-500"
           >
             Revisar flashcards
           </Link>

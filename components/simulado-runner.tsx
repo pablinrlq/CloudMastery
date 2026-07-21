@@ -231,8 +231,8 @@ export function SimuladoRunner({
       <div className="space-y-6">
         {error && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
 
-        <div className="rounded-xl border border-gray-200 p-6">
-          <h2 className="font-semibold">Simulado completo</h2>
+        <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+          <h2 className="font-semibold text-gray-900 dark:text-white">Simulado completo</h2>
           <p className="mt-1 text-sm text-gray-600">
             Formato oficial: {fullQuestionCount} questões em {fullDurationMinutes}{" "}
             minutos. Se o tempo acabar, o cronômetro continua em negativo — você
@@ -250,8 +250,8 @@ export function SimuladoRunner({
           </button>
         </div>
 
-        <div className="rounded-xl border border-gray-200 p-6">
-          <h2 className="font-semibold">Prática por domínio</h2>
+        <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+          <h2 className="font-semibold text-gray-900 dark:text-white">Prática por domínio</h2>
           <p className="mt-1 text-sm text-gray-600">
             Foque no domínio em que você está mais fraco (até 20 questões, 30 min).
           </p>
@@ -261,7 +261,7 @@ export function SimuladoRunner({
                 key={d}
                 onClick={() => start("domain", d)}
                 disabled={phase === "loading"}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm hover:border-orange-400 hover:text-orange-600 disabled:opacity-50"
+                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:border-orange-400 hover:text-orange-600 disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:border-orange-500 dark:hover:text-orange-400"
               >
                 {d}
               </button>
@@ -302,7 +302,7 @@ export function SimuladoRunner({
         </div>
 
         <div>
-          <h2 className="font-semibold">Desempenho por domínio</h2>
+          <h2 className="font-semibold text-gray-900 dark:text-white">Desempenho por domínio</h2>
           <div className="mt-3 space-y-3">
             {Object.entries(results.domainBreakdown).map(([domain, { correct, total }]) => {
               const pct = Math.round((correct / total) * 100);
@@ -328,7 +328,7 @@ export function SimuladoRunner({
 
         {results.recommendations.length > 0 && (
           <div className="rounded-xl border border-orange-200 bg-orange-50/50 p-5">
-            <h2 className="font-semibold">📚 O que estudar antes do próximo simulado</h2>
+            <h2 className="font-semibold text-gray-900 dark:text-white">📚 O que estudar antes do próximo simulado</h2>
             <p className="mt-1 text-sm text-gray-600">
               Com base nos seus erros, revise estes módulos (do domínio mais fraco para o menos):
             </p>
@@ -358,7 +358,7 @@ export function SimuladoRunner({
 
         {results.slowest.length > 0 && (
           <div>
-            <h2 className="font-semibold">⏱ Onde você levou mais tempo</h2>
+            <h2 className="font-semibold text-gray-900 dark:text-white">⏱ Onde você levou mais tempo</h2>
             <ul className="mt-3 space-y-2">
               {results.slowest.map((s, i) => (
                 <li
@@ -387,7 +387,7 @@ export function SimuladoRunner({
         )}
 
         <div>
-          <h2 className="font-semibold">Revisão das questões</h2>
+          <h2 className="font-semibold text-gray-900 dark:text-white">Revisão das questões</h2>
           <div className="mt-3 space-y-4">
             {results.review
               .filter((r) => !r.correct)
@@ -429,7 +429,7 @@ export function SimuladoRunner({
                     })}
                   </ul>
                   {item.explanation && (
-                    <p className="mt-3 rounded-md bg-gray-50 p-3 text-sm text-gray-700">
+                    <p className="mt-3 rounded-md bg-gray-50 p-3 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                       {item.explanation}
                     </p>
                   )}
@@ -488,7 +488,7 @@ export function SimuladoRunner({
       )}
 
       <p className="text-xs font-medium uppercase tracking-wide text-orange-600">{q.domain}</p>
-      <h2 className="mt-2 text-lg font-medium leading-relaxed">{q.prompt}</h2>
+      <h2 className="mt-2 text-lg font-medium leading-relaxed text-gray-900 dark:text-white">{q.prompt}</h2>
       {multi && <p className="mt-1 text-sm text-gray-500">Selecione todas as corretas.</p>}
 
       <div className="mt-5 space-y-2">
@@ -498,10 +498,10 @@ export function SimuladoRunner({
             <button
               key={c.id}
               onClick={() => toggleChoice(q.id, c.id, multi)}
-              className={`block w-full rounded-lg border p-3 text-left text-sm transition ${
+              className={`block w-full rounded-lg border p-3 text-left text-sm text-gray-900 transition dark:text-gray-100 ${
                 selected
-                  ? "border-orange-500 bg-orange-50"
-                  : "border-gray-200 hover:border-gray-300"
+                  ? "border-orange-500 bg-orange-50 dark:bg-orange-500/15"
+                  : "border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600"
               }`}
             >
               {c.text}
@@ -543,7 +543,7 @@ export function SimuladoRunner({
         {current < questions.length - 1 ? (
           <button
             onClick={() => goTo(current + 1)}
-            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white"
+            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-gray-900"
           >
             Próxima →
           </button>

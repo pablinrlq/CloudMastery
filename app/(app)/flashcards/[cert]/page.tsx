@@ -41,9 +41,11 @@ export default async function FlashcardsPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
-      <p className="text-sm text-gray-500">{certInfo.code}</p>
-      <h1 className="text-2xl font-bold">Flashcards — {certInfo.name}</h1>
-      <p className="mt-2 text-sm text-gray-600">
+      <p className="text-sm text-gray-500 dark:text-gray-400">{certInfo.code}</p>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        Flashcards — {certInfo.name}
+      </h1>
+      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
         Cartões marcados como &quot;revisar depois&quot; voltam primeiro na próxima sessão.
       </p>
 

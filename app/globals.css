@@ -66,3 +66,26 @@ body {
   transform: translateY(-3px);
   box-shadow: 0 12px 32px -12px rgb(249 115 22 / 0.25);
 }
+
+/* ---- Impressão do certificado ---- */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .cm-certificate,
+  .cm-certificate * {
+    visibility: visible;
+  }
+  .cm-certificate {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border-color: #fb923c !important;
+    box-shadow: none !important;
+  }
+  @page {
+    size: landscape;
+    margin: 1cm;
+  }
+}

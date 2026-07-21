@@ -32,29 +32,29 @@ export default async function ModulePage({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <Link href={`/course/${cert}`} className="text-sm text-gray-500 hover:text-gray-800">
+      <Link href={`/course/${cert}`} className="text-sm text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
         ← Voltar para a trilha
       </Link>
 
-      <p className="mt-4 text-xs font-medium uppercase tracking-wide text-orange-600">
+      <p className="mt-4 text-xs font-medium uppercase tracking-wide text-orange-600 dark:text-orange-400">
         {mod.domain}
       </p>
-      <h1 className="mt-1 text-3xl font-bold">{mod.title}</h1>
-      <p className="mt-2 text-gray-600">{mod.description}</p>
-      <p className="mt-1 text-sm text-gray-400">~{mod.durationMinutes} min de estudo</p>
+      <h1 className="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{mod.title}</h1>
+      <p className="mt-2 text-gray-600 dark:text-gray-300">{mod.description}</p>
+      <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">~{mod.durationMinutes} min de estudo</p>
 
-      <article className="prose prose-gray mt-8 max-w-none prose-headings:scroll-mt-20 prose-table:text-sm">
+      <article className="prose prose-gray mt-8 max-w-none prose-headings:scroll-mt-20 prose-table:text-sm dark:prose-invert dark:prose-headings:text-white dark:prose-th:text-gray-200 dark:prose-td:text-gray-300">
         <MDXRemote
           source={mod.body}
           options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
         />
       </article>
 
-      <div className="mt-10 flex items-center justify-between border-t border-gray-200 pt-6">
+      <div className="mt-10 flex items-center justify-between border-t border-gray-200 pt-6 dark:border-gray-800">
         {prev ? (
           <Link
             href={`/course/${cert}/${prev.slug}`}
-            className="text-sm text-gray-600 hover:text-gray-900"
+            className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
           >
             ← {prev.title}
           </Link>
@@ -63,7 +63,7 @@ export default async function ModulePage({
         )}
 
         {isCompleted ? (
-          <span className="rounded-md bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
+          <span className="rounded-md bg-green-100 px-4 py-2 text-sm font-medium text-green-700 dark:bg-green-500/15 dark:text-green-400">
             ✓ Módulo concluído
           </span>
         ) : (
@@ -80,7 +80,7 @@ export default async function ModulePage({
         {next ? (
           <Link
             href={`/course/${cert}/${next.slug}`}
-            className="text-sm text-gray-600 hover:text-gray-900"
+            className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
           >
             {next.title} →
           </Link>
