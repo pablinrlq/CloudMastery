@@ -11,3 +11,58 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+
+/* ---- CloudMastery design helpers ---- */
+
+@keyframes cm-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cm-fade-up {
+  animation: cm-fade-up 0.6s ease-out both;
+}
+
+.cm-fade-up-delay-1 {
+  animation: cm-fade-up 0.6s ease-out 0.12s both;
+}
+
+.cm-fade-up-delay-2 {
+  animation: cm-fade-up 0.6s ease-out 0.24s both;
+}
+
+/* grade sutil para o hero escuro */
+.cm-grid-bg {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 55%, transparent 100%);
+}
+
+/* brilho radial laranja do hero */
+.cm-hero-glow {
+  background: radial-gradient(
+    ellipse 60% 45% at 50% 0%,
+    rgb(249 115 22 / 0.28),
+    transparent 70%
+  );
+}
+
+.cm-card-hover {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.cm-card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px -12px rgb(249 115 22 / 0.25);
+}

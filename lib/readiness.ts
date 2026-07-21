@@ -12,6 +12,7 @@ export type Readiness = {
   modulesTotal: number;
   fullAttempts: number;
   recentScores: number[]; // últimos 3 simulados completos, mais recente primeiro
+  scoreHistory: Array<{ score: number; completedAt: string }>; // cronológico (antigo → recente)
   avgRecentScore: number | null;
   weakestDomains: DomainStat[];
   ready: boolean;
@@ -43,6 +44,13 @@ export async function getReadiness(certId: CertId): Promise<Readiness> {
     .limit(10);
 
   const completedAttempts = attempts ?? [];
+  const scoreHistory = [...completedAttempts]
+    .reverse()
+    .map((a) => ({
+      score: Number(a.score),
+      completedAt: a.completed_at as string,
+    }))
+    .filter((h) => !Number.isNaN(h.score));
   const recentScores = completedAttempts
     .slice(0, 3)
     .map((a) => Number(a.score))
@@ -101,6 +109,7 @@ export async function getReadiness(certId: CertId): Promise<Readiness> {
     modulesTotal: modules.length,
     fullAttempts: completedAttempts.length,
     recentScores,
+    scoreHistory,
     avgRecentScore,
     weakestDomains,
     ready,

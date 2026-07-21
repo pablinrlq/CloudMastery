@@ -12,14 +12,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Título provisório — o nome do produto ainda não foi definido.
 export const metadata: Metadata = {
   title: {
-    default: "Estudos para certificações AWS",
-    template: "%s | Estudos AWS",
+    default: "CloudMastery — Certificações AWS com método",
+    template: "%s | CloudMastery",
   },
   description:
-    "Trilhas de estudo, simulados cronometrados e diagnóstico de prontidão para as certificações AWS.",
+    "Trilhas semanais em português, simulados no formato oficial com análise de tempo por questão, labs práticos e diagnóstico de prontidão para as certificações AWS.",
 };
 
 export default function RootLayout({

@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     customer: customerId,
     mode: "subscription",
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard?checkout=success`,
+    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/stripe/sync?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/pricing?checkout=cancelled`,
     client_reference_id: user.id,
     subscription_data: {

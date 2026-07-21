@@ -3,12 +3,16 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { signup, loginWithGoogle } from "../actions";
+import { Logo } from "@/components/logo";
 
 export default function SignupPage() {
   const [state, action, pending] = useActionState(signup, undefined);
 
   return (
     <div className="mx-auto flex min-h-[80vh] max-w-sm flex-col justify-center px-4">
+      <div className="mb-8 flex justify-center">
+        <Logo size={36} />
+      </div>
       <h1 className="mb-6 text-2xl font-semibold">Criar conta</h1>
 
       <form action={action} className="flex flex-col gap-4">

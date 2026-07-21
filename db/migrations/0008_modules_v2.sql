@@ -52,4 +52,5 @@ insert into modules (cert_id, slug, title, domain, order_index) values
   ('saa', 'glossario-saa', 'Glossário SAA', 'Arquiteturas Resilientes', 30),
   ('saa', 'reta-final-plano-14-dias', 'Reta Final: Plano de 14 Dias e Dia da Prova', 'Arquiteturas Resilientes', 31)
 on conflict (cert_id, slug) do update
+
   set title = excluded.title, domain = excluded.domain, order_index = excluded.order_index;

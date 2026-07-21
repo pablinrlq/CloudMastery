@@ -4,6 +4,7 @@ import { Suspense, useActionState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { login, loginWithGoogle } from "../actions";
+import { Logo } from "@/components/logo";
 
 export default function LoginPage() {
   return (
@@ -20,6 +21,9 @@ function LoginForm() {
 
   return (
     <div className="mx-auto flex min-h-[80vh] max-w-sm flex-col justify-center px-4">
+      <div className="mb-8 flex justify-center">
+        <Logo size={36} />
+      </div>
       <h1 className="mb-6 text-2xl font-semibold">Entrar</h1>
 
       <form action={action} className="flex flex-col gap-4">

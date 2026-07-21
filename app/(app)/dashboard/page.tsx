@@ -2,6 +2,7 @@ import Link from "next/link";
 import { verifySession, getSubscription, hasAccess } from "@/lib/dal";
 import { CERTIFICATIONS, type CertId } from "@/lib/content";
 import { getReadiness } from "@/lib/readiness";
+import { ScoreChart } from "@/components/score-chart";
 
 export default async function DashboardPage() {
   const { email } = await verifySession();
@@ -93,6 +94,15 @@ async function CertPanel({ certId }: { certId: CertId }) {
           <p className="text-xs text-gray-500">média em 3 simulados + trilha 100%</p>
         </div>
       </div>
+
+      {readiness.scoreHistory.length >= 2 && (
+        <div className="mt-5">
+          <p className="text-sm font-medium">Sua evolução nos simulados</p>
+          <div className="mt-2 rounded-lg border border-gray-100 bg-white p-3">
+            <ScoreChart history={readiness.scoreHistory} />
+          </div>
+        </div>
+      )}
 
       {readiness.weakestDomains.length > 0 && (
         <div className="mt-5">
