@@ -60,7 +60,7 @@ function computeStreak(dates: string[]): { streak: number; today: boolean } {
   const studiedToday = days.has(todayStr);
 
   // Âncora: se estudou hoje começa em hoje, senão em ontem (mantém o streak vivo por 1 dia de folga)
-  let cursor = studiedToday ? todayStr : days.has(yStr) ? yStr : null;
+  const cursor = studiedToday ? todayStr : days.has(yStr) ? yStr : null;
   if (!cursor) return { streak: 0, today: false };
 
   let streak = 0;

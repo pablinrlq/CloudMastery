@@ -17,7 +17,7 @@ SaaS de assinatura com trilhas de estudo (MDX), simulados cronometrados com corr
 2. Crie um projeto em [supabase.com](https://supabase.com) e rode as migrations de `db/migrations/` em ordem no SQL editor (ver `db/README.md`).
 3. Copie `.env.example` para `.env.local` e preencha Supabase + Stripe.
 4. No Stripe (modo teste): crie um produto de assinatura com preço mensal e anual; cole os price IDs no `.env.local`.
-5. Webhook local: `stripe listen --forward-to localhost:3000/api/stripe/webhook` e cole o signing secret no `.env.local`.
+5. Webhook local: defina `CLOUDMASTERY_DEV_ORIGIN` com a origem do servidor de desenvolvimento e rode `stripe listen --forward-to "$env:CLOUDMASTERY_DEV_ORIGIN/api/stripe/webhook"`; depois, copie o signing secret para `.env.local`.
 6. `npm run dev`
 
 ## Arquitetura — pontos importantes

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export function CheckoutButton({
   plan,
@@ -13,10 +12,11 @@ export function CheckoutButton({
   className?: string;
 }) {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   async function handleClick() {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
@@ -25,26 +25,42 @@ export function CheckoutButton({
       });
 
       if (res.redirected) {
-        router.push(res.url);
+        window.location.assign(res.url);
         return;
       }
 
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
+      const data = (await res.json().catch(() => ({}))) as {
+        url?: string;
+        error?: string;
+      };
+      if (res.ok && data.url) {
+        window.location.assign(data.url);
       } else {
-        setLoading(false);
-        alert(data.error ?? "Erro ao iniciar o checkout. Tente novamente.");
+        setError(data.error ?? "Erro ao iniciar o checkout. Tente novamente.");
       }
     } catch {
+      setError("Erro de conexão ao iniciar o checkout. Tente novamente.");
+    } finally {
       setLoading(false);
-      alert("Erro ao iniciar o checkout. Tente novamente.");
     }
   }
 
   return (
-    <button onClick={handleClick} disabled={loading} className={className}>
-      {loading ? "Carregando..." : children}
-    </button>
+    <div>
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        aria-busy={loading}
+        className={className}
+      >
+        {loading ? "Abrindo checkout seguro…" : children}
+      </button>
+      {error && (
+        <p role="alert" className="mt-2 text-sm font-medium text-red-600">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }

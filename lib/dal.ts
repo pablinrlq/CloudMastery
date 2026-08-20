@@ -19,7 +19,7 @@ export const verifySession = cache(async () => {
 });
 
 export type Subscription = {
-  status: "trialing" | "active" | "past_due" | "canceled" | "incomplete" | "incomplete_expired" | "unpaid";
+  status: "trialing" | "active" | "past_due" | "canceled" | "incomplete" | "incomplete_expired" | "unpaid" | "paused";
   plan: string | null;
   cert_access: string[];
   current_period_end: string | null;

@@ -17,9 +17,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
   }
 
-  const { certId, mode, domain } = await request.json();
+  const payload: unknown = await request.json().catch(() => null);
+  if (!payload || typeof payload !== "object") {
+    return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
+  }
+  const { certId, mode, domain } = payload as Record<string, unknown>;
 
-  if (!isValidCert(certId) || !["full", "domain"].includes(mode)) {
+  if (
+    typeof certId !== "string" ||
+    !isValidCert(certId) ||
+    (mode !== "full" && mode !== "domain") ||
+    (mode === "domain" &&
+      (typeof domain !== "string" ||
+        !(CERTIFICATIONS[certId].domains as readonly string[]).includes(domain)))
+  ) {
     return NextResponse.json({ error: "Parâmetros inválidos" }, { status: 400 });
   }
 
@@ -41,7 +52,7 @@ export async function POST(request: NextRequest) {
     .select("id, domain, prompt, choices, difficulty, hint")
     .eq("cert_id", certId);
 
-  if (mode === "domain" && domain) {
+  if (mode === "domain") {
     query = query.eq("domain", domain);
   }
 
@@ -72,6 +83,7 @@ export async function POST(request: NextRequest) {
       cert_id: certId,
       mode,
       domain: mode === "domain" ? domain : null,
+      selected_question_ids: selected.map((question) => question.id),
       answers: {},
     })
     .select("id")

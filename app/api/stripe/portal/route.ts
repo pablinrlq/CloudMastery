@@ -1,9 +1,10 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
+import { siteUrl } from "@/lib/site-url";
 
 // POST -> returns URL for the Stripe customer portal (manage/cancel plan).
-export async function POST(request: NextRequest) {
+export async function POST() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   const session = await stripe.billingPortal.sessions.create({
     customer: subscription.stripe_customer_id,
-    return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`,
+    return_url: siteUrl("/dashboard").toString(),
   });
 
   return NextResponse.json({ url: session.url });

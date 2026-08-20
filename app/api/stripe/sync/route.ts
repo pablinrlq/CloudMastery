@@ -3,6 +3,8 @@ import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getPlanFromPriceId, CERT_ACCESS_FOR_PLAN } from "@/lib/stripe-plans";
+import { siteUrl } from "@/lib/site-url";
 
 // GET /api/stripe/sync?session_id=cs_...
 // Destino do success_url do Checkout: confirma a sessão DIRETO na API da
@@ -11,7 +13,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // (o webhook continua sendo a fonte de verdade para renovações/cancelamentos).
 export async function GET(request: NextRequest) {
   const sessionId = request.nextUrl.searchParams.get("session_id");
-  const dashboardUrl = new URL("/dashboard", process.env.NEXT_PUBLIC_SITE_URL);
+  const dashboardUrl = siteUrl("/dashboard");
 
   if (!sessionId) return NextResponse.redirect(dashboardUrl);
 
@@ -21,7 +23,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_SITE_URL));
+    return NextResponse.redirect(siteUrl("/login"));
   }
 
   try {
@@ -37,19 +39,25 @@ export async function GET(request: NextRequest) {
     ) {
       const subscription = session.subscription as Stripe.Subscription;
       const priceId = subscription.items.data[0]?.price.id;
-      const plan =
-        priceId === process.env.STRIPE_PRICE_ID_ANNUAL ? "annual" : "monthly";
+      const plan = getPlanFromPriceId(priceId);
       const periodEnd = subscription.items.data[0]?.current_period_end;
+      const isActive = ["active", "trialing"].includes(subscription.status);
+      const customerId =
+        typeof session.customer === "string" ? session.customer : session.customer?.id;
+
+      if (!plan || !isActive || !customerId) {
+        return NextResponse.redirect(dashboardUrl);
+      }
 
       const admin = createAdminClient();
-      await admin.from("subscriptions").upsert(
+      const { error } = await admin.from("subscriptions").upsert(
         {
           user_id: user.id,
-          stripe_customer_id: session.customer as string,
+          stripe_customer_id: customerId,
           stripe_subscription_id: subscription.id,
           status: subscription.status,
           plan,
-          cert_access: ["ccp", "saa"],
+          cert_access: [...CERT_ACCESS_FOR_PLAN],
           current_period_end: periodEnd
             ? new Date(periodEnd * 1000).toISOString()
             : null,
@@ -57,7 +65,7 @@ export async function GET(request: NextRequest) {
         { onConflict: "user_id" }
       );
 
-      dashboardUrl.searchParams.set("checkout", "success");
+      if (!error) dashboardUrl.searchParams.set("checkout", "success");
     }
   } catch {
     // Sessão inválida/expirada: segue para o dashboard sem liberar nada

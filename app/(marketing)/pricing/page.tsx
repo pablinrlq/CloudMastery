@@ -15,7 +15,13 @@ const includedFeatures = [
   "Diagnóstico de prontidão: saiba QUANDO agendar a prova",
 ];
 
-export default function PricingPage() {
+export default async function PricingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ checkout?: string }>;
+}) {
+  const { checkout } = await searchParams;
+
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-4xl px-4 py-16">
@@ -27,6 +33,15 @@ export default function PricingPage() {
           A CloudMastery custa menos que um lanche por semana.
         </p>
 
+        {checkout === "cancelled" && (
+          <p
+            role="status"
+            className="mx-auto mt-6 max-w-xl rounded-xl border border-amber-200 bg-amber-50 p-3 text-center text-sm text-amber-800"
+          >
+            Checkout cancelado. Nenhuma cobrança foi realizada; você pode tentar novamente quando quiser.
+          </p>
+        )}
+
         <div className="mt-12 grid gap-6 sm:grid-cols-2">
           <div className="cm-card-hover rounded-2xl border border-gray-200 p-8">
             <h2 className="text-lg font-bold text-gray-900">Mensal</h2>
@@ -37,7 +52,7 @@ export default function PricingPage() {
             </p>
             <CheckoutButton
               plan="monthly"
-              className="mt-6 w-full rounded-xl border-2 border-orange-500 px-4 py-3 font-semibold text-orange-600 transition hover:bg-orange-50 disabled:opacity-50"
+              className="mt-6 w-full rounded-xl border-2 border-orange-500 px-4 py-3 font-semibold text-orange-600 transition hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Assinar plano mensal
             </CheckoutButton>
@@ -60,7 +75,7 @@ export default function PricingPage() {
             </p>
             <CheckoutButton
               plan="annual"
-              className="mt-6 w-full rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-3 font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:shadow-orange-500/40 disabled:opacity-50"
+              className="mt-6 w-full rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-3 font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:shadow-orange-500/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Assinar plano anual
             </CheckoutButton>

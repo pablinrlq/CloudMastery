@@ -2,10 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-// Certification access granted by the current single subscription plan.
-// Revisit if/when per-certification plans are introduced.
-const CERT_ACCESS_FOR_PLAN = ["ccp", "saa"];
+import { CERT_ACCESS_FOR_PLAN, getPlanFromPriceId } from "@/lib/stripe-plans";
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -39,7 +36,12 @@ export async function POST(request: NextRequest) {
         session.subscription as string
       );
 
-      await upsertSubscription(admin, userId, subscription, session.customer as string);
+      if (subscription.metadata?.supabase_user_id !== userId) {
+        throw new Error("Identidade inconsistente na assinatura Stripe.");
+      }
+      const customerId =
+        typeof session.customer === "string" ? session.customer : session.customer.id;
+      await upsertSubscription(admin, userId, subscription, customerId);
       break;
     }
 
@@ -49,7 +51,11 @@ export async function POST(request: NextRequest) {
       const userId = subscription.metadata?.supabase_user_id;
       if (!userId) break;
 
-      await upsertSubscription(admin, userId, subscription, subscription.customer as string);
+      const customerId =
+        typeof subscription.customer === "string"
+          ? subscription.customer
+          : subscription.customer.id;
+      await upsertSubscription(admin, userId, subscription, customerId);
       break;
     }
 
@@ -67,21 +73,23 @@ async function upsertSubscription(
   customerId: string
 ) {
   const item = subscription.items.data[0];
-  const plan = item?.price.recurring?.interval === "year" ? "annual" : "monthly";
+  const plan = getPlanFromPriceId(item?.price.id);
+  if (!plan) throw new Error("Preço Stripe não reconhecido.");
   const isActive = subscription.status === "active" || subscription.status === "trialing";
 
-  await admin.from("subscriptions").upsert(
+  const { error } = await admin.from("subscriptions").upsert(
     {
       user_id: userId,
       stripe_customer_id: customerId,
       stripe_subscription_id: subscription.id,
       status: subscription.status,
       plan,
-      cert_access: isActive ? CERT_ACCESS_FOR_PLAN : [],
+      cert_access: isActive ? [...CERT_ACCESS_FOR_PLAN] : [],
       current_period_end: item?.current_period_end
         ? new Date(item.current_period_end * 1000).toISOString()
         : null,
     },
     { onConflict: "user_id" }
   );
+  if (error) throw new Error(`Falha ao persistir assinatura: ${error.message}`);
 }

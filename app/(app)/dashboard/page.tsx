@@ -5,8 +5,14 @@ import { getReadiness } from "@/lib/readiness";
 import { getGamificationProfile } from "@/lib/gamification";
 import { ScoreChart } from "@/components/score-chart";
 import { StatsBar } from "@/components/stats-bar";
+import { PortalButton } from "@/components/portal-button";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ checkout?: string }>;
+}) {
+  const { checkout } = await searchParams;
   const { email } = await verifySession();
   const subscription = await getSubscription();
 
@@ -17,6 +23,15 @@ export default async function DashboardPage() {
     <div className="mx-auto max-w-4xl px-4 py-10">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Meus estudos</h1>
       <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{email}</p>
+
+      {checkout === "success" && (
+        <p
+          role="status"
+          className="mt-6 rounded-xl border border-green-200 bg-green-50 p-4 text-sm font-medium text-green-800 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-300"
+        >
+          Assinatura confirmada. Seu acesso já está liberado — bons estudos!
+        </p>
+      )}
 
       {!hasAnyAccess ? (
         <div className="mt-8 rounded-xl border border-orange-200 bg-orange-50 p-6 dark:border-orange-500/30 dark:bg-orange-500/10">
@@ -33,16 +48,20 @@ export default async function DashboardPage() {
           >
             Ver planos
           </Link>
+          {subscription && <PortalButton />}
         </div>
       ) : (
-        <div className="mt-8 space-y-8">
-          {profile && <StatsBar profile={profile} />}
-          {(Object.keys(CERTIFICATIONS) as CertId[])
-            .filter((certId) => hasAccess(subscription, certId))
-            .map((certId) => (
-              <CertPanel key={certId} certId={certId} />
-            ))}
-        </div>
+        <>
+          <div className="mt-8 space-y-8">
+            {profile && <StatsBar profile={profile} />}
+            {(Object.keys(CERTIFICATIONS) as CertId[])
+              .filter((certId) => hasAccess(subscription, certId))
+              .map((certId) => (
+                <CertPanel key={certId} certId={certId} />
+              ))}
+          </div>
+          <PortalButton />
+        </>
       )}
     </div>
   );

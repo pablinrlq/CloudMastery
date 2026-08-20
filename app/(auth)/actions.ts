@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { safeRedirectPath } from "@/lib/security";
+import { siteUrl } from "@/lib/site-url";
 
 export type AuthFormState = { error: string } | undefined;
 
@@ -9,9 +11,11 @@ export async function login(
   _prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const next = (formData.get("next") as string) || "/dashboard";
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
+  const next = safeRedirectPath(formData.get("next"));
+
+  if (!email || !password) return { error: "Preencha email e senha." };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -27,8 +31,12 @@ export async function signup(
   _prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
+
+  if (!email || !email.includes("@")) {
+    return { error: "Informe um email válido." };
+  }
 
   if (password.length < 8) {
     return { error: "A senha precisa ter pelo menos 8 caracteres." };
@@ -39,7 +47,7 @@ export async function signup(
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      emailRedirectTo: siteUrl("/auth/callback").toString(),
     },
   });
 
@@ -55,7 +63,7 @@ export async function loginWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      redirectTo: siteUrl("/auth/callback").toString(),
     },
   });
 

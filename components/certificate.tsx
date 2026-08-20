@@ -22,7 +22,7 @@ export function Certificate({
 
   useEffect(() => {
     const saved = localStorage.getItem("cm-cert-name");
-    if (saved) setName(saved);
+    if (saved) queueMicrotask(() => setName(saved));
   }, []);
 
   function onNameChange(v: string) {

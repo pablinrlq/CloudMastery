@@ -11,8 +11,10 @@ export function ThemeToggle() {
     const stored =
       (localStorage.getItem("cm-theme") as "light" | "dark" | null) ??
       (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    setTheme(stored);
-    setMounted(true);
+    queueMicrotask(() => {
+      setTheme(stored);
+      setMounted(true);
+    });
   }, []);
 
   function toggle() {

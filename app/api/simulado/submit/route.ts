@@ -22,8 +22,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
   }
 
+  const payload: unknown = await request.json().catch(() => null);
+  if (!payload || typeof payload !== "object") {
+    return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
+  }
   const { attemptId, answers, timeSpentSeconds, questionTimings, overtimeSeconds } =
-    (await request.json()) as {
+    payload as {
       attemptId: string;
       answers: SubmittedAnswers;
       timeSpentSeconds: number;
@@ -31,11 +35,22 @@ export async function POST(request: NextRequest) {
       overtimeSeconds?: number;
     };
 
+  if (
+    typeof attemptId !== "string" ||
+    !answers ||
+    typeof answers !== "object" ||
+    Array.isArray(answers) ||
+    (questionTimings !== undefined &&
+      (!questionTimings || typeof questionTimings !== "object" || Array.isArray(questionTimings)))
+  ) {
+    return NextResponse.json({ error: "Parâmetros inválidos" }, { status: 400 });
+  }
+
   const admin = createAdminClient();
 
   const { data: attempt } = await admin
     .from("simulado_attempts")
-    .select("id, user_id, cert_id, mode, domain, completed_at, hints_used")
+    .select("id, user_id, cert_id, mode, domain, completed_at, hints_used, selected_question_ids")
     .eq("id", attemptId)
     .maybeSingle();
 
@@ -46,9 +61,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Tentativa já finalizada" }, { status: 409 });
   }
 
-  const questionIds = Object.keys(answers ?? {});
+  const questionIds: string[] = Array.isArray(attempt.selected_question_ids)
+    ? attempt.selected_question_ids
+    : [];
   if (!questionIds.length) {
-    return NextResponse.json({ error: "Nenhuma resposta enviada" }, { status: 400 });
+    return NextResponse.json({ error: "Tentativa sem questões registradas" }, { status: 409 });
+  }
+  if (Object.keys(answers).some((id) => !questionIds.includes(id))) {
+    return NextResponse.json({ error: "Resposta não pertence à tentativa" }, { status: 400 });
   }
 
   const { data: questions } = await admin
@@ -57,7 +77,7 @@ export async function POST(request: NextRequest) {
     .in("id", questionIds)
     .eq("cert_id", attempt.cert_id);
 
-  if (!questions?.length) {
+  if (!questions || questions.length !== questionIds.length) {
     return NextResponse.json({ error: "Questões não encontradas" }, { status: 400 });
   }
 
@@ -84,7 +104,19 @@ export async function POST(request: NextRequest) {
   let points = 0;
 
   for (const q of questions) {
-    const chosen = [...(answers[q.id] ?? [])].sort();
+    const rawChosen = answers[q.id] ?? [];
+    if (!Array.isArray(rawChosen) || rawChosen.some((id) => typeof id !== "string")) {
+      return NextResponse.json({ error: "Resposta inválida" }, { status: 400 });
+    }
+    const validChoiceIds = new Set(
+      Array.isArray(q.choices)
+        ? (q.choices as Array<{ id?: unknown }>).map((choice) => choice.id)
+        : []
+    );
+    if (rawChosen.some((id) => !validChoiceIds.has(id))) {
+      return NextResponse.json({ error: "Alternativa inválida" }, { status: 400 });
+    }
+    const chosen = [...new Set(rawChosen)].sort();
     const correct = [...q.correct_choice_ids].sort();
     const isCorrect =
       chosen.length === correct.length && chosen.every((c, i) => c === correct[i]);
@@ -104,19 +136,29 @@ export async function POST(request: NextRequest) {
       prompt: q.prompt,
       domain: q.domain,
       choices: q.choices,
-      yourChoiceIds: answers[q.id] ?? [],
+      yourChoiceIds: chosen,
       correctChoiceIds: q.correct_choice_ids,
       explanation: q.explanation,
       correct: isCorrect,
       hintUsed: usedHint,
-      timeSeconds: typeof timings[q.id] === "number" ? Math.round(timings[q.id]) : null,
+      timeSeconds:
+        typeof timings[q.id] === "number" && Number.isFinite(timings[q.id])
+          ? Math.min(86_400, Math.max(0, Math.round(timings[q.id])))
+          : null,
     });
   }
 
   const total = questions.length;
   const score = Math.round((points / total) * 100);
   const scoreNoPenalty = Math.round((correctCount / total) * 100);
-  const overtime = Math.max(0, Math.round(overtimeSeconds ?? 0));
+  const overtime =
+    typeof overtimeSeconds === "number" && Number.isFinite(overtimeSeconds)
+      ? Math.min(86_400, Math.max(0, Math.round(overtimeSeconds)))
+      : 0;
+  const totalTime =
+    typeof timeSpentSeconds === "number" && Number.isFinite(timeSpentSeconds)
+      ? Math.min(86_400, Math.max(0, Math.round(timeSpentSeconds)))
+      : null;
 
   // Onde o aluno mais demorou (top 5, só questões com tempo registrado)
   const slowest = review
@@ -153,19 +195,29 @@ export async function POST(request: NextRequest) {
     recommendations.sort((a, b) => a.pct - b.pct);
   }
 
-  await admin
+  const { data: completed, error: updateError } = await admin
     .from("simulado_attempts")
     .update({
       score,
       score_no_penalty: scoreNoPenalty,
-      time_spent_seconds: timeSpentSeconds ?? null,
+      time_spent_seconds: totalTime,
       question_timings: timings,
       overtime_seconds: overtime,
       answers,
       domain_breakdown: domainBreakdown,
       completed_at: new Date().toISOString(),
     })
-    .eq("id", attemptId);
+    .eq("id", attemptId)
+    .is("completed_at", null)
+    .select("id")
+    .maybeSingle();
+
+  if (updateError) {
+    return NextResponse.json({ error: "Falha ao salvar resultado" }, { status: 500 });
+  }
+  if (!completed) {
+    return NextResponse.json({ error: "Tentativa já finalizada" }, { status: 409 });
+  }
 
   return NextResponse.json({
     score,

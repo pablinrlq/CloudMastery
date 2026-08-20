@@ -1,7 +1,7 @@
 # Database setup
 
 1. Create a project at supabase.com.
-2. In the SQL editor, run the migrations in order: `migrations/0001_init.sql`, then `migrations/0002_seed_certifications.sql`.
+2. In the SQL editor, run every file in `migrations/` in numeric order. Existing environments must also apply new migrations before deploying matching application code.
 3. Copy `.env.example` to `.env.local` and fill in the Supabase URL/keys from Project Settings > API.
 
 ## Notes
