@@ -6,7 +6,7 @@ import { DesktopAppNav, MobileAppNav } from "@/components/app-nav";
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-[#f7f8fa] pb-20 dark:bg-[#070a10] lg:pb-0">
-      <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-[#f7f8fa]/85 backdrop-blur-xl dark:border-white/10 dark:bg-[#070a10]/85">
+      <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-[#f7f8fa]/[0.85] backdrop-blur-xl dark:border-white/10 dark:bg-[#070a10]/[0.85]">
         <nav className="cm-container flex h-[72px] items-center justify-between">
           <div className="flex items-center gap-8">
             <Logo size={32} href="/dashboard" />

@@ -7,8 +7,8 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#080b12]/82 backdrop-blur-xl">
+    <div className="cm-public flex min-h-screen flex-col bg-white">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#080b12]/95 backdrop-blur-xl">
         <nav className="cm-container flex h-[72px] items-center justify-between">
           <Logo dark size={34} />
           <div className="flex items-center gap-2 sm:gap-4">

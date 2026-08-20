@@ -15,7 +15,7 @@ export function AuthShell({
   footer?: React.ReactNode;
 }) {
   return (
-    <main className="grid min-h-screen bg-[#f7f8fa] lg:grid-cols-[minmax(0,1.05fr)_minmax(520px,0.95fr)]">
+    <main className="cm-public grid min-h-screen bg-[#f7f8fa] lg:grid-cols-[minmax(0,1.05fr)_minmax(520px,0.95fr)]">
       <section className="relative hidden overflow-hidden bg-[#090d15] px-12 py-10 text-white lg:flex lg:flex-col lg:justify-between xl:px-16">
         <div className="cm-auth-grid absolute inset-0" />
         <div className="pointer-events-none absolute -left-36 top-1/3 h-80 w-80 rounded-full bg-orange-500/15 blur-[100px]" />
