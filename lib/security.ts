@@ -30,6 +30,18 @@ export function normalizeSiteOrigin(value: string | undefined): URL {
   return url;
 }
 
+export function isLoopbackHostname(hostname: string): boolean {
+  const normalized = hostname.toLowerCase().replace(/^\[|\]$/g, "");
+
+  return (
+    normalized === "localhost" ||
+    normalized.endsWith(".localhost") ||
+    normalized === "::1" ||
+    normalized === "0.0.0.0" ||
+    normalized.startsWith("127.")
+  );
+}
+
 // Only same-site paths are accepted. This blocks protocol-relative URLs,
 // backslashes and control characters used in open-redirect bypasses.
 export function safeRedirectPath(value: unknown, fallback = "/dashboard"): string {

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  isLoopbackHostname,
   isCheckoutPlan,
   normalizeSiteOrigin,
   resolveCheckoutPlan,
@@ -41,6 +42,14 @@ test("public origin is normalized and rejects unsafe protocols", () => {
   assert.throws(() => normalizeSiteOrigin("javascript:alert(1)"));
   assert.throws(() => normalizeSiteOrigin("https://user:pass@example.com"));
   assert.throws(() => normalizeSiteOrigin(undefined));
+});
+
+test("production URL guard recognizes local-only hosts", () => {
+  assert.equal(isLoopbackHostname("localhost"), true);
+  assert.equal(isLoopbackHostname("app.localhost"), true);
+  assert.equal(isLoopbackHostname("127.0.0.1"), true);
+  assert.equal(isLoopbackHostname("[::1]"), true);
+  assert.equal(isLoopbackHostname("cloudmastery.vercel.app"), false);
 });
 
 test("protected auth accepts only users with a confirmed email timestamp", () => {
