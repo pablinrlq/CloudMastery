@@ -21,6 +21,8 @@ export default async function DashboardPage({
     hasAccess(subscription, certId)
   );
   const hasAnyAccess = accessibleCerts.length > 0;
+  const hasStripeManagedPlan =
+    subscription?.plan === "monthly" || subscription?.plan === "annual";
   const profile = hasAnyAccess ? await getGamificationProfile() : null;
 
   return (
@@ -58,7 +60,7 @@ export default async function DashboardPage({
           >
             Ver planos
           </Link>
-          {subscription && <PortalButton />}
+          {hasStripeManagedPlan && <PortalButton />}
         </div>
       ) : (
         <>
@@ -68,7 +70,7 @@ export default async function DashboardPage({
                 <CertPanel key={certId} certId={certId} />
               ))}
           </div>
-          <PortalButton />
+          {hasStripeManagedPlan && <PortalButton />}
         </>
       )}
     </div>
