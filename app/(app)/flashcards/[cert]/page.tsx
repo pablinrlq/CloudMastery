@@ -40,16 +40,16 @@ export default async function FlashcardsPage({
   }));
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
-      <p className="text-sm text-gray-500 dark:text-gray-400">{certInfo.code}</p>
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+    <div className="mx-auto max-w-3xl px-5 py-10 sm:px-6 sm:py-14">
+      <p className="cm-kicker">{certInfo.code} · Revisão ativa</p>
+      <h1 className="cm-title mt-3">
         Flashcards — {certInfo.name}
       </h1>
-      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+      <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
         Cartões marcados como &quot;revisar depois&quot; voltam primeiro na próxima sessão.
       </p>
 
-      <div className="mt-8">
+      <div className="mt-10">
         <FlashcardDeck cards={deck} />
       </div>
     </div>

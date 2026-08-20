@@ -20,31 +20,37 @@ export default async function DashboardPage({
   const profile = hasAnyAccess ? await getGamificationProfile() : null;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Meus estudos</h1>
-      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{email}</p>
+    <div className="cm-container py-10 sm:py-14">
+      <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+        <div>
+          <p className="cm-kicker">Seu espaço de evolução</p>
+          <h1 className="cm-title mt-3">Visão geral</h1>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Acompanhe seu ritmo, desempenho e próximos passos.</p>
+        </div>
+        <span className="inline-flex max-w-fit items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-400">{email}</span>
+      </div>
 
       {checkout === "success" && (
         <p
           role="status"
-          className="mt-6 rounded-xl border border-green-200 bg-green-50 p-4 text-sm font-medium text-green-800 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-300"
+          className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300"
         >
           Assinatura confirmada. Seu acesso já está liberado — bons estudos!
         </p>
       )}
 
       {!hasAnyAccess ? (
-        <div className="mt-8 rounded-xl border border-orange-200 bg-orange-50 p-6 dark:border-orange-500/30 dark:bg-orange-500/10">
-          <h2 className="font-semibold text-gray-900 dark:text-white">
-            Assine para desbloquear as trilhas
-          </h2>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+        <div className="relative mt-10 overflow-hidden rounded-[1.75rem] border border-slate-800 bg-[#0d121c] p-7 text-white shadow-[0_28px_70px_-38px_rgba(15,23,42,0.65)] sm:p-10">
+          <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-orange-500/15 blur-[80px]" />
+          <p className="relative text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Acesso completo</p>
+          <h2 className="relative mt-3 max-w-lg text-2xl font-bold tracking-[-0.035em]">Transforme este dashboard no seu plano de aprovação.</h2>
+          <p className="relative mt-3 max-w-xl text-sm leading-7 text-slate-400">
             Acesso completo às trilhas, simulados cronometrados, flashcards e
             diagnóstico de prontidão.
           </p>
           <Link
             href="/pricing"
-            className="mt-3 inline-block rounded-md bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600"
+            className="cm-button-primary relative mt-7"
           >
             Ver planos
           </Link>
@@ -52,7 +58,7 @@ export default async function DashboardPage({
         </div>
       ) : (
         <>
-          <div className="mt-8 space-y-8">
+          <div className="mt-10 space-y-6">
             {profile && <StatsBar profile={profile} />}
             {(Object.keys(CERTIFICATIONS) as CertId[])
               .filter((certId) => hasAccess(subscription, certId))
@@ -75,40 +81,40 @@ async function CertPanel({ certId }: { certId: CertId }) {
     : 0;
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+    <section className="cm-panel overflow-hidden p-6 sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{cert.code}</p>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <p className="cm-kicker">{cert.code}</p>
+          <h2 className="mt-2 text-xl font-bold tracking-[-0.025em] text-slate-950 dark:text-white">
             {cert.name}
           </h2>
         </div>
         <span
-          className={`rounded-full px-3 py-1 text-xs font-semibold ${
+          className={`rounded-full border px-3 py-1.5 text-xs font-bold ${
             readiness.ready
-              ? "bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-400"
-              : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400"
+              : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400"
           }`}
         >
           {readiness.ready ? "Pronto para a prova" : "Em preparação"}
         </span>
       </div>
 
-      <p className="mt-3 rounded-lg bg-gray-50 p-3 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+      <p className="mt-5 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-6 text-slate-600 dark:border-white/5 dark:bg-white/[0.035] dark:text-slate-300">
         {readiness.advice}
       </p>
 
       {readiness.ready && (
         <Link
           href={`/certificado/${certId}`}
-          className="mt-3 flex items-center justify-between rounded-lg border border-orange-300 bg-gradient-to-r from-orange-50 to-amber-50 p-3 text-sm font-medium text-orange-800 hover:border-orange-400 dark:border-orange-500/40 dark:from-orange-500/10 dark:to-amber-500/10 dark:text-orange-300"
+          className="mt-4 flex items-center justify-between rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm font-bold text-orange-800 transition hover:border-orange-300 hover:bg-orange-100/70 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-300"
         >
           <span>🏆 Você desbloqueou o certificado de conclusão!</span>
           <span aria-hidden>→</span>
         </Link>
       )}
 
-      <div className="mt-5 grid gap-4 sm:grid-cols-3">
+      <div className="mt-6 grid gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 sm:grid-cols-3 dark:border-white/10 dark:bg-white/10">
         <Stat label="Trilha de estudo" value={`${modulePct}%`}>
           {readiness.modulesCompleted}/{readiness.modulesTotal} módulos
         </Stat>
@@ -128,7 +134,7 @@ async function CertPanel({ certId }: { certId: CertId }) {
           <p className="text-sm font-medium text-gray-900 dark:text-gray-200">
             Sua evolução nos simulados
           </p>
-          <div className="mt-2 rounded-lg border border-gray-100 bg-white p-3 dark:border-gray-800 dark:bg-gray-950">
+          <div className="mt-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 dark:border-white/5 dark:bg-black/20">
             <ScoreChart history={readiness.scoreHistory} />
           </div>
         </div>
@@ -164,22 +170,22 @@ async function CertPanel({ certId }: { certId: CertId }) {
         </div>
       )}
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-7 flex flex-wrap gap-2.5 border-t border-slate-100 pt-6 dark:border-white/10">
         <Link
           href={`/course/${certId}`}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+          className="cm-button-primary min-h-10 px-4"
         >
           Continuar estudando
         </Link>
         <Link
           href={`/simulado/${certId}`}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-orange-400 dark:border-gray-700 dark:text-gray-300 dark:hover:border-orange-500"
+          className="cm-button-secondary min-h-10 px-4"
         >
           Fazer simulado
         </Link>
         <Link
           href={`/flashcards/${certId}`}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-orange-400 dark:border-gray-700 dark:text-gray-300 dark:hover:border-orange-500"
+          className="cm-button-secondary min-h-10 px-4"
         >
           Flashcards
         </Link>
@@ -198,10 +204,10 @@ function Stat({
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
-      <p className="text-xs text-gray-500 dark:text-gray-400">{children}</p>
+    <div className="bg-white p-5 dark:bg-slate-900">
+      <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">{label}</p>
+      <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">{value}</p>
+      <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">{children}</p>
     </div>
   );
 }

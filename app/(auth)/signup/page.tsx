@@ -3,34 +3,43 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { signup, loginWithGoogle } from "../actions";
-import { Logo } from "@/components/logo";
+import { AuthShell } from "@/components/auth-shell";
 
 export default function SignupPage() {
   const [state, action, pending] = useActionState(signup, undefined);
 
   return (
-    <div className="mx-auto flex min-h-[80vh] max-w-sm flex-col justify-center px-4">
-      <div className="mb-8 flex justify-center">
-        <Logo size={36} />
-      </div>
-      <h1 className="mb-6 text-2xl font-semibold">Criar conta</h1>
-
-      <form action={action} className="flex flex-col gap-4">
+    <AuthShell
+      eyebrow="Comece sua jornada"
+      title="Construa sua próxima conquista."
+      description="Crie sua conta e conheça uma preparação feita para transformar estudo em aprovação."
+      footer={
+        <>
+          Já estuda com a CloudMastery?{" "}
+          <Link href="/login" className="cm-link">
+            Entrar
+          </Link>
+        </>
+      }
+    >
+      <form action={action} className="space-y-5">
         <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-medium">
-            Email
+          <label htmlFor="email" className="mb-2 block text-sm font-bold text-slate-700">
+            Seu melhor email
           </label>
           <input
             id="email"
             name="email"
             type="email"
             required
-            className="w-full rounded-md border border-gray-300 px-3 py-2"
+            autoComplete="email"
+            placeholder="voce@empresa.com"
+            className="cm-input"
           />
         </div>
         <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium">
-            Senha
+          <label htmlFor="password" className="mb-2 block text-sm font-bold text-slate-700">
+            Crie uma senha
           </label>
           <input
             id="password"
@@ -38,34 +47,40 @@ export default function SignupPage() {
             type="password"
             required
             minLength={8}
-            className="w-full rounded-md border border-gray-300 px-3 py-2"
+            autoComplete="new-password"
+            placeholder="Mínimo de 8 caracteres"
+            className="cm-input"
           />
+          <p className="mt-2 text-xs text-slate-400">Use pelo menos 8 caracteres.</p>
         </div>
-        {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+        {state?.error && (
+          <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {state.error}
+          </p>
+        )}
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md bg-orange-500 px-4 py-2 font-medium text-white disabled:opacity-50"
+          className="cm-button-primary w-full"
         >
-          {pending ? "Criando..." : "Criar conta"}
+          {pending ? "Criando seu acesso…" : "Criar minha conta"}
         </button>
       </form>
 
-      <form action={loginWithGoogle} className="mt-3">
+      <div className="my-6 flex items-center gap-4 text-xs font-medium uppercase tracking-[0.16em] text-slate-400">
+        <span className="h-px flex-1 bg-slate-200" /> ou <span className="h-px flex-1 bg-slate-200" />
+      </div>
+
+      <form action={loginWithGoogle}>
         <button
           type="submit"
-          className="w-full rounded-md border border-gray-300 px-4 py-2 font-medium"
+          className="cm-button-secondary w-full gap-3"
         >
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-bold text-slate-800 shadow-sm">G</span>
           Continuar com Google
         </button>
       </form>
 
-      <p className="mt-6 text-sm text-gray-600">
-        Já tem conta?{" "}
-        <Link href="/login" className="text-orange-600 underline">
-          Entrar
-        </Link>
-      </p>
-    </div>
+    </AuthShell>
   );
 }

@@ -20,24 +20,26 @@ export default async function CertificadoPage({
   // Gate: só quem atingiu a prontidão vê o certificado.
   if (!readiness.ready) {
     return (
-      <div className="mx-auto max-w-xl px-4 py-16 text-center">
-        <p className="text-5xl">🔒</p>
-        <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">
+      <div className="mx-auto max-w-2xl px-5 py-16 text-center sm:px-6 sm:py-24">
+        <div className="cm-panel p-8 sm:p-12">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-2xl text-slate-500 dark:bg-white/5" aria-hidden>◇</div>
+        <p className="cm-kicker mt-7">Conquista em progresso</p>
+        <h1 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-slate-950 dark:text-white">
           Certificado ainda bloqueado
         </h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
+        <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-slate-500 dark:text-slate-400">
           Conclua todos os módulos da trilha e alcance média ≥ 75% em 3 simulados
           completos para desbloquear o certificado de {certInfo.name}.
         </p>
-        <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 text-left text-sm dark:border-gray-800 dark:bg-gray-900">
-          <p className="text-gray-700 dark:text-gray-300">{readiness.advice}</p>
+        <div className="mt-7 rounded-2xl border border-orange-100 bg-orange-50/60 p-5 text-left text-sm dark:border-orange-500/20 dark:bg-orange-500/10">
+          <p className="font-semibold leading-6 text-orange-900 dark:text-orange-200">{readiness.advice}</p>
         </div>
         <Link
           href={`/course/${cert}`}
-          className="mt-6 inline-block rounded-lg bg-orange-500 px-5 py-2.5 font-medium text-white hover:bg-orange-600"
+          className="cm-button-primary mt-7"
         >
           Continuar estudando
-        </Link>
+        </Link></div>
       </div>
     );
   }

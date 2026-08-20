@@ -28,13 +28,13 @@ export function PortalButton() {
   }
 
   return (
-    <div className="mt-8 border-t border-gray-200 pt-6 dark:border-gray-800">
+    <div className="mt-7 border-t border-slate-200/80 pt-5 dark:border-white/10">
       <button
         type="button"
         onClick={openPortal}
         disabled={loading}
         aria-busy={loading}
-        className="text-sm font-medium text-gray-600 underline decoration-dotted underline-offset-4 hover:text-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:text-orange-400"
+        className="rounded-lg text-sm font-semibold text-slate-500 underline decoration-dotted underline-offset-4 transition hover:text-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-400 dark:hover:text-orange-400"
       >
         {loading ? "Abrindo portal seguro…" : "Gerenciar ou cancelar assinatura"}
       </button>

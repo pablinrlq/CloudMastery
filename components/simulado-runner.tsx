@@ -204,7 +204,11 @@ export function SimuladoRunner({
       const data = await res.json();
       if (res.ok) {
         setHints((prev) => ({ ...prev, [questionId]: data.hint }));
+      } else {
+        setError(data.error ?? "Não foi possível carregar a dica.");
       }
+    } catch {
+      setError("Erro de conexão ao carregar a dica.");
     } finally {
       setHintLoading(false);
     }
@@ -229,39 +233,42 @@ export function SimuladoRunner({
   if (phase === "idle" || phase === "loading") {
     return (
       <div className="space-y-6">
-        {error && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+        {error && <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">{error}</p>}
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-          <h2 className="font-semibold text-gray-900 dark:text-white">Simulado completo</h2>
-          <p className="mt-1 text-sm text-gray-600">
+        <div className="cm-panel relative overflow-hidden p-6 sm:p-8">
+          <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-orange-50 dark:bg-orange-500/10" />
+          <p className="cm-kicker relative">Experiência oficial</p>
+          <h2 className="relative mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Simulado completo</h2>
+          <p className="relative mt-3 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
             Formato oficial: {fullQuestionCount} questões em {fullDurationMinutes}{" "}
             minutos. Se o tempo acabar, o cronômetro continua em negativo — você
             decide quando entregar.
           </p>
-          <p className="mt-2 text-xs text-gray-500">
-            💡 Cada questão tem uma dica, mas usá-la faz a questão valer meio ponto.
+          <p className="relative mt-3 text-xs font-medium text-amber-700 dark:text-amber-400">
+            Dicas estão disponíveis, mas reduzem o valor da questão pela metade.
           </p>
           <button
             onClick={() => start("full")}
             disabled={phase === "loading"}
-            className="mt-4 rounded-md bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50"
+            className="cm-button-primary relative mt-6"
           >
             {phase === "loading" ? "Preparando..." : "Iniciar simulado completo"}
           </button>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-          <h2 className="font-semibold text-gray-900 dark:text-white">Prática por domínio</h2>
-          <p className="mt-1 text-sm text-gray-600">
+        <div className="cm-panel p-6 sm:p-8">
+          <p className="cm-kicker">Treino direcionado</p>
+          <h2 className="mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Prática por domínio</h2>
+          <p className="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
             Foque no domínio em que você está mais fraco (até 20 questões, 30 min).
           </p>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-6 grid gap-2 sm:grid-cols-2">
             {domains.map((d) => (
               <button
                 key={d}
                 onClick={() => start("domain", d)}
                 disabled={phase === "loading"}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:border-orange-400 hover:text-orange-600 disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:border-orange-500 dark:hover:text-orange-400"
+                className="min-h-11 rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-2 text-left text-sm font-semibold text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-500/10 disabled:opacity-50 dark:border-white/10 dark:bg-white/[0.035] dark:text-slate-300 dark:hover:border-orange-500/30 dark:hover:bg-orange-500/10 dark:hover:text-orange-300"
               >
                 {d}
               </button>
@@ -277,12 +284,13 @@ export function SimuladoRunner({
     const passed = results.score >= 72;
     return (
       <div className="space-y-8">
-        <div className={`rounded-xl p-6 text-center ${passed ? "bg-green-50" : "bg-red-50"}`}>
-          <p className="text-5xl font-bold">{results.score}%</p>
-          <p className="mt-2 text-gray-700">
+        <div className={`rounded-[1.75rem] border p-8 text-center shadow-sm ${passed ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50"}`}>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Resultado final</p>
+          <p className="mt-4 text-6xl font-bold tracking-[-0.06em] text-slate-950">{results.score}%</p>
+          <p className="mt-3 text-slate-700">
             {results.correctCount} de {results.total} corretas
             {results.hintsUsedCount > 0 && (
-              <span className="block text-sm text-gray-500">
+              <span className="mt-1 block text-sm text-slate-500">
                 {results.hintsUsedCount} dica(s) usada(s) — sem a penalidade seria{" "}
                 {results.scoreNoPenalty}%
               </span>
@@ -302,7 +310,7 @@ export function SimuladoRunner({
         </div>
 
         <div>
-          <h2 className="font-semibold text-gray-900 dark:text-white">Desempenho por domínio</h2>
+          <h2 className="text-xl font-bold tracking-tight text-slate-950 dark:text-white">Desempenho por domínio</h2>
           <div className="mt-3 space-y-3">
             {Object.entries(results.domainBreakdown).map(([domain, { correct, total }]) => {
               const pct = Math.round((correct / total) * 100);
@@ -314,7 +322,7 @@ export function SimuladoRunner({
                       {correct}/{total} ({pct}%)
                     </span>
                   </div>
-                  <div className="mt-1 h-2 rounded-full bg-gray-100">
+                  <div className="mt-2 h-2 rounded-full bg-slate-100 dark:bg-white/10">
                     <div
                       className={`h-2 rounded-full ${pct < 72 ? "bg-red-400" : "bg-green-500"}`}
                       style={{ width: `${pct}%` }}
@@ -327,9 +335,9 @@ export function SimuladoRunner({
         </div>
 
         {results.recommendations.length > 0 && (
-          <div className="rounded-xl border border-orange-200 bg-orange-50/50 p-5">
-            <h2 className="font-semibold text-gray-900 dark:text-white">📚 O que estudar antes do próximo simulado</h2>
-            <p className="mt-1 text-sm text-gray-600">
+          <div className="rounded-[1.5rem] border border-orange-200 bg-orange-50/60 p-6 dark:border-orange-500/20 dark:bg-orange-500/10">
+            <p className="cm-kicker">Plano de recuperação</p><h2 className="mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">O que estudar antes do próximo simulado</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
               Com base nos seus erros, revise estes módulos (do domínio mais fraco para o menos):
             </p>
             <div className="mt-3 space-y-3">
@@ -358,12 +366,12 @@ export function SimuladoRunner({
 
         {results.slowest.length > 0 && (
           <div>
-            <h2 className="font-semibold text-gray-900 dark:text-white">⏱ Onde você levou mais tempo</h2>
+            <h2 className="text-xl font-bold tracking-tight text-slate-950 dark:text-white">Onde você levou mais tempo</h2>
             <ul className="mt-3 space-y-2">
               {results.slowest.map((s, i) => (
                 <li
                   key={i}
-                  className="flex items-start justify-between gap-3 rounded-lg border border-gray-200 p-3 text-sm"
+                  className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-sm dark:border-white/10 dark:bg-slate-900"
                 >
                   <span className="text-gray-700">
                     {s.correct ? "✓" : "✗"} {s.prompt.slice(0, 110)}
@@ -387,7 +395,7 @@ export function SimuladoRunner({
         )}
 
         <div>
-          <h2 className="font-semibold text-gray-900 dark:text-white">Revisão das questões</h2>
+          <h2 className="text-xl font-bold tracking-tight text-slate-950 dark:text-white">Revisão das questões</h2>
           <div className="mt-3 space-y-4">
             {results.review
               .filter((r) => !r.correct)
@@ -395,8 +403,8 @@ export function SimuladoRunner({
               .map((item, i) => (
                 <details
                   key={item.questionId}
-                  className={`rounded-xl border p-4 ${
-                    item.correct ? "border-gray-200" : "border-red-200 bg-red-50/40"
+                  className={`rounded-2xl border p-5 transition ${
+                    item.correct ? "border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900" : "border-red-200 bg-red-50/40 dark:border-red-500/20 dark:bg-red-500/5"
                   }`}
                   open={!item.correct && i < 3}
                 >
@@ -429,7 +437,7 @@ export function SimuladoRunner({
                     })}
                   </ul>
                   {item.explanation && (
-                    <p className="mt-3 rounded-md bg-gray-50 p-3 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                    <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-700 dark:bg-white/5 dark:text-slate-300">
                       {item.explanation}
                     </p>
                   )}
@@ -444,7 +452,7 @@ export function SimuladoRunner({
             setResults(null);
             setError(null);
           }}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:border-orange-400"
+          className="cm-button-secondary"
         >
           Fazer outro simulado
         </button>
@@ -462,17 +470,17 @@ export function SimuladoRunner({
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <span className="text-sm text-gray-600">
+      <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-slate-900">
+        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">
           Questão {current + 1} de {questions.length} · {answeredCount} respondidas
         </span>
         <span
-          className={`rounded-md px-3 py-1 font-mono text-sm font-medium ${
+          className={`rounded-lg px-3 py-1.5 font-mono text-sm font-bold ${
             overtime
               ? "bg-red-600 text-white"
               : secondsLeft < 300
                 ? "bg-red-100 text-red-700"
-                : "bg-gray-100 text-gray-700"
+                : "bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-slate-300"
           }`}
           title={overtime ? "Tempo oficial excedido" : "Tempo restante"}
         >
@@ -481,14 +489,20 @@ export function SimuladoRunner({
         </span>
       </div>
 
+      {error && (
+        <p role="alert" className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
+          {error}
+        </p>
+      )}
+
       {overtime && (
-        <p className="mb-4 rounded-md bg-red-50 p-2 text-center text-xs font-medium text-red-700">
+        <p className="mb-5 rounded-xl border border-red-200 bg-red-50 p-3 text-center text-xs font-bold text-red-700">
           Tempo oficial esgotado — você pode continuar, mas o excedente será registrado.
         </p>
       )}
 
       <p className="text-xs font-medium uppercase tracking-wide text-orange-600">{q.domain}</p>
-      <h2 className="mt-2 text-lg font-medium leading-relaxed text-gray-900 dark:text-white">{q.prompt}</h2>
+      <h2 className="mt-3 text-xl font-bold leading-8 tracking-[-0.02em] text-slate-950 dark:text-white">{q.prompt}</h2>
       {multi && <p className="mt-1 text-sm text-gray-500">Selecione todas as corretas.</p>}
 
       <div className="mt-5 space-y-2">
@@ -498,10 +512,10 @@ export function SimuladoRunner({
             <button
               key={c.id}
               onClick={() => toggleChoice(q.id, c.id, multi)}
-              className={`block w-full rounded-lg border p-3 text-left text-sm text-gray-900 transition dark:text-gray-100 ${
+              className={`block w-full rounded-xl border p-4 text-left text-sm font-medium leading-6 text-slate-900 transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-500/10 dark:text-slate-100 ${
                 selected
                   ? "border-orange-500 bg-orange-50 dark:bg-orange-500/15"
-                  : "border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600"
+                  : "border-slate-200 bg-white hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-white/20"
               }`}
             >
               {c.text}
@@ -513,7 +527,7 @@ export function SimuladoRunner({
       {q.hasHint && (
         <div className="mt-4">
           {hintShown ? (
-            <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            <p className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">
               💡 {hintShown}
               <span className="mt-1 block text-xs text-amber-700">
                 Dica usada — esta questão agora vale meio ponto.
@@ -535,7 +549,7 @@ export function SimuladoRunner({
         <button
           onClick={() => goTo(Math.max(0, current - 1))}
           disabled={current === 0}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm disabled:opacity-40"
+          className="cm-button-secondary min-h-11 disabled:opacity-40"
         >
           ← Anterior
         </button>
@@ -543,7 +557,7 @@ export function SimuladoRunner({
         {current < questions.length - 1 ? (
           <button
             onClick={() => goTo(current + 1)}
-            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-gray-900"
+            className="cm-button-secondary min-h-11"
           >
             Próxima →
           </button>
@@ -551,24 +565,25 @@ export function SimuladoRunner({
           <button
             onClick={submit}
             disabled={phase === "submitting"}
-            className="rounded-md bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50"
+            className="cm-button-primary min-h-11"
           >
             {phase === "submitting" ? "Corrigindo..." : "Finalizar e corrigir"}
           </button>
         )}
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-1.5">
+      <div className="mt-8 flex flex-wrap gap-2 border-t border-slate-200 pt-6 dark:border-white/10">
         {questions.map((question, i) => (
           <button
             key={question.id}
             onClick={() => goTo(i)}
-            className={`h-7 w-7 rounded text-xs font-medium ${
+            aria-label={`Ir para questão ${i + 1}`}
+            className={`h-8 w-8 rounded-lg text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30 ${
               i === current
                 ? "bg-gray-900 text-white"
                 : (answers[question.id] ?? []).length
                   ? "bg-orange-100 text-orange-700"
-                  : "bg-gray-100 text-gray-500"
+                  : "bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
             }`}
           >
             {i + 1}

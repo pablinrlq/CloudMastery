@@ -34,11 +34,12 @@ export function FlashcardDeck({ cards }: { cards: Flashcard[] }) {
   if (index >= ordered.length) {
     const known = Object.values(done).filter((s) => s === "known").length;
     return (
-      <div className="rounded-xl bg-gray-50 p-8 text-center dark:bg-gray-900">
-        <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+      <div className="cm-panel p-8 text-center sm:p-12">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-2xl text-emerald-600 dark:bg-emerald-500/10" aria-hidden>✓</div>
+        <p className="mt-5 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
           Sessão concluída!
         </p>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-slate-500 dark:text-slate-400">
           {known} de {ordered.length} marcados como &quot;sei&quot;.
         </p>
         <button
@@ -47,7 +48,7 @@ export function FlashcardDeck({ cards }: { cards: Flashcard[] }) {
             setFlipped(false);
             setDone({});
           }}
-          className="mt-4 rounded-md bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600"
+          className="cm-button-primary mt-6"
         >
           Revisar novamente
         </button>
@@ -68,30 +69,32 @@ export function FlashcardDeck({ cards }: { cards: Flashcard[] }) {
 
   return (
     <div>
-      <p className="mb-3 text-sm text-gray-500 dark:text-gray-400">
-        Cartão {index + 1} de {ordered.length}
+      <div className="mb-4 flex items-center justify-between text-xs font-semibold text-slate-400 dark:text-slate-500">
+        <p>Cartão {index + 1} de {ordered.length}
         {card.status === "review_later" && " · marcado para revisar"}
-      </p>
+        </p><p>{Math.round(((index + 1) / ordered.length) * 100)}%</p>
+      </div>
+      <div className="mb-6 h-1.5 overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/10"><div className="h-full rounded-full bg-orange-500 transition-all duration-500" style={{ width: `${((index + 1) / ordered.length) * 100}%` }} /></div>
 
       <button
         onClick={() => setFlipped((f) => !f)}
-        className="flex min-h-56 w-full flex-col items-center justify-center rounded-2xl border-2 border-gray-200 bg-white p-8 text-center transition hover:border-orange-300 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-orange-500/50"
+        className="group flex min-h-[320px] w-full flex-col items-center justify-center rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center shadow-[0_22px_60px_-38px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_30px_70px_-38px_rgba(15,23,42,0.45)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-500/15 dark:border-white/10 dark:bg-slate-900 dark:hover:border-orange-500/30 sm:p-12"
       >
         {card.domain && (
-          <span className="mb-3 text-xs font-medium uppercase tracking-wide text-orange-600 dark:text-orange-400">
+          <span className="mb-5 rounded-full bg-orange-50 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-orange-600 dark:bg-orange-500/10 dark:text-orange-400">
             {card.domain}
           </span>
         )}
         <span
           className={
             flipped
-              ? "text-base text-gray-800 dark:text-gray-200"
-              : "text-xl font-semibold text-gray-900 dark:text-white"
+              ? "max-w-xl text-lg leading-8 text-slate-700 dark:text-slate-200"
+              : "max-w-xl text-2xl font-bold leading-9 tracking-[-0.025em] text-slate-950 dark:text-white"
           }
         >
           {flipped ? card.back : card.front}
         </span>
-        <span className="mt-4 text-xs text-gray-400 dark:text-gray-500">
+        <span className="mt-7 text-xs font-semibold text-slate-400 transition group-hover:text-orange-500 dark:text-slate-500">
           {flipped ? "clique para ver a frente" : "clique para revelar"}
         </span>
       </button>
@@ -99,13 +102,13 @@ export function FlashcardDeck({ cards }: { cards: Flashcard[] }) {
       <div className="mt-5 grid grid-cols-2 gap-3">
         <button
           onClick={() => mark("review_later")}
-          className="rounded-md border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-800 hover:bg-amber-100 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300 dark:hover:bg-amber-500/20"
+          className="inline-flex min-h-12 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-bold text-amber-800 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-300 hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-500/15 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300"
         >
           Revisar depois
         </button>
         <button
           onClick={() => mark("known")}
-          className="rounded-md border border-green-300 bg-green-50 px-4 py-2.5 text-sm font-medium text-green-800 hover:bg-green-100 dark:border-green-500/40 dark:bg-green-500/10 dark:text-green-300 dark:hover:bg-green-500/20"
+          className="inline-flex min-h-12 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-bold text-emerald-800 transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/15 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300"
         >
           Sei essa!
         </button>

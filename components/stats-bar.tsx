@@ -3,18 +3,19 @@ import type { GamificationProfile } from "@/lib/gamification";
 // Faixa de gamificação no topo do dashboard: nível, XP, streak.
 export function StatsBar({ profile }: { profile: GamificationProfile }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-gray-900 to-gray-800 p-6 text-white dark:border-gray-700">
+    <div className="relative overflow-hidden rounded-[1.75rem] border border-slate-800 bg-[#0d121c] p-6 text-white shadow-[0_24px_60px_-38px_rgba(15,23,42,0.7)] sm:p-8 dark:border-white/10">
+      <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-orange-500/15 blur-[80px]" />
       <div className="flex flex-wrap items-center justify-between gap-6">
         {/* Nível */}
         <div className="flex items-center gap-4">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-3xl">
+          <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-3xl shadow-inner">
             {profile.level.emoji}
           </span>
           <div>
-            <p className="text-xs uppercase tracking-wide text-gray-400">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
               Nível {profile.level.index + 1}
             </p>
-            <p className="text-lg font-bold">{profile.level.name}</p>
+            <p className="mt-1 text-lg font-bold tracking-tight">{profile.level.name}</p>
           </div>
         </div>
 
@@ -24,7 +25,7 @@ export function StatsBar({ profile }: { profile: GamificationProfile }) {
             <span className={profile.streakDays > 0 ? "" : "grayscale"}>🔥</span>
             {profile.streakDays}
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="mt-1 text-xs text-slate-500">
             {profile.streakDays === 1 ? "dia seguido" : "dias seguidos"}
             {profile.studiedToday ? "" : " · estude hoje!"}
           </p>
@@ -32,25 +33,25 @@ export function StatsBar({ profile }: { profile: GamificationProfile }) {
 
         {/* XP total */}
         <div className="text-center">
-          <p className="bg-gradient-to-r from-orange-400 to-amber-300 bg-clip-text text-2xl font-extrabold text-transparent">
+          <p className="text-2xl font-bold tracking-tight text-orange-400">
             {profile.totalXp.toLocaleString("pt-BR")}
           </p>
-          <p className="text-xs text-gray-400">XP total</p>
+          <p className="mt-1 text-xs text-slate-500">XP total</p>
         </div>
       </div>
 
       {/* Barra de progresso para o próximo nível */}
       {profile.xpForNextLevel !== null ? (
         <div className="mt-5">
-          <div className="mb-1 flex justify-between text-xs text-gray-400">
+          <div className="mb-2 flex justify-between text-xs text-slate-500">
             <span>
               {profile.xpIntoLevel} / {profile.xpForNextLevel} XP
             </span>
             <span>Próximo: {LEVEL_NAME_AT(profile.level.index + 1)}</span>
           </div>
-          <div className="h-2.5 rounded-full bg-white/10">
+          <div className="h-2 rounded-full bg-white/10">
             <div
-              className="h-2.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all"
+              className="h-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-300 transition-all duration-500"
               style={{ width: `${profile.progressToNext}%` }}
             />
           </div>

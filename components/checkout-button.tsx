@@ -57,7 +57,7 @@ export function CheckoutButton({
         {loading ? "Abrindo checkout seguro…" : children}
       </button>
       {error && (
-        <p role="alert" className="mt-2 text-sm font-medium text-red-600">
+        <p role="alert" className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
           {error}
         </p>
       )}

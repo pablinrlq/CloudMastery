@@ -26,12 +26,21 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     siteName: "CloudMastery",
+    images: [
+      {
+        url: "/og.png",
+        width: 1760,
+        height: 907,
+        alt: "CloudMastery — Clareza para conquistar sua certificação AWS",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "CloudMastery — Certificações AWS com método",
     description:
       "Trilhas, simulados oficiais e diagnóstico de prontidão para as certificações AWS. 100% em português.",
+    images: ["/og.png"],
   },
 };
 
@@ -54,7 +63,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+      <body className="flex min-h-full flex-col bg-white text-slate-900 dark:bg-[#070a10] dark:text-slate-100">
         {children}
       </body>
     </html>

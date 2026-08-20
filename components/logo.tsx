@@ -46,14 +46,14 @@ export function Logo({
   href?: string | null;
 }) {
   const mark = (
-    <span className="inline-flex items-center gap-2">
+    <span className="inline-flex items-center gap-2.5">
       <LogoIcon size={size} />
       <span
-        className={`font-bold tracking-tight ${dark ? "text-white" : "text-gray-900"}`}
+        className={`font-extrabold tracking-[-0.04em] ${dark ? "text-white" : "text-slate-950 dark:text-white"}`}
         style={{ fontSize: Math.round(size * 0.62) }}
       >
         Cloud
-        <span className="bg-gradient-to-r from-orange-500 to-amber-400 bg-clip-text text-transparent">
+        <span className="text-orange-500">
           Mastery
         </span>
       </span>

@@ -15,16 +15,16 @@ export default async function SimuladoPage({
   const certInfo = CERTIFICATIONS[cert];
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <p className="text-sm text-gray-500 dark:text-gray-400">{certInfo.code}</p>
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+    <div className="mx-auto max-w-4xl px-5 py-10 sm:px-6 sm:py-14">
+      <p className="cm-kicker">{certInfo.code} · Centro de prática</p>
+      <h1 className="cm-title mt-3">
         Simulados — {certInfo.name}
       </h1>
-      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-        As respostas só são reveladas após a correção, como na prova real.
+      <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+        Treine decisões sob pressão. As respostas só aparecem após a correção, como na prova real.
       </p>
 
-      <div className="mt-8">
+      <div className="mt-10">
         <SimuladoRunner
           certId={cert}
           domains={certInfo.domains}

@@ -26,14 +26,14 @@ export function ThemeToggle() {
 
   // Evita mismatch de hidratação: renderiza um placeholder até montar.
   if (!mounted) {
-    return <span className="inline-block h-8 w-8" aria-hidden />;
+    return <span className="inline-block h-10 w-10" aria-hidden />;
   }
 
   return (
     <button
       onClick={toggle}
       aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
-      className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+      className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-slate-500 transition-all duration-200 hover:border-slate-200 hover:bg-white hover:text-slate-950 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30 dark:text-slate-400 dark:hover:border-white/10 dark:hover:bg-white/5 dark:hover:text-white"
     >
       {theme === "dark" ? (
         // sol
