@@ -127,6 +127,9 @@ docker rm -f "$APP_CONTAINER" >/dev/null 2>&1 || true
 APP_PORT_ARGS=(-p 80:3000)
 if [[ -n "$DOMAIN" ]]; then
   APP_PORT_ARGS=()
+else
+  # A rerun can intentionally switch from domain/HTTPS to direct-IP mode.
+  docker rm -f "$CADDY_CONTAINER" >/dev/null 2>&1 || true
 fi
 
 docker run -d \
