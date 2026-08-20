@@ -2,7 +2,7 @@
 title: "Lab: IAM na Prática — Menor Privilégio"
 description: "Mão na massa: crie roles, políticas restritas e teste o acesso cross-service como a prova cobra."
 domain: "Arquiteturas Seguras"
-order: 3
+order: 34
 durationMinutes: 60
 type: "lab"
 week: 1
@@ -43,9 +43,9 @@ Construir na sua conta o padrão que mais cai na prova: **EC2 acessando S3 via r
 
 4. **Teste na instância** (Connect → EC2 Instance Connect):
    ```bash
-   aws s3 ls s3://lab-iam-seunome-0001        # ✓ funciona
-   aws s3 cp teste.txt s3://lab-iam-seunome-0001/  # ✗ AccessDenied (esperado!)
-   aws s3 ls                                   # ✗ AccessDenied (esperado!)
+   aws s3 ls s3://lab-iam-seunome-0001        # permitido
+   aws s3 cp teste.txt s3://lab-iam-seunome-0001/  # AccessDenied esperado
+   aws s3 ls                                   # AccessDenied esperado
    ```
 
 5. **Observe o menor privilégio em ação**: o upload falha porque a política não tem `s3:PutObject`; listar outros buckets falha porque o `Resource` é restrito.

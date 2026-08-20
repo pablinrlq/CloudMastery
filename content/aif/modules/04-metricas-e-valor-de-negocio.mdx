@@ -1,0 +1,32 @@
+---
+title: "Métricas, Qualidade e Valor de Negócio"
+description: "Como escolher métricas de classificação, regressão e geração sem confundir precisão técnica com sucesso."
+domain: "Fundamentos de IA e ML"
+order: 4
+durationMinutes: 45
+type: "teoria"
+week: 2
+---
+
+## Classificação
+
+**Accuracy** mede acertos totais, mas engana em classes desbalanceadas. **Precision** pergunta: entre os positivos previstos, quantos eram positivos? **Recall** pergunta: entre os positivos reais, quantos foram encontrados? **F1** equilibra precision e recall.
+
+Em triagem de doença, falso negativo pode ser mais perigoso, favorecendo recall. Em bloqueio automático de contas, falso positivo pode causar alto dano, exigindo precision e revisão humana. A métrica nasce do custo do erro.
+
+## Regressão
+
+MAE calcula erro absoluto médio e é fácil de interpretar. RMSE penaliza mais os grandes erros. Métricas devem ser comparadas a um baseline e segmentadas: um bom resultado médio pode esconder desempenho ruim para uma região ou grupo.
+
+## IA generativa
+
+Avalie relevância, fidelidade aos fatos, groundedness, toxicidade, segurança, latência, custo e satisfação do usuário. ROUGE/BLEU podem ajudar em tarefas específicas, mas não substituem avaliação humana. LLM-as-a-judge acelera avaliações, porém herda vieses e precisa de calibração.
+
+## Experimentos
+
+Offline evaluation compara versões em dataset controlado. A/B testing mede comportamento real com uma fração do tráfego. Red teaming procura falhas deliberadamente. Human-in-the-loop deve existir quando confiança baixa ou impacto alto.
+
+## Cenário
+
+Um assistente de suporte reduz o tempo médio, mas começa a inventar políticas de reembolso. O KPI operacional melhorou, porém a qualidade de negócio piorou. A solução adiciona RAG sobre políticas aprovadas, citações, recusa quando não há evidência, avaliação de groundedness e escalonamento humano.
+

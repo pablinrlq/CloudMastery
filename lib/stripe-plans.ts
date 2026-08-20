@@ -1,7 +1,7 @@
 import "server-only";
 import { resolveCheckoutPlan, type CheckoutPlan } from "@/lib/security";
 
-export const CERT_ACCESS_FOR_PLAN = ["ccp", "saa"] as const;
+export const CERT_ACCESS_FOR_PLAN = ["ccp", "saa", "aif"] as const;
 
 export function getPriceId(plan: CheckoutPlan): string {
   const priceId =

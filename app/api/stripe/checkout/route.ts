@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isCheckoutPlan } from "@/lib/security";
 import { getPriceId } from "@/lib/stripe-plans";
 import { siteUrl } from "@/lib/site-url";
+import { confirmationPath, hasVerifiedEmail } from "@/lib/auth-security";
 
 // POST { plan: "monthly" | "annual" } -> redirects to Stripe Checkout.
 // certAccess is fixed to "all" for the MVP (single plan covers CCP + SAA);
@@ -16,7 +17,22 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.redirect(new URL("/login?next=/pricing", request.url));
+    return NextResponse.json(
+      {
+        error: "Entre na sua conta para assinar.",
+        redirectTo: "/login?next=/pricing",
+      },
+      { status: 401 }
+    );
+  }
+  if (!hasVerifiedEmail(user)) {
+    return NextResponse.json(
+      {
+        error: "Confirme seu email antes de iniciar o pagamento.",
+        redirectTo: confirmationPath(user.email),
+      },
+      { status: 403 }
+    );
   }
 
   const payload: unknown = await request.json().catch(() => null);

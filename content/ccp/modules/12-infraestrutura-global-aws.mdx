@@ -1,0 +1,67 @@
+---
+title: "Infraestrutura Global da AWS"
+description: "Regiões, Zonas de Disponibilidade, pontos de presença, Local Zones e critérios técnicos, legais e econômicos de localização."
+domain: "Conceitos de Nuvem"
+order: 12
+durationMinutes: 60
+type: "teoria"
+week: 4
+---
+
+## O que é a infraestrutura global
+
+A AWS distribui infraestrutura em locais com escopos diferentes. A localização de um recurso afeta latência, disponibilidade, residência de dados, preço e acesso a serviços.
+
+## Regiões
+
+Uma Região é uma área geográfica independente, como São Paulo. A escolha considera:
+
+- proximidade dos usuários;
+- requisitos de residência e soberania de dados;
+- disponibilidade do serviço;
+- preço;
+- necessidade de recuperação de desastres.
+
+Recursos regionais não são replicados automaticamente para outra Região, salvo quando o serviço e a configuração o fazem explicitamente.
+
+## Zonas de Disponibilidade
+
+Uma AZ contém um ou mais datacenters com energia, refrigeração e rede independentes. AZs de uma Região são conectadas por links de baixa latência.
+
+Distribuir uma aplicação entre AZs reduz o impacto de falha local. “Multi-AZ” é o padrão de alta disponibilidade regional; “multi-Região” atende falhas regionais, alcance global ou requisitos regulatórios, com maior complexidade e custo.
+
+## Pontos de presença
+
+Edge locations aproximam serviços como CloudFront e Route 53 dos usuários. Elas não substituem uma Região e não hospedam qualquer serviço da AWS. CloudFront mantém conteúdo em cache; Route 53 responde DNS; Global Accelerator leva tráfego à rede global da AWS.
+
+## Extensões
+
+- **Local Zones** aproximam computação e armazenamento de grandes centros para aplicações de latência muito baixa.
+- **Wavelength Zones** colocam serviços em redes 5G de operadoras.
+- **Outposts** instala infraestrutura AWS gerenciada dentro do datacenter do cliente.
+
+## Como funciona uma aplicação global
+
+Uma mídia brasileira pode manter origem em São Paulo, guardar vídeos no S3, usar CloudFront para cache mundial, Route 53 para DNS e replicar dados críticos para outra Região. Usuários acessam a edge mais próxima; misses seguem para a origem; a estratégia de DR define quando a Região secundária assume.
+
+## Decisões importantes
+
+| Requisito | Decisão |
+|---|---|
+| Falha de datacenter sem interromper | múltiplas AZs |
+| Residência de dados no Brasil | Região compatível e controles de replicação |
+| Conteúdo estático global | CloudFront |
+| Aplicação industrial com latência local | Local Zone ou Outposts, conforme contexto |
+| Continuidade diante de falha regional | estratégia multi-Região |
+
+## Armadilhas
+
+- Região não é AZ.
+- Edge location não é uma mini-Região genérica.
+- Múltiplas AZs aumentam disponibilidade, mas não resolvem desastre regional.
+- A menor latência nem sempre vence: conformidade e disponibilidade do serviço podem determinar a Região.
+
+## Verificação de domínio
+
+Para um sistema bancário, explique onde ficam aplicação, réplica, cache global e dados regulados. Justifique cada posição por risco, latência e conformidade.
+

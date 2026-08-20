@@ -1,0 +1,34 @@
+---
+title: "Agentes, Ferramentas e Automação com IA"
+description: "Planejamento, tool use, memória, identidade e limites seguros para agentes que executam ações."
+domain: "Aplicações de Modelos de Fundação"
+order: 10
+durationMinutes: 55
+type: "teoria"
+week: 4
+---
+
+## O que é um agente
+
+Um agente usa um modelo para interpretar objetivo, planejar passos e selecionar ferramentas. Ferramentas são APIs com schemas e permissões definidos. O modelo decide intenção; a aplicação continua responsável por autenticação, autorização, validação e auditoria.
+
+## Componentes
+
+- instruções e modelo;
+- catálogo de ferramentas;
+- memória de curto/longo prazo quando necessária;
+- fontes de conhecimento;
+- loop de planejamento e observação;
+- guardrails, orçamento e limite de passos;
+- logs, traces e avaliação.
+
+Agents for Amazon Bedrock facilita orquestração com action groups e bases de conhecimento. Bedrock AgentCore e frameworks como Strands Agents atendem necessidades de execução e composição de agentes, conforme o desenho.
+
+## Cenário seguro
+
+Um agente de viagens pesquisa opções e prepara uma reserva. Consulta de voos pode ser automática. Compra exige usuário autenticado, confirmação explícita de preço/datas, idempotency key e limite financeiro. A ferramenta recebe somente os parâmetros validados; o agente não recebe uma credencial ampla.
+
+## Riscos
+
+Prompt injection indireta, uso incorreto de ferramenta, loop infinito, ação duplicada, exfiltração e excesso de privilégio. Mitigue com allowlists, least privilege, sandbox, validação de schema, human approval, limites de tempo/custo e monitoramento. Quanto maior o impacto da ação, menor deve ser a autonomia não supervisionada.
+

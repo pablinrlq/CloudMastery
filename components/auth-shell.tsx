@@ -40,9 +40,9 @@ export function AuthShell({
 
           <div className="mt-10 grid max-w-lg grid-cols-3 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] backdrop-blur-xl">
             {[
-              ["46", "módulos"],
-              ["130+", "questões"],
-              ["9", "labs práticos"],
+              ["80+", "módulos"],
+              ["160+", "questões"],
+              ["11", "labs práticos"],
             ].map(([value, label], index) => (
               <div
                 key={label}

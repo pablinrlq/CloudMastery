@@ -1,0 +1,36 @@
+---
+title: "Fundamentos de Inteligência Artificial e Machine Learning"
+description: "Tipos de aprendizagem, inferência, features, labels e seleção de abordagem para problemas reais."
+domain: "Fundamentos de IA e ML"
+order: 2
+durationMinutes: 55
+type: "teoria"
+week: 1
+---
+
+## O que é aprendizado de máquina
+
+ML aprende uma função a partir de exemplos, em vez de depender apenas de regras escritas manualmente. Em aprendizado **supervisionado**, exemplos possuem labels; classificação prevê categorias e regressão prevê valores. Em aprendizado **não supervisionado**, o sistema encontra estrutura sem labels, como clusters e anomalias. **Reinforcement learning** aprende ações por recompensas e penalidades.
+
+## Dados e representação
+
+Uma **feature** é uma variável usada pelo modelo; **label** é o resultado a prever. Dados tabulares, texto, imagem, áudio e séries temporais exigem representações e técnicas diferentes. Qualidade, cobertura e representatividade dos dados frequentemente importam mais que aumentar a complexidade do algoritmo.
+
+Divida dados em treino, validação e teste. Treino ajusta parâmetros; validação orienta escolhas; teste estima generalização final. Usar o teste repetidamente para decidir o modelo causa vazamento de informação e uma avaliação otimista.
+
+## Underfitting e overfitting
+
+Underfitting ocorre quando o modelo é simples ou pouco treinado e erra até nos dados de treino. Overfitting ocorre quando memoriza padrões do treino e falha em novos dados. Regularização, mais dados relevantes, simplificação e validação apropriada ajudam a controlar overfitting.
+
+## Cenários
+
+- prever cancelamento de clientes: classificação supervisionada;
+- estimar receita: regressão;
+- agrupar usuários por comportamento: clustering;
+- detectar transações incomuns sem exemplos suficientes de fraude: anomaly detection;
+- gerar descrição de produto: IA generativa.
+
+## Quando não usar ML
+
+Se uma regra determinística resolve o problema com precisão, auditabilidade e baixo custo, ML adiciona risco desnecessário. Também evite automatizar decisões de alto impacto quando dados e governança não sustentam uso seguro.
+

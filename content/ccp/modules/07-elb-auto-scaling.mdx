@@ -1,0 +1,79 @@
+---
+title: "Elastic Load Balancing e Auto Scaling Groups"
+description: "Alta disponibilidade, distribuição de tráfego, health checks e elasticidade horizontal com ELB e ASG."
+domain: "Tecnologia e Serviços"
+order: 7
+durationMinutes: 70
+type: "teoria"
+week: 2
+---
+
+## O problema arquitetural
+
+Uma única instância é um ponto de falha e tem capacidade limitada. Alta disponibilidade exige redundância; elasticidade exige ajustar capacidade. O Elastic Load Balancing e o EC2 Auto Scaling resolvem partes diferentes e complementares desse problema.
+
+## Elastic Load Balancing
+
+O ELB recebe conexões e as distribui entre destinos saudáveis, como instâncias EC2, containers ou endereços IP. Health checks retiram destinos com falha da rotação.
+
+### Tipos principais
+
+| Balanceador | Camada | Quando usar |
+|---|---|---|
+| Application Load Balancer | HTTP/HTTPS, camada 7 | Roteamento por host ou caminho, aplicações web |
+| Network Load Balancer | TCP/UDP/TLS, camada 4 | Latência muito baixa, alto volume, IP estático |
+| Gateway Load Balancer | Tráfego de rede | Inserir appliances de firewall/inspeção |
+
+No CLF-C02, o mais importante é entender a capacidade: o balanceador distribui tráfego e melhora disponibilidade; ele não cria instâncias sozinho.
+
+## Auto Scaling Group
+
+O ASG mantém uma quantidade desejada de instâncias entre mínimos e máximos. Ele substitui instâncias não saudáveis e pode aumentar ou reduzir o grupo conforme métricas.
+
+### Políticas comuns
+
+- **Target tracking**: manter CPU média próxima de um alvo.
+- **Step scaling**: adicionar/remover capacidade por faixas de alarme.
+- **Scheduled scaling**: antecipar evento conhecido, como fechamento mensal.
+- **Predictive scaling**: usar histórico para prever necessidade.
+
+## Como trabalham juntos
+
+Uma arquitetura web típica:
+
+1. instâncias ficam em pelo menos duas AZs;
+2. o ALB recebe tráfego;
+3. health checks identificam destinos saudáveis;
+4. o ASG cria ou encerra instâncias;
+5. o CloudWatch alimenta políticas de escala;
+6. o ALB registra novas instâncias automaticamente.
+
+O resultado combina tolerância a falhas com elasticidade.
+
+## Cenário prático
+
+Um e-commerce recebe cinco vezes mais acessos durante uma campanha. O ALB distribui requisições. Quando a CPU média ultrapassa o alvo, o ASG adiciona instâncias em várias AZs. Depois da campanha, remove capacidade com segurança. A empresa paga por recursos extras apenas durante o pico.
+
+## Conceitos que não devem ser confundidos
+
+- **Escala vertical**: trocar por uma instância maior; tem limite e pode exigir parada.
+- **Escala horizontal**: adicionar instâncias; favorece elasticidade e resiliência.
+- **Alta disponibilidade**: continuar operando durante falhas.
+- **Elasticidade**: ajustar capacidade para acompanhar demanda.
+
+## Sinais de questão
+
+- “distribuir tráfego entre servidores” → ELB;
+- “adicionar instâncias quando CPU cresce” → Auto Scaling;
+- “rotear /api e /imagens para grupos diferentes” → ALB;
+- “TCP, milhões de conexões e IP estático” → NLB;
+- “continuar se uma AZ falhar” → destinos em múltiplas AZs.
+
+## Limites do padrão
+
+ELB e ASG não tornam o estado da aplicação distribuído. Sessões locais e arquivos gravados em disco podem causar inconsistência. Aplicações elásticas preferem sessão externa (DynamoDB/ElastiCache), objetos no S3 e banco gerenciado multi-AZ.
+
+## Verificação de domínio
+
+Desenhe o fluxo usuário → balanceador → grupo de instâncias → banco. Explique quem distribui, quem substitui, quem mede e onde o estado deve ficar.
+

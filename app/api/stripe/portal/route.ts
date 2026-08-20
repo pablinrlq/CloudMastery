@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 import { siteUrl } from "@/lib/site-url";
+import { hasVerifiedEmail } from "@/lib/auth-security";
 
 // POST -> returns URL for the Stripe customer portal (manage/cancel plan).
 export async function POST() {
@@ -12,6 +13,12 @@ export async function POST() {
 
   if (!user) {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+  }
+  if (!hasVerifiedEmail(user)) {
+    return NextResponse.json(
+      { error: "Confirme seu email para gerenciar a assinatura." },
+      { status: 403 }
+    );
   }
 
   const { data: subscription } = await supabase

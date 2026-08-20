@@ -1,0 +1,31 @@
+---
+title: "Serviços Adicionais de Armazenamento AWS"
+description: "EFS, FSx, Storage Gateway, DataSync, Transfer Family e Snow para requisitos especializados."
+domain: "Arquiteturas de Alta Performance"
+order: 16
+durationMinutes: 55
+type: "teoria"
+week: 5
+---
+
+## Escolha pelo protocolo e pelo padrão de acesso
+
+| Serviço | Interface | Melhor encaixe |
+|---|---|---|
+| EFS | NFS para Linux | filesystem elástico compartilhado e regional |
+| FSx for Windows | SMB/Windows | Active Directory, shares e aplicações Windows |
+| FSx for Lustre | filesystem paralelo | HPC e processamento intensivo integrado ao S3 |
+| FSx for NetApp ONTAP | NFS/SMB/iSCSI | recursos ONTAP e migrações empresariais |
+| Storage Gateway | arquivo, volume ou fita | integração híbrida com cache local |
+| DataSync | agente/serviço de transferência | movimentação online acelerada e recorrente |
+| Transfer Family | SFTP/FTPS/FTP/AS2 | protocolos B2B gerenciados para S3/EFS |
+| Snow Family | dispositivo físico/edge | dados em massa ou locais com conectividade limitada |
+
+## Como decidir
+
+DataSync move dados entre storage on-premises e AWS e verifica integridade. Storage Gateway mantém uma interface de storage híbrido de longo prazo. Snowball transporta fisicamente grandes volumes quando a janela de rede é insuficiente. Uma pergunta sobre “migrar 500 TB em duas semanas por um link de 200 Mbps” aponta para transporte físico; uma sincronização diária incremental pode apontar para DataSync.
+
+## Cenário híbrido
+
+Um estúdio mantém edição local e arquivamento em nuvem. FSx for Lustre fornece throughput para renderização, ligado a datasets em S3. DataSync traz lotes do NAS existente. Lifecycle move originais antigos para Glacier. Cada camada atende um padrão diferente; tentar usar um único serviço para tudo aumenta custo ou degrada performance.
+

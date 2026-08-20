@@ -1,0 +1,78 @@
+---
+title: "Introdução ao AWS Certified Cloud Practitioner"
+description: "Como o CLF-C02 mede conhecimento, como estudar por cenários e como transformar serviços isolados em decisões de negócio."
+domain: "Conceitos de Nuvem"
+order: 1
+durationMinutes: 35
+type: "teoria"
+week: 1
+---
+
+## O que esta certificação realmente valida
+
+O CLF-C02 não exige que você administre servidores ou escreva código. Ele valida se você consegue **explicar o valor da AWS**, reconhecer responsabilidades de segurança, posicionar serviços centrais e entender custos e suporte. O candidato forte não memoriza apenas nomes: ele liga uma necessidade de negócio a uma capacidade da nuvem.
+
+Os quatro domínios oficiais são:
+
+| Domínio | Peso aproximado | Pergunta central |
+|---|---:|---|
+| Conceitos de Nuvem | 24% | Por que usar nuvem? |
+| Segurança e Conformidade | 30% | Quem protege o quê e com quais controles? |
+| Tecnologia e Serviços | 34% | Qual serviço resolve o cenário? |
+| Cobrança, Preços e Suporte | 12% | Como prever, controlar e otimizar gastos? |
+
+## Como funciona a prova
+
+São 65 questões em 90 minutos. Parte delas é usada pela AWS para avaliação estatística e não entra na nota, mas você não sabe quais. Existem questões de múltipla escolha e múltiplas respostas. Não há penalidade adicional por errar, portanto nenhuma questão deve ficar em branco.
+
+Uma questão costuma conter quatro camadas:
+
+1. **Contexto** — startup, banco, órgão público ou empresa global.
+2. **Restrição** — menor custo, menor esforço, maior disponibilidade ou conformidade.
+3. **Necessidade técnica** — armazenar objetos, auditar APIs, executar código ou conectar redes.
+4. **Palavra decisiva** — “gerenciado”, “serverless”, “global”, “sem credenciais permanentes”.
+
+## Método de raciocínio
+
+Leia primeiro a última frase para descobrir o que está sendo pedido. Depois identifique a restrição dominante. Duas alternativas podem funcionar tecnicamente, mas a correta é a que atende **todas** as condições.
+
+> Cenário: uma empresa quer consultar arquivos no S3 com SQL, sem administrar servidores e pagando por consulta. Redshift poderia analisar dados, mas exige um data warehouse. Athena atende diretamente todas as restrições.
+
+## Como estudar profundamente
+
+Para cada serviço, responda cinco perguntas:
+
+- Qual problema ele resolve?
+- Qual é o modelo operacional: gerenciado, serverless ou administrado pelo cliente?
+- Qual unidade gera cobrança?
+- Com quais serviços ele costuma trabalhar?
+- Qual alternativa parece semelhante e por que não é a melhor?
+
+Exemplo com SQS: ele desacopla componentes por uma fila durável; é gerenciado; cobra por requisições; integra com Lambda, SNS e ECS; não deve ser confundido com SNS, que distribui uma mensagem para vários assinantes.
+
+## Laboratório mental de arquitetura
+
+Considere uma loja virtual:
+
+- Route 53 resolve o domínio.
+- CloudFront aproxima conteúdo do usuário.
+- WAF filtra requisições maliciosas.
+- Load Balancer distribui tráfego.
+- EC2 ou Lambda executa a aplicação.
+- RDS ou DynamoDB persiste dados.
+- S3 guarda imagens e backups.
+- CloudWatch monitora.
+- CloudTrail registra ações administrativas.
+- Budgets alerta sobre gastos.
+
+Esse mapa será refinado módulo a módulo. O objetivo é enxergar a AWS como um sistema coerente, não como uma lista de produtos.
+
+## Critério de domínio
+
+Você está pronto para avançar quando consegue explicar, sem consultar:
+
+- os quatro domínios e o foco de cada um;
+- a diferença entre uma resposta tecnicamente possível e a resposta mais adequada;
+- por que custo, disponibilidade, segurança e esforço operacional mudam a escolha;
+- como pelo menos oito serviços participam de uma arquitetura web simples.
+

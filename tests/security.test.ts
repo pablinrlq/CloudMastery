@@ -6,6 +6,10 @@ import {
   resolveCheckoutPlan,
   safeRedirectPath,
 } from "../lib/security.ts";
+import {
+  confirmationPath,
+  hasVerifiedEmail,
+} from "../lib/auth-security.ts";
 
 test("checkout accepts only known plans", () => {
   assert.equal(isCheckoutPlan("monthly"), true);
@@ -37,4 +41,24 @@ test("public origin is normalized and rejects unsafe protocols", () => {
   assert.throws(() => normalizeSiteOrigin("javascript:alert(1)"));
   assert.throws(() => normalizeSiteOrigin("https://user:pass@example.com"));
   assert.throws(() => normalizeSiteOrigin(undefined));
+});
+
+test("protected auth accepts only users with a confirmed email timestamp", () => {
+  assert.equal(hasVerifiedEmail(null), false);
+  assert.equal(
+    hasVerifiedEmail({ email_confirmed_at: null } as never),
+    false
+  );
+  assert.equal(
+    hasVerifiedEmail({ email_confirmed_at: "2026-08-20T12:00:00Z" } as never),
+    true
+  );
+});
+
+test("confirmation path encodes email data instead of interpreting it as a URL", () => {
+  assert.equal(
+    confirmationPath("student+aws@example.com"),
+    "/signup/confirmacao?email=student%2Baws%40example.com"
+  );
+  assert.equal(confirmationPath(), "/signup/confirmacao");
 });

@@ -1,0 +1,43 @@
+---
+title: "Fundamentos do Amazon EC2"
+description: "Instâncias, AMIs, famílias, rede, bootstrap e modelos de compra para decisões arquiteturais sólidas."
+domain: "Arquiteturas de Alta Performance"
+order: 5
+durationMinutes: 65
+type: "teoria"
+week: 2
+---
+
+## O que é e por que usar
+
+EC2 fornece máquinas virtuais com controle sobre sistema operacional, runtime, rede e armazenamento. Use quando a aplicação exige software legado, acesso ao sistema, drivers específicos, execução longa ou um modelo operacional baseado em servidores. Se a prioridade for minimizar administração, compare com Lambda, ECS/Fargate, App Runner ou serviços gerenciados.
+
+## Anatomia de uma instância
+
+- **AMI:** imagem inicial do sistema e software.
+- **Tipo de instância:** combinação de vCPU, memória, rede e aceleradores.
+- **ENI:** interface de rede com IPs e security groups.
+- **EBS ou instance store:** persistência em rede ou disco efêmero local.
+- **User data:** bootstrap executado no primeiro boot, normalmente como `root`.
+- **Role de instância:** credenciais temporárias fornecidas pelo metadata service.
+
+Famílias `C` favorecem CPU, `R` memória, `I` armazenamento, `G/P` aceleração e `T` cargas burstáveis. O requisito deve guiar a família; “maior instância” raramente é a resposta mais eficiente.
+
+## Modelos de compra
+
+| Modelo | Melhor uso | Risco/limite |
+|---|---|---|
+| On-Demand | demanda incerta, curto prazo | preço unitário maior |
+| Savings Plans | uso previsível de computação | compromisso por 1 ou 3 anos |
+| Reserved Instances | compromisso e, em certos tipos, reserva de capacidade | flexibilidade varia por modalidade |
+| Spot | batch, CI, workers tolerantes a interrupção | interrupção com aviso curto |
+| Dedicated Hosts | licenças por socket/core e compliance | custo alto e mais planejamento |
+
+## Cenário
+
+Um renderizador processa milhares de jobs independentes. Use fila SQS, Auto Scaling com Spot diversificado e checkpoints em S3. Se uma instância for interrompida, a mensagem volta à fila após o visibility timeout. O sistema reduz custo sem colocar o fluxo inteiro em risco.
+
+## Segurança operacional
+
+Prefira Systems Manager Session Manager a portas SSH públicas, IMDSv2 a IMDSv1, roles a chaves estáticas e AMIs imutáveis a correções manuais. Security groups são stateful; NACLs são stateless e atuam na borda da sub-rede.
+

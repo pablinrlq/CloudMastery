@@ -1,0 +1,34 @@
+---
+title: "Identity and Access Management Avançado"
+description: "Avaliação de políticas, federação, cross-account, permission boundaries, SCPs e acesso temporário."
+domain: "Arquiteturas Seguras"
+order: 25
+durationMinutes: 65
+type: "teoria"
+week: 7
+---
+
+## Como a autorização é decidida
+
+Por padrão tudo é negado. Um `Allow` aplicável é necessário, e qualquer `Deny` explícito prevalece. A permissão efetiva é a interseção dos limites aplicáveis: identity policies, permission boundary e Organizations SCP. Resource policies e trust policies também participam conforme o serviço e o tipo de principal.
+
+**Permission boundary** limita o máximo que uma identidade pode receber; não concede permissões. **SCP** limita contas/OU da organização; também não concede. **Session policy** reduz permissões durante uma sessão assumida.
+
+## Roles e STS
+
+Uma role possui trust policy, que define quem pode assumi-la, e permission policies, que definem o que a sessão pode fazer. STS emite credenciais temporárias. Em acesso cross-account, a conta destino confia no principal e a conta origem permite `sts:AssumeRole`.
+
+Use `ExternalId` para reduzir confused deputy quando um terceiro assume roles de vários clientes. Use conditions como `aws:PrincipalOrgID`, tags e MFA para restringir contexto.
+
+## Identidade humana e de workload
+
+Pessoas entram por federação/Identity Center e recebem sessões curtas. EC2 usa instance profile, ECS usa task role, Lambda usa execution role e EKS pode associar roles a service accounts/pods. Nunca distribua access keys fixas dentro do código.
+
+## Cenário multi-conta
+
+Uma empresa separa produção, segurança e desenvolvimento em contas. Identity Center concede permission sets por grupo. SCP impede desabilitar CloudTrail e restringe Regiões. Uma pipeline na conta de ferramentas assume uma role de implantação na produção. Permission boundary permite aos times criar roles sem ultrapassar a política corporativa.
+
+## Diagnóstico
+
+Quando há `AccessDenied`, identifique principal real, ação, ARN exato, Região e todas as camadas de política. Policy Simulator ajuda, mas logs do CloudTrail e a mensagem de autorização codificada podem revelar a camada que negou.
+

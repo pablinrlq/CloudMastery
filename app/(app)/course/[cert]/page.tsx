@@ -135,7 +135,7 @@ export default async function CoursePage({
                             : "bg-slate-100 text-slate-500 transition group-hover:bg-orange-50 group-hover:text-orange-600 dark:bg-white/5 dark:text-slate-400"
                         }`}
                       >
-                        {done ? "✓" : mod.order}
+                        {done ? "OK" : mod.order}
                       </span>
                       <span className="min-w-0">
                         <span className="flex flex-wrap items-center gap-2">

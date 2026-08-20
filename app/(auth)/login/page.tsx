@@ -19,6 +19,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/dashboard";
   const oauthError = searchParams.get("error") === "oauth";
+  const passwordUpdated = searchParams.get("password") === "updated";
 
   return (
     <AuthShell
@@ -51,9 +52,14 @@ function LoginForm() {
           />
         </div>
         <div>
-          <label htmlFor="password" className="mb-2 block text-sm font-bold text-slate-700">
-            Senha
-          </label>
+          <div className="mb-2 flex items-center justify-between gap-4">
+            <label htmlFor="password" className="block text-sm font-bold text-slate-700">
+              Senha
+            </label>
+            <Link href="/esqueci-senha" className="cm-link text-xs">
+              Esqueci minha senha
+            </Link>
+          </div>
           <input
             id="password"
             name="password"
@@ -67,6 +73,19 @@ function LoginForm() {
         {(state?.error || oauthError) && (
           <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
             {state?.error ?? "Não foi possível entrar com o Google. Tente novamente."}
+          </p>
+        )}
+        {state && "code" in state && state.code === "email_unverified" && (
+          <Link
+            href={`/signup/confirmacao?email=${encodeURIComponent(state.email ?? "")}`}
+            className="cm-button-secondary w-full"
+          >
+            Reenviar confirmação
+          </Link>
+        )}
+        {passwordUpdated && (
+          <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
+            Senha atualizada. Entre com sua nova senha.
           </p>
         )}
         <button

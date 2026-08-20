@@ -1,0 +1,35 @@
+---
+title: "Amazon Bedrock, Amazon Nova e Ecossistema de IA AWS"
+description: "Serviços gerenciados para construir, adaptar e consumir aplicações de IA generativa na AWS."
+domain: "Fundamentos de IA Generativa"
+order: 7
+durationMinutes: 60
+type: "teoria"
+week: 3
+---
+
+## Amazon Bedrock
+
+Amazon Bedrock fornece acesso gerenciado a foundation models por API e recursos para construir aplicações generativas sem administrar a infraestrutura de treinamento/inferência subjacente. A plataforma inclui model evaluation, Knowledge Bases para RAG, Agents, Guardrails e opções de customização, conforme modelo e Região.
+
+Bedrock não substitui SageMaker AI. Bedrock acelera aplicações com FMs gerenciados; SageMaker AI oferece controle amplo sobre o ciclo de ML, treinamento, notebooks, pipelines e endpoints de modelos próprios.
+
+## Amazon Nova
+
+Amazon Nova é uma família de modelos da AWS com capacidades que variam por modalidade e perfil de custo/performance. A decisão continua orientada a benchmark: “modelo da AWS” não significa automaticamente melhor para toda tarefa.
+
+## Assistentes e ferramentas
+
+- **Amazon Q:** experiências de assistência para negócios e desenvolvimento, integradas a contextos e permissões.
+- **Amazon Quick:** experiências assistidas por IA para trabalho e dados, conforme o produto disponível.
+- **Kiro:** ambiente de desenvolvimento orientado por especificações e assistência de IA.
+- **Strands Agents:** SDK aberto para construir agentes orientados a modelos e ferramentas.
+- **Bedrock AgentCore:** componentes para operar agentes com identidade, runtime, observabilidade e outras capacidades gerenciadas.
+- **AWS Transform:** experiências de transformação/modernização assistidas por IA.
+
+Para o exame, reconheça a categoria e o problema resolvido. Para produção, confirme disponibilidade regional, limites e controles atuais antes de desenhar a solução.
+
+## Cenário
+
+Uma empresa quer um assistente interno sobre manuais. Bedrock fornece o FM, Knowledge Bases implementa recuperação, Guardrails filtra conteúdo e IAM controla acesso. Logs e avaliações medem groundedness. Se o objetivo fosse treinar um modelo preditivo proprietário com pipeline completo, SageMaker AI seria mais adequado.
+

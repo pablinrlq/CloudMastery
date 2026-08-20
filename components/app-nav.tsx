@@ -4,9 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const links = [
-  { href: "/dashboard", label: "Visão geral", shortLabel: "Início", icon: "◫" },
-  { href: "/course/ccp", label: "Cloud Practitioner", shortLabel: "CCP", icon: "◇" },
-  { href: "/course/saa", label: "Solutions Architect", shortLabel: "SAA", icon: "△" },
+  { href: "/dashboard", label: "Visão geral", shortLabel: "Início" },
+  { href: "/course/ccp", label: "Cloud Practitioner", shortLabel: "CCP" },
+  { href: "/course/saa", label: "Solutions Architect", shortLabel: "SAA" },
+  { href: "/course/aif", label: "AI Practitioner", shortLabel: "AIF" },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -45,7 +46,7 @@ export function MobileAppNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200/80 bg-white/90 px-3 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-12px_35px_rgba(15,23,42,0.08)] backdrop-blur-xl lg:hidden dark:border-white/10 dark:bg-slate-950/90">
-      <div className="mx-auto grid max-w-md grid-cols-3 gap-1">
+      <div className="mx-auto grid max-w-lg grid-cols-4 gap-1">
         {links.map((link) => {
           const active = isActive(pathname, link.href);
           return (
@@ -59,8 +60,7 @@ export function MobileAppNav() {
                   : "text-slate-400 hover:bg-slate-50 hover:text-slate-700 dark:hover:bg-white/5 dark:hover:text-slate-200"
               }`}
             >
-              <span className="text-base leading-none" aria-hidden>{link.icon}</span>
-              {link.shortLabel}
+              <span className="text-[10px] font-black tracking-[0.12em]">{link.shortLabel}</span>
             </Link>
           );
         })}

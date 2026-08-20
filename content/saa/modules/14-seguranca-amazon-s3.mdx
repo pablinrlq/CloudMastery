@@ -1,0 +1,36 @@
+---
+title: "Segurança do Amazon S3"
+description: "Políticas, criptografia, acesso privado, auditoria e defesa contra exclusão ou exposição acidental."
+domain: "Arquiteturas Seguras"
+order: 14
+durationMinutes: 60
+type: "teoria"
+week: 4
+---
+
+## Avaliação de acesso
+
+O S3 combina políticas baseadas em identidade (IAM), políticas de bucket, access points e controles organizacionais. Um `Deny` explícito vence qualquer `Allow`. ACLs são um mecanismo legado; com Object Ownership em `Bucket owner enforced`, elas podem ser desativadas.
+
+Use bucket policy para regras sobre o recurso: permitir uma distribuição CloudFront, exigir TLS, restringir a uma organização ou VPC endpoint. Use IAM policy para descrever o que uma identidade pode fazer em vários recursos.
+
+## Criptografia
+
+| Opção | Gestão de chave | Quando usar |
+|---|---|---|
+| SSE-S3 | S3 gerencia | padrão simples e escalável |
+| SSE-KMS | AWS KMS | controle de chave, auditoria e separação de funções |
+| DSSE-KMS | duas camadas KMS | requisitos regulatórios específicos |
+| SSE-C | cliente fornece chave a cada requisição | integração legada; maior responsabilidade do cliente |
+| Client-side | cifra antes do upload | controle ponta a ponta, com complexidade maior |
+
+SSE-KMS também depende da key policy e possui cotas/custos de chamadas. Bucket Keys podem reduzir tráfego e custo KMS.
+
+## Bucket privado com CloudFront
+
+Origin Access Control assina as requisições do CloudFront ao S3. A bucket policy aceita somente o ARN daquela distribuição. O usuário nunca recebe permissão direta no bucket. Signed URLs/cookies do CloudFront controlam conteúdo privado na borda.
+
+## Cenário de prevenção de ransomware
+
+Ative versionamento, MFA Delete quando aplicável, Object Lock em modo Governance ou Compliance conforme a política, cópia entre contas e alertas de CloudTrail/EventBridge. Separe a conta de backup da conta de produção. Criptografia protege confidencialidade; versionamento, retenção e separação de contas protegem recuperabilidade.
+

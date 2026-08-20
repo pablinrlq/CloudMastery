@@ -1,0 +1,15 @@
+.git
+.github
+.next
+.vercel
+node_modules
+npm-debug.log*
+.env
+.env.*
+!.env.example
+tests
+labs
+docs
+deploy
+*.pem
+*.tsbuildinfo

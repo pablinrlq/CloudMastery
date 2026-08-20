@@ -1,0 +1,36 @@
+---
+title: "Lab: Design de um RAG Seguro"
+description: "Projete ingestão, recuperação, autorização, citações e avaliação para uma base de conhecimento privada."
+domain: "Segurança, Conformidade e Governança para Soluções de IA"
+order: 17
+durationMinutes: 60
+type: "lab"
+week: 5
+---
+
+## Cenário
+
+Uma empresa possui políticas públicas, documentos internos e manuais restritos ao RH. O assistente deve responder com fontes sem misturar permissões.
+
+## Desenho
+
+1. Classifique documentos e associe metadados `department`, `country` e `classification`.
+2. Armazene originais criptografados e registre lineage da ingestão.
+3. Divida conteúdo por seção sem quebrar definições importantes.
+4. Gere embeddings e indexe com os metadados.
+5. Antes da busca, converta a identidade do usuário em filtros autorizados.
+6. Recupere e reranqueie trechos; passe somente o mínimo ao modelo.
+7. Exija citação, recusa sem evidência e validação da saída.
+8. Registre métricas sem gravar PII desnecessária.
+
+## Testes obrigatórios
+
+- RH acessa manual restrito; outro departamento não recupera o documento.
+- Uma página contém prompt injection e não altera as instruções do sistema.
+- Pergunta sem fonte recebe recusa, não invenção.
+- Documento atualizado substitui a versão indexada e preserva auditoria.
+
+## Entregável
+
+Produza um diagrama com fronteiras de confiança, IAM roles, chaves KMS, filtros de autorização, logs e ponto de aprovação humana. Justifique RAG em vez de fine-tuning: conhecimento muda, precisa de citação e possui permissões por documento.
+

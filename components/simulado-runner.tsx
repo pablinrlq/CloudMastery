@@ -374,7 +374,7 @@ export function SimuladoRunner({
                   className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-sm dark:border-white/10 dark:bg-slate-900"
                 >
                   <span className="text-gray-700">
-                    {s.correct ? "✓" : "✗"} {s.prompt.slice(0, 110)}
+                    <span className={s.correct ? "text-emerald-600" : "text-red-600"}>{s.correct ? "Correta" : "Incorreta"}</span>{" · "}{s.prompt.slice(0, 110)}
                     {s.prompt.length > 110 ? "…" : ""}
                     <span className="block text-xs text-gray-400">
                       {s.domain}
@@ -409,10 +409,10 @@ export function SimuladoRunner({
                   open={!item.correct && i < 3}
                 >
                   <summary className="cursor-pointer text-sm font-medium">
-                    {item.correct ? "✓" : "✗"} {item.prompt}
+                    <span className={item.correct ? "text-emerald-600" : "text-red-600"}>{item.correct ? "Correta" : "Incorreta"}</span>{" · "}{item.prompt}
                     <span className="ml-1 text-xs font-normal text-gray-400">
                       {item.timeSeconds !== null ? ` · ${formatDuration(item.timeSeconds)}` : ""}
-                      {item.hintUsed ? " · 💡 dica usada (meio ponto)" : ""}
+                      {item.hintUsed ? " · dica utilizada (meio ponto)" : ""}
                     </span>
                   </summary>
                   <ul className="mt-3 space-y-1 text-sm">
@@ -430,7 +430,7 @@ export function SimuladoRunner({
                                 : "text-gray-600"
                           }
                         >
-                          {isCorrect ? "✓ " : wasChosen ? "✗ " : "· "}
+                          {isCorrect ? "Correta · " : wasChosen ? "Selecionada · " : ""}
                           {c.text}
                         </li>
                       );
@@ -485,7 +485,7 @@ export function SimuladoRunner({
           title={overtime ? "Tempo oficial excedido" : "Tempo restante"}
         >
           {formatClock(secondsLeft)}
-          {overtime ? " ⚠" : ""}
+          {overtime ? " · excedido" : ""}
         </span>
       </div>
 
@@ -528,7 +528,8 @@ export function SimuladoRunner({
         <div className="mt-4">
           {hintShown ? (
             <p className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">
-              💡 {hintShown}
+              <span className="mb-1 block text-xs font-black uppercase tracking-[0.14em]">Dica de raciocínio</span>
+              {hintShown}
               <span className="mt-1 block text-xs text-amber-700">
                 Dica usada — esta questão agora vale meio ponto.
               </span>
@@ -539,7 +540,7 @@ export function SimuladoRunner({
               disabled={hintLoading}
               className="text-sm text-amber-700 underline decoration-dotted hover:text-amber-900 disabled:opacity-50"
             >
-              💡 Usar dica (a questão passa a valer meio ponto)
+              Usar dica (a questão passa a valer meio ponto)
             </button>
           )}
         </div>

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hasAccess, type Subscription } from "@/lib/dal";
 import { CERTIFICATIONS, isValidCert } from "@/lib/content";
+import { hasVerifiedEmail } from "@/lib/auth-security";
 
 // POST { certId, mode: "full" | "domain", domain? }
 // Creates an attempt and returns questions WITHOUT correct answers.
@@ -15,6 +16,12 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+  }
+  if (!hasVerifiedEmail(user)) {
+    return NextResponse.json(
+      { error: "Confirme seu email para acessar o simulado." },
+      { status: 403 }
+    );
   }
 
   const payload: unknown = await request.json().catch(() => null);

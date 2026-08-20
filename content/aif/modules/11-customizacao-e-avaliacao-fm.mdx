@@ -1,0 +1,37 @@
+---
+title: "Customização e Avaliação de Foundation Models"
+description: "Prompting, RAG, fine-tuning, continued pre-training e avaliação de qualidade, segurança e custo."
+domain: "Aplicações de Modelos de Fundação"
+order: 11
+durationMinutes: 60
+type: "teoria"
+week: 4
+---
+
+## Escada de adaptação
+
+Comece com a opção menos complexa que atende o objetivo:
+
+1. prompt e parâmetros;
+2. exemplos few-shot;
+3. RAG para conhecimento externo;
+4. fine-tuning para comportamento/tarefa;
+5. continued pre-training para domínio amplo, quando suportado e justificado;
+6. treinamento próprio apenas quando controle e diferenciação compensam custo e risco.
+
+Fine-tuning altera pesos usando exemplos; exige dados de alta qualidade, avaliação e governança de versão. RAG altera o contexto em tempo de inferência e mantém conhecimento desacoplado do modelo.
+
+## Avaliação multidimensional
+
+Construa um dataset representativo e critérios por tarefa. Meça exatidão/fidelidade, relevância, segurança, viés, robustez, latência e custo. Compare com baseline, não apenas entre modelos. Inclua casos adversariais e segmentos de usuários.
+
+Human evaluation é essencial para nuance, mas requer rubrica e concordância entre avaliadores. Avaliação automática escala; deve ser calibrada contra julgamentos humanos.
+
+## Gestão de versões
+
+Registre modelo/provider/version, prompt, parâmetros, dataset, código de recuperação e guardrails. Uma mudança isolada pode afetar o sistema inteiro. Use canary/A-B, rollback e aprovação para casos de alto impacto.
+
+## Cenário
+
+Um jurídico quer classificar cláusulas e explicar o resultado. Primeiro, few-shot com schema atende classificação. RAG adiciona políticas internas e citações. Fine-tuning só entra se houver grande volume de exemplos consistentes e ganho medido. Decisões finais permanecem com especialista humano.
+

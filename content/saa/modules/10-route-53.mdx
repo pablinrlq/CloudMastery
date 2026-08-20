@@ -1,0 +1,40 @@
+---
+title: "Amazon Route 53"
+description: "DNS autoritativo, registros, health checks e políticas de roteamento para disponibilidade global."
+domain: "Arquiteturas Resilientes"
+order: 10
+durationMinutes: 65
+type: "teoria"
+week: 3
+---
+
+## O que é
+
+Route 53 combina registro de domínios, DNS autoritativo e health checks. DNS traduz nomes em destinos; ele não transporta o tráfego da aplicação. A resposta é armazenada por resolvers durante o TTL, portanto mudanças não são percebidas instantaneamente.
+
+## Registros essenciais
+
+`A` aponta para IPv4; `AAAA`, IPv6; `CNAME`, outro nome, mas não funciona no apex da zona. Um **Alias record** é uma extensão da AWS que pode apontar o apex para ALB, CloudFront, API Gateway, S3 website e outros alvos AWS, frequentemente sem cobrança por consulta ao alvo.
+
+Zonas públicas respondem na internet. Zonas privadas resolvem nomes dentro das VPCs associadas. Route 53 Resolver endpoints conectam DNS de VPC e datacenter em arquiteturas híbridas.
+
+## Políticas de roteamento
+
+| Política | Decisão |
+|---|---|
+| Simple | um ou vários valores sem lógica de saúde avançada |
+| Weighted | proporção de tráfego, canary e blue/green |
+| Latency | Região AWS com menor latência estimada |
+| Failover | primário saudável ou secundário |
+| Geolocation | localização do usuário e regras de conteúdo |
+| Geoproximity | distância, com bias para expandir/reduzir área |
+| Multivalue | vários registros saudáveis; não substitui um ELB |
+
+## Health checks e cenário
+
+Health checks podem observar endpoints públicos, CloudWatch Alarms ou outros checks calculados. Para uma aplicação ativa-passiva entre Regiões, crie registros Failover: primário aponta ao ALB da Região principal e secundário ao ambiente de DR. O health check precisa avaliar a saúde do serviço, não apenas a existência de uma instância.
+
+## Armadilha
+
+TTL baixo acelera failover percebido, mas aumenta consultas e custo. DNS também não encerra conexões já abertas. Quando são necessários IPs anycast estáticos e failover rápido para tráfego TCP/UDP, avalie AWS Global Accelerator.
+

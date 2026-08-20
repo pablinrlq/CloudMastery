@@ -1,0 +1,82 @@
+---
+title: "Armazenamento de Instâncias EC2"
+description: "EBS, instance store, snapshots e EFS: persistência, desempenho, escopo de AZ e decisões de arquitetura."
+domain: "Tecnologia e Serviços"
+order: 6
+durationMinutes: 65
+type: "teoria"
+week: 2
+---
+
+## O que é armazenamento de instância
+
+Uma instância EC2 precisa de algum lugar para manter sistema operacional, aplicações e dados. A escolha não é apenas “qual disco é maior”; envolve **persistência**, latência, compartilhamento, disponibilidade e custo.
+
+## Amazon EBS
+
+Elastic Block Store fornece volumes de bloco para EC2. O sistema operacional enxerga um volume como disco. O volume vive em uma única Zona de Disponibilidade e persiste independentemente do ciclo de vida da instância, conforme a configuração de exclusão.
+
+### Por que usar
+
+- disco de boot persistente;
+- banco de dados que precisa de baixa latência de bloco;
+- aplicação que precisa formatar o volume com um sistema de arquivos;
+- snapshot e restauração controlados.
+
+### Como funciona
+
+O volume é anexado a uma instância compatível na mesma AZ. Snapshots são backups incrementais gerenciados e armazenados pelo serviço. Para mover dados a outra AZ, cria-se um snapshot e, a partir dele, um novo volume no destino.
+
+Famílias importantes:
+
+- **gp3**: SSD de uso geral; escolha padrão para a maioria das cargas.
+- **io2**: SSD com IOPS provisionadas e alta durabilidade para cargas críticas.
+- **st1**: HDD otimizado para throughput sequencial.
+- **sc1**: HDD de baixo custo para acesso pouco frequente.
+
+## Instance Store
+
+É o armazenamento físico conectado ao host da instância. Entrega I/O muito rápido, mas é **efêmero**. Se a instância for parada, encerrada ou migrada de host, os dados podem desaparecer.
+
+Use para cache, buffers, dados temporários e resultados recriáveis. Não use como única cópia de pedidos, banco transacional ou arquivos do cliente.
+
+## Amazon EFS
+
+EFS é um sistema de arquivos NFS gerenciado, elástico e regional. Várias instâncias Linux, inclusive em AZs diferentes, podem montar o mesmo sistema de arquivos.
+
+Use quando servidores precisam compartilhar uploads, conteúdo ou diretórios. Não confunda com EBS, que é bloco e normalmente atende uma instância; nem com S3, que é armazenamento de objetos acessado por API.
+
+## Cenário de arquitetura
+
+Uma plataforma de edição de vídeo usa:
+
+- EBS gp3 para o sistema e dados de trabalho de cada editor;
+- instance store para arquivos intermediários que podem ser recriados;
+- EFS para a biblioteca compartilhada entre workers;
+- S3 para originais, versões finais e arquivamento;
+- snapshots de EBS para recuperação.
+
+Cada camada existe porque o padrão de acesso é diferente.
+
+## Decisões que a prova explora
+
+| Necessidade | Escolha |
+|---|---|
+| Disco persistente para uma EC2 | EBS |
+| Maior IOPS previsível para banco crítico | EBS io2 |
+| Dados temporários com I/O muito alto | Instance Store |
+| Arquivos compartilhados entre EC2 Linux | EFS |
+| Compartilhamento Windows com SMB | FSx for Windows File Server |
+| Objetos acessados por API e escala massiva | S3 |
+
+## Armadilhas
+
+- EBS e EC2 precisam estar na mesma AZ.
+- Snapshot não é um volume montado; ele serve para criar/restaurar volumes.
+- Aumentar tamanho e performance do EBS não torna uma aplicação multi-AZ.
+- Instance store pode ser rápido, mas rapidez não equivale a durabilidade.
+
+## Verificação de domínio
+
+Explique por que um banco em EC2 pode usar EBS, por que um cache pode usar instance store e por que um conjunto de servidores web pode precisar de EFS. Se a resposta mencionar persistência, escopo e padrão de acesso, o raciocínio está correto.
+

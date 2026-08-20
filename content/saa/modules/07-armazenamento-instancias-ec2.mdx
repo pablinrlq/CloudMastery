@@ -1,0 +1,30 @@
+---
+title: "Armazenamento de Instâncias EC2"
+description: "EBS, snapshots, instance store e EFS: persistência, performance e comportamento de falha."
+domain: "Arquiteturas de Alta Performance"
+order: 7
+durationMinutes: 55
+type: "teoria"
+week: 2
+---
+
+## O problema de arquitetura
+
+Escolher armazenamento exige responder: os dados precisam sobreviver à instância? Um ou vários hosts acessam o volume? Qual é o padrão de IOPS e throughput? A aplicação aceita armazenamento de objetos ou precisa de sistema de arquivos/bloco?
+
+## EBS
+
+EBS é armazenamento em bloco persistente ligado a uma AZ. Volumes `gp3` atendem a maioria dos workloads e permitem ajustar IOPS e throughput independentemente do tamanho. `io2` oferece alta durabilidade e IOPS provisionadas para bancos críticos. `st1` prioriza throughput sequencial em HDD; `sc1`, menor custo para acesso infrequente.
+
+Snapshots são incrementais e armazenados de forma gerenciada no S3. Para restaurar em outra AZ, crie um novo volume do snapshot naquela AZ. Para outra Região, copie o snapshot. Criptografia EBS usa KMS; snapshots derivados permanecem criptografados.
+
+## Instance store e EFS
+
+**Instance store** oferece disco local de baixa latência, mas os dados são efêmeros. É adequado para cache, buffers e dados reproduzíveis — nunca como única cópia de informação crítica.
+
+**EFS** é um sistema NFS regional compartilhado por múltiplas instâncias Linux e cresce elasticamente. Use para conteúdo compartilhado, home directories ou aplicações que exigem semântica de filesystem. Para Windows, compare com FSx for Windows File Server; para Lustre/HPC, FSx for Lustre.
+
+## Cenário
+
+Uma aplicação web em Auto Scaling não deve salvar uploads no disco de uma instância. Coloque objetos em S3 quando a aplicação suporta API de objetos; use EFS quando código legado exige filesystem compartilhado. Guarde o sistema e dependências em AMI/containers e trate instâncias como descartáveis.
+

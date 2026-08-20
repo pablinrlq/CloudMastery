@@ -1,0 +1,32 @@
+---
+title: "Lab: Prompts, Saída Estruturada e Avaliação"
+description: "Construa um experimento reproduzível, compare versões e teste entradas adversariais sem expor dados sensíveis."
+domain: "Aplicações de Modelos de Fundação"
+order: 16
+durationMinutes: 50
+type: "lab"
+week: 4
+---
+
+## Objetivo
+
+Criar um classificador de tickets com saída JSON e demonstrar que uma alteração só é melhoria quando vence um conjunto de avaliação.
+
+## Procedimento
+
+1. Defina quatro categorias e vinte tickets fictícios, incluindo casos ambíguos.
+2. Escreva uma instrução zero-shot com schema de saída.
+3. Adicione exemplos few-shot apenas onde o baseline erra.
+4. Teste temperature baixa e limite de tokens.
+5. Valide JSON por código; rejeite campos e categorias desconhecidos.
+6. Inclua entradas adversariais: pedido para ignorar regra, texto muito longo e conteúdo sem contexto.
+7. Registre precisão, taxa de JSON válido, latência e tokens.
+
+## Critério de conclusão
+
+O prompt aprovado precisa superar o baseline no mesmo dataset, manter saída válida e recusar instruções embutidas no ticket. Documente modelo, versão, parâmetros e data para tornar o resultado reproduzível.
+
+## Limpeza e segurança
+
+Use apenas dados sintéticos. Não copie tickets reais com nomes, emails, credenciais ou contratos para um experimento não aprovado.
+

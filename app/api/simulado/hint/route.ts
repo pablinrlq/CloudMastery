@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { hasVerifiedEmail } from "@/lib/auth-security";
 
 // POST { attemptId, questionId } -> { hint }
 // Registra o uso da dica no servidor ANTES de devolver o texto: a penalidade
@@ -13,6 +14,12 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+  }
+  if (!hasVerifiedEmail(user)) {
+    return NextResponse.json(
+      { error: "Confirme seu email para acessar o simulado." },
+      { status: 403 }
+    );
   }
 
   const payload: unknown = await request.json().catch(() => null);

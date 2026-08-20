@@ -1,0 +1,33 @@
+---
+title: "Outros Serviços Importantes para o SAA-C03"
+description: "Serviços menos frequentes que se tornam a resposta correta quando o requisito é específico."
+domain: "Arquiteturas de Alta Performance"
+order: 30
+durationMinutes: 45
+type: "teoria"
+week: 8
+---
+
+## Serviços de aplicação
+
+- **Amazon SES:** envio transacional e marketing por email.
+- **Amazon Pinpoint:** campanhas e engajamento multicanal.
+- **AppSync:** APIs GraphQL gerenciadas, subscriptions e sincronização.
+- **API Gateway:** APIs REST, HTTP e WebSocket com autenticação, throttling e estágios.
+- **Cloud Map:** descoberta de serviços por DNS/API.
+
+## Migração e modernização
+
+- **Application Migration Service:** replicação e cutover de servidores para EC2.
+- **Database Migration Service:** migração contínua de dados com baixa indisponibilidade; SCT auxilia conversão de schema entre engines diferentes.
+- **Migration Hub:** acompanha projetos de migração.
+- **AppFlow:** integra dados de aplicações SaaS e serviços AWS.
+
+## Operação e governança
+
+Systems Manager centraliza inventário, patching, parâmetros, automação e acesso por Session Manager. Service Catalog publica produtos aprovados. Control Tower estabelece uma landing zone multi-conta com guardrails. AWS Backup centraliza políticas e vaults entre serviços e contas.
+
+## Como reconhecer a resposta
+
+Procure a palavra específica do requisito. “GraphQL e atualização em tempo real” sugere AppSync. “Acesso a EC2 privada sem abrir porta 22” sugere Session Manager. “Migrar VMs com replicação contínua e cutover” sugere Application Migration Service. “Catálogo de stacks aprovadas para equipes” sugere Service Catalog.
+

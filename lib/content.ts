@@ -58,6 +58,7 @@ export const CERTIFICATIONS = {
     code: "CLF-C02",
     examDurationMinutes: 90,
     examQuestionCount: 65,
+    suggestedWeeks: 7,
     domains: [
       "Conceitos de Nuvem",
       "Segurança e Conformidade",
@@ -71,11 +72,27 @@ export const CERTIFICATIONS = {
     code: "SAA-C03",
     examDurationMinutes: 130,
     examQuestionCount: 65,
+    suggestedWeeks: 9,
     domains: [
       "Arquiteturas Seguras",
       "Arquiteturas Resilientes",
       "Arquiteturas de Alta Performance",
       "Arquiteturas com Custo Otimizado",
+    ],
+  },
+  aif: {
+    id: "aif",
+    name: "AWS Certified AI Practitioner",
+    code: "AIF-C01",
+    examDurationMinutes: 90,
+    examQuestionCount: 65,
+    suggestedWeeks: 6,
+    domains: [
+      "Fundamentos de IA e ML",
+      "Fundamentos de IA Generativa",
+      "Aplicações de Modelos de Fundação",
+      "Diretrizes para IA Responsável",
+      "Segurança, Conformidade e Governança para Soluções de IA",
     ],
   },
 } as const;

@@ -4,7 +4,7 @@ import { CheckoutButton } from "@/components/checkout-button";
 export const metadata = { title: "Planos e preços" };
 
 const features = [
-  "Trilhas completas para CLF-C02 e SAA-C03",
+  "Trilhas completas para CLF-C02, SAA-C03 e AIF-C01",
   "Simulados no formato e tempo oficiais",
   "Análise por domínio e tempo por questão",
   "9 laboratórios práticos guiados",
@@ -58,7 +58,7 @@ export default async function PricingPage({
         <section className="mx-auto mt-8 max-w-5xl rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-[0_20px_60px_-45px_rgba(15,23,42,0.3)] sm:p-10">
           <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr]">
             <div><p className="cm-kicker">Tudo incluído</p><h2 className="mt-4 text-2xl font-bold tracking-[-0.035em]">A mesma experiência completa em qualquer plano.</h2><p className="mt-4 text-sm leading-6 text-slate-500">Sem módulos bloqueados, pacotes adicionais ou surpresas depois da compra.</p></div>
-            <ul className="grid gap-x-7 gap-y-4 sm:grid-cols-2">{features.map((feature) => <li key={feature} className="flex gap-3 text-sm leading-6 text-slate-700"><span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-orange-50 text-[11px] font-black text-orange-600" aria-hidden>✓</span>{feature}</li>)}</ul>
+            <ul className="grid gap-x-7 gap-y-4 sm:grid-cols-2">{features.map((feature) => <li key={feature} className="flex gap-3 text-sm leading-6 text-slate-700"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-orange-500 shadow-[0_0_0_4px_rgba(249,115,22,0.1)]" aria-hidden />{feature}</li>)}</ul>
           </div>
         </section>
 

@@ -1,0 +1,36 @@
+---
+title: "Whitepapers e Arquiteturas AWS"
+description: "Well-Architected Framework, pilares, trade-offs e método para revisar uma solução ponta a ponta."
+domain: "Arquiteturas com Custo Otimizado"
+order: 31
+durationMinutes: 50
+type: "revisao"
+week: 9
+---
+
+## Well-Architected não é uma lista de produtos
+
+O framework organiza decisões em seis pilares: excelência operacional, segurança, confiabilidade, eficiência de performance, otimização de custos e sustentabilidade. Uma arquitetura boa torna os trade-offs explícitos e mede se as hipóteses continuam verdadeiras.
+
+## Perguntas de revisão
+
+**Operação:** mudanças são pequenas, reversíveis e observáveis? Existem runbooks e alarmes acionáveis?
+
+**Segurança:** identidades usam privilégios mínimos? Dados são classificados, criptografados e auditados? Há detecção e resposta?
+
+**Confiabilidade:** quais são os domínios de falha? A capacidade se recupera automaticamente? RTO e RPO foram testados?
+
+**Performance:** o modelo de computação e armazenamento corresponde ao padrão de acesso? A solução escala horizontalmente?
+
+**Custo:** recursos ociosos são removidos? Compromissos são adquiridos somente para a base previsível? Métricas de negócio explicam o gasto?
+
+**Sustentabilidade:** a utilização é alta? Serviços gerenciados e hardware eficiente reduzem recursos necessários?
+
+## Cenário de revisão
+
+Uma aplicação usa uma única EC2 grande, banco Single-AZ e backups manuais. A revisão recomenda ALB + Auto Scaling em múltiplas AZs, RDS Multi-AZ, backups automatizados testados, métricas/SLOs e right sizing. A mudança melhora confiabilidade, mas pode elevar custo fixo; Savings Plans e escala por demanda tratam o custo sem sacrificar o requisito.
+
+## Para a prova
+
+Quando duas respostas funcionam, prefira a que satisfaz todas as restrições com menor carga operacional e menor acoplamento. “Mais serviços” não significa melhor arquitetura; cada componente precisa justificar uma responsabilidade.
+

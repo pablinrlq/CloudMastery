@@ -1,0 +1,34 @@
+---
+title: "Bancos de Dados na AWS"
+description: "Escolha orientada a acesso entre bancos relacionais, chave-valor, documentos, grafos, ledger e séries temporais."
+domain: "Arquiteturas de Alta Performance"
+order: 21
+durationMinutes: 60
+type: "teoria"
+week: 6
+---
+
+## Comece pelo padrão de acesso
+
+Não escolha banco pela familiaridade. Identifique consistência, relacionamentos, volume, latência, modelo de consulta, crescimento e tolerância operacional.
+
+| Necessidade | Serviço típico | Motivo |
+|---|---|---|
+| SQL, joins, transações | RDS/Aurora | engines relacionais gerenciados |
+| chave-valor em qualquer escala | DynamoDB | latência de milissegundos e escala horizontal |
+| documentos JSON | DocumentDB | compatibilidade com workloads MongoDB selecionados |
+| relacionamentos em grafo | Neptune | travessias e consultas de grafo |
+| histórico imutável verificável | QLDB | journal criptograficamente verificável |
+| séries temporais | Timestream | ingestão e consultas temporais gerenciadas |
+| cache em memória | ElastiCache | Redis OSS/Valkey ou Memcached para baixa latência |
+
+## DynamoDB em profundidade
+
+Partition key distribui dados; sort key organiza itens relacionados. Uma chave quente limita performance mesmo com capacidade total suficiente. GSIs suportam novos padrões de consulta; LSIs compartilham a partition key e são definidos na criação. On-demand favorece carga imprevisível; provisioned com auto scaling favorece demanda previsível.
+
+DynamoDB Streams captura alterações para processamento assíncrono. TTL remove itens expirados sem ser um cronômetro exato. Global Tables replica em múltiplas Regiões para aplicações ativas-ativas.
+
+## Cenário
+
+Uma plataforma de jogos precisa buscar o estado do jogador por `player_id` em poucos milissegundos e recebe picos globais. DynamoDB Global Tables oferece acesso regional. Um GSI lista partidas por ranking. Escritas idempotentes e condicionais evitam pontuação duplicada. Dados analíticos fluem por streams para um lake, em vez de executar scans operacionais caros.
+

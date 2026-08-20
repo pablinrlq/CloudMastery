@@ -1,0 +1,90 @@
+---
+title: "Guia do Curso e Materiais de Estudo"
+description: "Um sistema de estudo ativo com notas, revisão espaçada, labs, simulados e critérios objetivos de prontidão."
+domain: "Conceitos de Nuvem"
+order: 2
+durationMinutes: 25
+type: "teoria"
+week: 1
+---
+
+## Por que um sistema de estudo é necessário
+
+Assistir aulas cria familiaridade, mas familiaridade não é recuperação ativa. Na prova, você precisa reconhecer uma restrição, recuperar conceitos e eliminar alternativas sob tempo. O curso combina quatro ciclos: **compreender, aplicar, recuperar e medir**.
+
+## Como usar cada recurso
+
+### Módulos
+
+Leia procurando decisões, não definições isoladas. Ao terminar cada seção, explique o conceito em voz alta usando suas próprias palavras. Se a explicação depender do texto, o conhecimento ainda não está consolidado.
+
+### Tabelas comparativas
+
+Transforme comparações em perguntas. Em vez de decorar “Multi-AZ é disponibilidade”, pergunte: “por que uma read replica não substitui Multi-AZ em um requisito de failover automático?”.
+
+### Labs
+
+O lab serve para conectar vocabulário à interface real. Antes de criar um recurso, registre:
+
+- objetivo;
+- Região escolhida;
+- serviço e configuração;
+- custo potencial;
+- procedimento de limpeza.
+
+Nunca deixe recursos ativos por distração. Use AWS Budgets e confirme a exclusão ao final.
+
+### Flashcards
+
+Responda antes de virar o cartão. Marque “conhecido” somente quando a resposta for completa e imediata. Cartões difíceis devem voltar em intervalos curtos; cartões dominados podem esperar mais.
+
+### Simulados
+
+O primeiro simulado é diagnóstico, não julgamento. Classifique erros:
+
+1. conceito desconhecido;
+2. confusão entre serviços;
+3. restrição ignorada;
+4. leitura apressada;
+5. mudança de resposta sem evidência.
+
+Reestude a causa, não apenas a alternativa correta.
+
+## Plano sugerido de sete semanas
+
+| Semana | Foco | Resultado esperado |
+|---|---|---|
+| 1 | Nuvem e IAM | Explicar valor, responsabilidade e acesso |
+| 2 | EC2 e armazenamento | Escolher capacidade e persistência |
+| 3 | S3, dados e compute gerenciado | Mapear serviços a cargas |
+| 4 | Implantação, infraestrutura global e integração | Entender automação e desacoplamento |
+| 5 | Monitoramento, redes e segurança | Distinguir observação, conectividade e proteção |
+| 6 | IA/ML, identidade avançada e custos | Cobrir serviços modernos e governança |
+| 7 | Arquitetura, labs e reta final | Integrar decisões e estabilizar desempenho |
+
+## Caderno de erros
+
+Para cada erro, registre:
+
+| Campo | Exemplo |
+|---|---|
+| Cenário | EC2 privado acessa S3 |
+| Minha escolha | NAT Gateway |
+| Resposta adequada | Gateway VPC Endpoint |
+| Restrição ignorada | menor custo e sem internet |
+| Regra reaproveitável | S3/DynamoDB privados: considere gateway endpoint |
+
+Essa última linha transforma um erro específico em conhecimento transferível.
+
+## Critério de prontidão
+
+Não use apenas a sensação de confiança. Um critério responsável combina:
+
+- 100% dos módulos concluídos;
+- três simulados completos recentes;
+- média estável acima da meta interna;
+- nenhum domínio muito abaixo dos demais;
+- capacidade de justificar respostas, inclusive as incorretas.
+
+O objetivo não é “ver tudo”. É construir um modelo mental que permaneça útil depois da certificação.
+

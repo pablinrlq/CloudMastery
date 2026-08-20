@@ -1,0 +1,33 @@
+---
+title: "Introdução ao Amazon S3"
+description: "Modelo de objetos, consistência, versionamento, classes e padrões arquiteturais fundamentais."
+domain: "Arquiteturas de Alta Performance"
+order: 12
+durationMinutes: 55
+type: "teoria"
+week: 4
+---
+
+## O que é e por que usar
+
+S3 é armazenamento de objetos regional, projetado para altíssima durabilidade e escala. Um objeto combina chave, conteúdo, metadados e, quando versionado, version ID. Buckets formam o namespace e pertencem a uma conta/Região. S3 não é um volume de bloco nem um filesystem POSIX tradicional.
+
+Use para data lakes, backups, artefatos, mídia, logs e conteúdo estático. A aplicação acessa objetos por API HTTP. Para arquivos mutáveis com locking/semântica de diretórios, compare EFS ou FSx; para disco de uma instância, EBS.
+
+## Como funciona
+
+S3 oferece consistência forte de leitura após gravação e de listagem. As chaves não criam diretórios reais; prefixos apenas organizam o namespace. Multipart upload melhora resiliência e performance em objetos grandes. Pre-signed URLs concedem acesso temporário a uma operação específica sem distribuir credenciais AWS.
+
+## Proteções fundamentais
+
+- Block Public Access no nível de conta e bucket;
+- versionamento contra sobrescrita e exclusão acidental;
+- Object Lock para retenção WORM;
+- criptografia server-side com chaves S3 ou KMS;
+- lifecycle para transição e expiração;
+- replication para objetivos de conformidade e cópia entre buckets.
+
+## Cenário
+
+Um portal recebe vídeos grandes. O backend autentica o aluno e gera uma URL pré-assinada; o navegador envia diretamente ao S3 por multipart upload. Um evento inicia processamento assíncrono. CloudFront entrega os resultados por Origin Access Control, mantendo o bucket privado. Isso remove o servidor web do caminho de dados e escala com menos custo operacional.
+

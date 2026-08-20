@@ -6,6 +6,7 @@ import { getGamificationProfile } from "@/lib/gamification";
 import { ScoreChart } from "@/components/score-chart";
 import { StatsBar } from "@/components/stats-bar";
 import { PortalButton } from "@/components/portal-button";
+import { LogoIcon } from "@/components/logo";
 
 export default async function DashboardPage({
   searchParams,
@@ -16,7 +17,10 @@ export default async function DashboardPage({
   const { email } = await verifySession();
   const subscription = await getSubscription();
 
-  const hasAnyAccess = hasAccess(subscription, "ccp") || hasAccess(subscription, "saa");
+  const accessibleCerts = (Object.keys(CERTIFICATIONS) as CertId[]).filter((certId) =>
+    hasAccess(subscription, certId)
+  );
+  const hasAnyAccess = accessibleCerts.length > 0;
   const profile = hasAnyAccess ? await getGamificationProfile() : null;
 
   return (
@@ -60,9 +64,7 @@ export default async function DashboardPage({
         <>
           <div className="mt-10 space-y-6">
             {profile && <StatsBar profile={profile} />}
-            {(Object.keys(CERTIFICATIONS) as CertId[])
-              .filter((certId) => hasAccess(subscription, certId))
-              .map((certId) => (
+            {accessibleCerts.map((certId) => (
                 <CertPanel key={certId} certId={certId} />
               ))}
           </div>
@@ -109,7 +111,7 @@ async function CertPanel({ certId }: { certId: CertId }) {
           href={`/certificado/${certId}`}
           className="mt-4 flex items-center justify-between rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm font-bold text-orange-800 transition hover:border-orange-300 hover:bg-orange-100/70 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-300"
         >
-          <span>🏆 Você desbloqueou o certificado de conclusão!</span>
+          <span className="flex items-center gap-2"><LogoIcon size={24} /> Você desbloqueou o certificado de conclusão.</span>
           <span aria-hidden>→</span>
         </Link>
       )}

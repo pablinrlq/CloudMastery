@@ -1,0 +1,35 @@
+---
+title: "Engenharia de Prompts"
+description: "Instruções, contexto, exemplos, chain-of-thought seguro, estruturas de saída e defesa contra prompt injection."
+domain: "Aplicações de Modelos de Fundação"
+order: 8
+durationMinutes: 55
+type: "teoria"
+week: 3
+---
+
+## Anatomia de um prompt robusto
+
+Um bom prompt define papel funcional, tarefa, contexto autorizado, restrições, formato de saída e critério de recusa. Delimitadores separam instruções de dados. Few-shot examples demonstram o padrão; zero-shot depende apenas da instrução.
+
+Peça raciocínio estruturado quando útil, mas não dependa de revelar cadeias internas do modelo. Em aplicações, prefira solicitar justificativa concisa, evidências e campos verificáveis. Structured output/JSON facilita validação por código.
+
+## Template
+
+```text
+Objetivo: classificar o chamado em uma categoria permitida.
+Fonte: use somente o texto entre <ticket>.
+Categorias: acesso, cobrança, incidente, dúvida.
+Saída: JSON com category, confidence e reason.
+Se faltar informação, use category="dúvida".
+<ticket>{{conteudo_não_confiável}}</ticket>
+```
+
+## Prompt injection
+
+Conteúdo recuperado ou enviado pelo usuário pode conter “ignore as instruções anteriores”. Trate esse conteúdo como dado, não instrução. Separe privilégios: o modelo propõe; código valida e autoriza. Restrinja ferramentas, argumentos, destinos e volume de ação. Nunca coloque segredos no prompt.
+
+## Avaliação
+
+Crie um conjunto de prompts normais, extremos e adversariais. Versione system prompt e modelo, meça qualidade/custo/latência e execute regressões antes de publicar. Otimização sem dataset leva a melhorias anedóticas.
+

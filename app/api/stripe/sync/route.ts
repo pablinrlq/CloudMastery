@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPlanFromPriceId, CERT_ACCESS_FOR_PLAN } from "@/lib/stripe-plans";
 import { siteUrl } from "@/lib/site-url";
+import { confirmationPath, hasVerifiedEmail } from "@/lib/auth-security";
 
 // GET /api/stripe/sync?session_id=cs_...
 // Destino do success_url do Checkout: confirma a sessão DIRETO na API da
@@ -24,6 +25,9 @@ export async function GET(request: NextRequest) {
 
   if (!user) {
     return NextResponse.redirect(siteUrl("/login"));
+  }
+  if (!hasVerifiedEmail(user)) {
+    return NextResponse.redirect(siteUrl(confirmationPath(user.email)));
   }
 
   try {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { LogoIcon } from "@/components/logo";
 import { markFlashcard } from "@/app/(app)/flashcards/actions";
 
 export type Flashcard = {
@@ -35,7 +36,7 @@ export function FlashcardDeck({ cards }: { cards: Flashcard[] }) {
     const known = Object.values(done).filter((s) => s === "known").length;
     return (
       <div className="cm-panel p-8 text-center sm:p-12">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-2xl text-emerald-600 dark:bg-emerald-500/10" aria-hidden>✓</div>
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-500/10"><LogoIcon size={38} /></div>
         <p className="mt-5 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
           Sessão concluída!
         </p>

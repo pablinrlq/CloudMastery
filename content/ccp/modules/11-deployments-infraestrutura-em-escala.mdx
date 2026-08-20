@@ -1,0 +1,81 @@
+---
+title: "Implantações e Gerenciamento de Infraestrutura em Escala"
+description: "CloudFormation, CDK, Elastic Beanstalk, Systems Manager e estratégias para ambientes repetíveis, auditáveis e seguros."
+domain: "Tecnologia e Serviços"
+order: 11
+durationMinutes: 65
+type: "teoria"
+week: 4
+---
+
+## O problema da configuração manual
+
+Criar recursos pelo console é útil para aprender, mas não é uma estratégia confiável para dezenas de contas e ambientes. Ações manuais geram divergência, são difíceis de revisar e tornam recuperação lenta. Infraestrutura como código descreve o estado desejado de forma versionável.
+
+## AWS CloudFormation
+
+CloudFormation recebe templates YAML ou JSON e cria **stacks** de recursos. O serviço entende dependências, acompanha estado e pode desfazer uma implantação com falha.
+
+**Por que usar:** repetibilidade, auditoria, automação e recuperação. O mesmo template pode criar desenvolvimento, homologação e produção com parâmetros diferentes.
+
+**Como funciona:** template → change set opcional → stack → recursos. Uma atualização compara o estado atual com o desejado.
+
+## AWS CDK
+
+O Cloud Development Kit permite definir infraestrutura com linguagens como TypeScript e Python. O CDK gera templates CloudFormation. Portanto, ele melhora a experiência de autoria; o mecanismo de implantação continua apoiado em CloudFormation.
+
+## Elastic Beanstalk
+
+Beanstalk automatiza provisionamento de EC2, load balancer, Auto Scaling e monitoramento para aplicações. É PaaS: o time entrega código e configuração; o serviço monta o ambiente.
+
+Use quando a empresa quer reduzir trabalho de implantação sem perder acesso aos recursos subjacentes.
+
+## AWS Systems Manager
+
+Systems Manager opera frotas de EC2 e ambientes híbridos:
+
+- Session Manager oferece acesso sem abrir SSH;
+- Patch Manager automatiza patches;
+- Run Command executa ações em várias máquinas;
+- Parameter Store centraliza configuração e segredos simples;
+- Automation padroniza runbooks operacionais.
+
+## Service Catalog e Control Tower
+
+Service Catalog oferece produtos de infraestrutura aprovados para autoatendimento. Control Tower cria e governa uma landing zone multi-conta com guardrails.
+
+## Cenário prático
+
+Uma empresa precisa abrir 40 contas para times:
+
+1. Organizations organiza as contas;
+2. Control Tower estabelece a landing zone;
+3. Service Catalog publica arquiteturas aprovadas;
+4. CloudFormation provisiona recursos iguais;
+5. Systems Manager aplica patches e acessos operacionais;
+6. CloudTrail registra alterações.
+
+Esse desenho reduz liberdade perigosa sem bloquear agilidade.
+
+## Comparações decisivas
+
+| Necessidade | Serviço |
+|---|---|
+| Infraestrutura como código declarativa | CloudFormation |
+| IaC usando linguagem de programação | CDK |
+| Enviar aplicação e automatizar ambiente | Elastic Beanstalk |
+| Operar e aplicar patches em frota | Systems Manager |
+| Catálogo de stacks aprovadas | Service Catalog |
+| Landing zone multi-conta | Control Tower |
+
+## Armadilhas
+
+- CloudFormation não é ferramenta de monitoramento.
+- CDK não elimina CloudFormation; ele sintetiza templates.
+- Systems Manager Parameter Store não é o mesmo que Secrets Manager; rotação nativa favorece Secrets Manager.
+- Automação reduz erro, mas políticas IAM ainda controlam quem pode implantar.
+
+## Verificação de domínio
+
+Explique como recriar um ambiente inteiro após falha sem depender da memória de um operador. A resposta deve envolver código versionado, revisão, implantação automatizada e observabilidade.
+

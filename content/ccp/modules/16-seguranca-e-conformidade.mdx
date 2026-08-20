@@ -1,0 +1,84 @@
+---
+title: "Segurança e Conformidade"
+description: "Responsabilidade compartilhada, proteção em camadas, criptografia, detecção, evidências e serviços de conformidade."
+domain: "Segurança e Conformidade"
+order: 16
+durationMinutes: 75
+type: "teoria"
+week: 5
+---
+
+## Segurança é uma responsabilidade compartilhada
+
+A AWS protege a infraestrutura **da nuvem**: datacenters, hardware, rede física, virtualização e serviços gerenciados subjacentes. O cliente protege o que configura **na nuvem**: dados, identidades, permissões, criptografia, rede lógica e sistema operacional quando aplicável.
+
+A fronteira muda com o serviço:
+
+| Serviço | Cliente gerencia | AWS gerencia |
+|---|---|---|
+| EC2 | SO, patches, aplicação, dados e regras de rede | hardware e virtualização |
+| RDS | dados, usuários, parâmetros e acesso | SO, engine gerenciada, backups configurados |
+| S3 | objetos, policies, acesso e classificação | infraestrutura e disponibilidade do serviço |
+
+## Defesa em profundidade
+
+Nenhum controle isolado é suficiente. Uma arquitetura segura combina:
+
+- IAM e MFA para identidade;
+- security groups e NACLs para rede;
+- KMS para chaves;
+- criptografia em trânsito com TLS;
+- WAF para ataques web;
+- Shield para DDoS;
+- GuardDuty para detecção de ameaças;
+- Inspector para vulnerabilidades;
+- Macie para dados sensíveis no S3;
+- CloudTrail para auditoria.
+
+## Criptografia e chaves
+
+Criptografia em repouso protege mídia persistida; em trânsito protege comunicação. O KMS cria e controla chaves, integra com serviços e registra uso no CloudTrail.
+
+Secrets Manager armazena segredos e pode automatizar rotação. Parameter Store centraliza configurações e segredos simples. Nunca coloque chaves permanentes no código.
+
+## Detecção e prevenção
+
+| Serviço | Pergunta respondida |
+|---|---|
+| GuardDuty | há comportamento suspeito ou ameaça ativa? |
+| Inspector | há vulnerabilidades em workloads? |
+| Macie | há dados pessoais/sensíveis no S3? |
+| WAF | devo bloquear esta requisição HTTP? |
+| Shield | como reduzir impacto de DDoS? |
+| Security Hub | como centralizar achados de segurança? |
+
+## Conformidade
+
+AWS Artifact disponibiliza relatórios e acordos da AWS. Audit Manager ajuda a coletar evidências dos seus controles. Config avalia configurações e histórico. Organizations e SCPs estabelecem limites para contas.
+
+A conformidade da AWS não torna a aplicação do cliente automaticamente compatível. O cliente precisa configurar, documentar e operar controles adequados.
+
+## Cenário de arquitetura
+
+Uma aplicação que recebe documentos:
+
+1. TLS protege upload;
+2. Cognito ou identidade corporativa autentica usuários;
+3. IAM role concede acesso mínimo;
+4. S3 bloqueia acesso público e criptografa com KMS;
+5. Macie classifica dados sensíveis;
+6. CloudTrail registra APIs;
+7. Config verifica políticas;
+8. Security Hub centraliza achados.
+
+## Armadilhas
+
+- Artifact fornece documentos; não monitora sua aplicação.
+- GuardDuty detecta, mas a correção exige automação ou ação.
+- KMS gerencia chaves; ele não é um cofre genérico de senhas.
+- SCP limita permissões máximas e não concede acesso.
+
+## Verificação de domínio
+
+Escolha uma carga e descreva controles preventivos, detectivos e corretivos. Identifique explicitamente o que é responsabilidade da AWS e o que continua sendo do cliente.
+

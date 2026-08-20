@@ -1,68 +1,62 @@
+import Image from "next/image";
 import Link from "next/link";
 
-/**
- * Identidade CloudMastery: nuvem branca com seta de ascensão (domínio/maestria)
- * sobre um badge com gradiente laranja→âmbar. Funciona de 16px a 512px.
- */
+const LOGO_SRC = "/cloudmastery-logo.png";
+
+/** Recorte da marca oficial para espaços compactos. */
 export function LogoIcon({ size = 32 }: { size?: number }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+    <span
+      className="relative inline-block shrink-0 overflow-hidden rounded-[22%] bg-white shadow-sm ring-1 ring-slate-200/70"
+      style={{
+        width: size,
+        height: size,
+        backgroundImage: `url(${LOGO_SRC})`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: `${size * 4}px ${size * 2}px`,
+        backgroundPosition: `${size * -0.36}px ${size * -0.48}px`,
+      }}
       aria-hidden
-    >
-      <defs>
-        <linearGradient id="cm-badge" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#F97316" />
-          <stop offset="1" stopColor="#FBBF24" />
-        </linearGradient>
-      </defs>
-      <rect width="64" height="64" rx="15" fill="url(#cm-badge)" />
-      {/* nuvem */}
-      <path
-        d="M22.5 46a9.5 9.5 0 0 1-1.7-18.85A13.5 13.5 0 0 1 47 31.5 8.25 8.25 0 0 1 45.5 46h-23Z"
-        fill="#fff"
-      />
-      {/* seta de ascensão vazada na nuvem */}
-      <path
-        d="M32 24.5 24.8 33h4.4v8h5.6v-8h4.4L32 24.5Z"
-        fill="url(#cm-badge)"
-      />
-    </svg>
+    />
   );
 }
 
+/** Wordmark oficial, com o excesso de área branca do arquivo original recortado por CSS. */
 export function Logo({
   size = 30,
   dark = false,
   href = "/",
 }: {
   size?: number;
-  /** true quando o fundo é escuro (wordmark fica branca) */
   dark?: boolean;
   href?: string | null;
 }) {
   const mark = (
-    <span className="inline-flex items-center gap-2.5">
-      <LogoIcon size={size} />
-      <span
-        className={`font-extrabold tracking-[-0.04em] ${dark ? "text-white" : "text-slate-950 dark:text-white"}`}
-        style={{ fontSize: Math.round(size * 0.62) }}
-      >
-        Cloud
-        <span className="text-orange-500">
-          Mastery
-        </span>
-      </span>
+    <span
+      className={`relative block shrink-0 overflow-hidden rounded-lg bg-white ${
+        dark
+          ? "shadow-[0_8px_24px_rgba(0,0,0,0.2)] ring-1 ring-white/15"
+          : "ring-1 ring-slate-200/70"
+      }`}
+      style={{ width: size * 4.35, height: size }}
+    >
+      <Image
+        src={LOGO_SRC}
+        alt="CloudMastery"
+        fill
+        sizes={`${Math.round(size * 4.35)}px`}
+        className="object-cover object-center"
+      />
     </span>
   );
 
   if (href === null) return mark;
   return (
-    <Link href={href} className="inline-flex items-center" aria-label="CloudMastery">
+    <Link
+      href={href}
+      className="inline-flex rounded-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-500/25"
+      aria-label="CloudMastery"
+    >
       {mark}
     </Link>
   );

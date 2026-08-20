@@ -12,19 +12,19 @@ const PASS_SCORE = 72;
 export type Level = {
   index: number;
   name: string;
-  emoji: string;
+  code: string;
   minXp: number;
   nextXp: number | null; // null = nível máximo
 };
 
 const LEVELS: Array<Omit<Level, "index" | "nextXp">> = [
-  { name: "Cloud Rookie", emoji: "🌱", minXp: 0 },
-  { name: "Cloud Explorer", emoji: "🧭", minXp: 200 },
-  { name: "Cloud Builder", emoji: "🔧", minXp: 500 },
-  { name: "Cloud Practitioner", emoji: "☁️", minXp: 1000 },
-  { name: "Cloud Architect", emoji: "🏛️", minXp: 1800 },
-  { name: "Cloud Expert", emoji: "⚡", minXp: 3000 },
-  { name: "Cloud Master", emoji: "👑", minXp: 4500 },
+  { name: "Cloud Rookie", code: "CM-01", minXp: 0 },
+  { name: "Cloud Explorer", code: "CM-02", minXp: 200 },
+  { name: "Cloud Builder", code: "CM-03", minXp: 500 },
+  { name: "Cloud Practitioner", code: "CM-04", minXp: 1000 },
+  { name: "Cloud Architect", code: "CM-05", minXp: 1800 },
+  { name: "Cloud Expert", code: "CM-06", minXp: 3000 },
+  { name: "Cloud Master", code: "CM-07", minXp: 4500 },
 ];
 
 export type GamificationProfile = {
@@ -47,7 +47,7 @@ function levelFor(xp: number): Level {
   }
   const base = LEVELS[i];
   const next = LEVELS[i + 1] ?? null;
-  return { index: i, name: base.name, emoji: base.emoji, minXp: base.minXp, nextXp: next?.minXp ?? null };
+  return { index: i, name: base.name, code: base.code, minXp: base.minXp, nextXp: next?.minXp ?? null };
 }
 
 // Streak = dias consecutivos com atividade, terminando hoje ou ontem.

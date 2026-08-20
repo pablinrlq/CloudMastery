@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CERTIFICATIONS, isValidCert } from "@/lib/content";
 import { requireAccess, verifySession } from "@/lib/dal";
 import { getReadiness } from "@/lib/readiness";
+import { LogoIcon } from "@/components/logo";
 
 export default async function CertificadoPage({
   params,
@@ -22,7 +23,7 @@ export default async function CertificadoPage({
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 text-center sm:px-6 sm:py-24">
         <div className="cm-panel p-8 sm:p-12">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-2xl text-slate-500 dark:bg-white/5" aria-hidden>◇</div>
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 dark:bg-white/5"><LogoIcon size={44} /></div>
         <p className="cm-kicker mt-7">Conquista em progresso</p>
         <h1 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-slate-950 dark:text-white">
           Certificado ainda bloqueado

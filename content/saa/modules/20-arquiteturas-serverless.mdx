@@ -1,0 +1,32 @@
+---
+title: "Discussões de Arquitetura Serverless"
+description: "Padrões síncronos e assíncronos com Lambda, API Gateway, EventBridge, SQS, Step Functions e DynamoDB."
+domain: "Arquiteturas Resilientes"
+order: 20
+durationMinutes: 60
+type: "teoria"
+week: 6
+---
+
+## Serverless é um modelo operacional
+
+Serverless reduz gestão de servidores, escala por demanda e cobra por uso, mas não elimina arquitetura. Limites de duração, concorrência, payload, cold start e dependências externas continuam relevantes.
+
+## Padrões
+
+**API síncrona:** API Gateway valida/autentica e invoca Lambda. DynamoDB guarda estado. Use throttling, idempotência e timeouts coerentes. Operações demoradas devem responder com um identificador e continuar de forma assíncrona.
+
+**Processamento assíncrono:** produtor envia a SQS; Lambda consome lotes. Configure visibility timeout maior que o tempo de processamento, DLQ/redrive e idempotência, pois a entrega é ao menos uma vez.
+
+**Eventos de domínio:** EventBridge recebe eventos, filtra por regras e encaminha a múltiplos alvos. O produtor não precisa conhecer consumidores.
+
+**Orquestração:** Step Functions representa etapas, escolhas, retries e compensações. Standard workflows atendem fluxos duráveis; Express, alto volume e curta duração.
+
+## Cenário de pedidos
+
+API Gateway recebe pedido e Lambda executa uma escrita condicional no DynamoDB. Um evento entra no EventBridge. Filas separadas isolam estoque, faturamento e notificações. Step Functions coordena pagamento e reserva; se o pagamento falhar, executa compensação. CloudWatch e X-Ray dão observabilidade.
+
+## Armadilhas
+
+Não coloque Lambda em VPC sem necessidade. Quando precisar acessar recursos privados, dimensione a conectividade e evite dependência de NAT para serviços que possuem VPC endpoint. Nunca confie em uma única tentativa: configure retry com backoff, DLQ e operações idempotentes.
+

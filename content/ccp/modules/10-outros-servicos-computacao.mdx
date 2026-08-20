@@ -1,0 +1,75 @@
+---
+title: "Outros Serviços de Computação: ECS, Lambda, Batch e Lightsail"
+description: "Como escolher entre containers, funções, processamento em lote, PaaS e servidores simplificados."
+domain: "Tecnologia e Serviços"
+order: 10
+durationMinutes: 70
+type: "teoria"
+week: 3
+---
+
+## Por que existem várias formas de computar
+
+EC2 oferece controle, mas esse controle traz patch, capacidade e operação. Serviços mais gerenciados reduzem tarefas operacionais em troca de opiniões e limites. A decisão correta começa pela unidade de implantação: máquina, container, função, job ou código-fonte.
+
+## AWS Lambda
+
+Lambda executa funções em resposta a eventos, sem provisionar servidores. O serviço aloca capacidade, executa o código e escala por concorrência.
+
+**Use quando:** eventos são curtos, independentes e variáveis; exemplos incluem processar upload no S3, responder a API Gateway ou consumir mensagens de SQS.
+
+**Como cobra:** número de invocações, duração e recursos configurados. O limite máximo de execução é 15 minutos.
+
+**Não use quando:** o processo é longo, exige controle profundo do SO, mantém estado local ou depende de runtime não suportado.
+
+## Containers: ECS, EKS, ECR e Fargate
+
+- **ECS** orquestra containers com integração nativa à AWS.
+- **EKS** oferece Kubernetes gerenciado.
+- **ECR** guarda imagens de container.
+- **Fargate** executa tasks/pods sem administrar instâncias EC2.
+
+ECS/EKS decidem onde e como os containers rodam; Fargate é capacidade serverless; ECR é o registro. São papéis diferentes.
+
+## AWS Batch
+
+Batch agenda e executa jobs em lote, provisionando capacidade apropriada. Use para processamento científico, renderização e filas de tarefas que podem aguardar. Pode aproveitar Spot quando interrupção é tolerável.
+
+## Amazon Lightsail
+
+Lightsail empacota servidor, disco, rede e preço previsível. É adequado para site pequeno, blog ou protótipo quando simplicidade vale mais que flexibilidade arquitetural.
+
+## Elastic Beanstalk e App Runner
+
+Elastic Beanstalk recebe código e cria uma arquitetura baseada em EC2, load balancing e Auto Scaling. Você mantém acesso aos recursos subjacentes.
+
+App Runner implanta aplicações web a partir de código ou imagem de container com operação simplificada. É uma opção gerenciada para APIs e sites containerizados.
+
+## Mapa de decisão
+
+| Cenário | Serviço |
+|---|---|
+| Controle do SO e software | EC2 |
+| Função curta orientada a eventos | Lambda |
+| Containers com integração AWS | ECS |
+| Kubernetes obrigatório | EKS |
+| Containers sem servidores | Fargate |
+| Jobs em lote com fila | Batch |
+| VPS simples e preço previsível | Lightsail |
+| Enviar código e manter acesso à infraestrutura | Elastic Beanstalk |
+
+## Cenário de arquitetura
+
+Uma empresa recebe vídeos. A API roda em App Runner, metadados ficam no DynamoDB, originais no S3 e um evento cria jobs no Batch. Containers de transcodificação ficam no ECR e usam Spot. Lambda atualiza o status ao final. Não existe “um serviço vencedor”; cada componente usa o modelo operacional adequado.
+
+## Armadilhas
+
+- Lambda não significa custo zero e não serve para qualquer duração.
+- Fargate não substitui ECS/EKS; ele substitui a frota de instâncias que executaria containers.
+- ECR não executa imagens.
+- Beanstalk é gerenciado, mas os recursos continuam existindo na sua conta.
+
+## Verificação de domínio
+
+Escolha um serviço para API, processamento de evento, job de duas horas, cluster Kubernetes e site simples. Justifique pela unidade de implantação e pelo nível de operação desejado.
+

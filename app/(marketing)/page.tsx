@@ -16,10 +16,11 @@ const steps = [
 ];
 
 const faq = [
-  ["Quanto tempo preciso estudar para o Cloud Practitioner?", "Com uma hora por dia, a preparação costuma levar de quatro a seis semanas. A trilha organiza esse ritmo e mostra quando sua consistência chegou à faixa segura."],
+  ["Quanto tempo preciso estudar para o Cloud Practitioner?", "Com uma hora por dia, a preparação costuma levar de cinco a sete semanas. A trilha organiza esse ritmo e mostra quando sua consistência chegou à faixa segura."],
   ["E para o Solutions Architect Associate?", "Para quem já teve algum contato com AWS, a preparação costuma levar de nove a doze semanas. A trilha inclui teoria, arquitetura aplicada, labs e reta final."],
+  ["A trilha de AI Practitioner está incluída?", "Sim. A trilha AIF-C01 cobre IA, machine learning, IA generativa, Amazon Bedrock, modelos de fundação, RAG, agentes, IA responsável, segurança e governança."],
   ["Os simulados seguem o formato da prova?", "Sim. Eles reproduzem quantidade de questões, duração e cenários, mas acrescentam tempo por questão, domínio mais fraco e recomendações de revisão."],
-  ["O conteúdo é em português?", "Sim. Todo o conteúdo é escrito em português do Brasil para as versões atuais dos exames CLF-C02 e SAA-C03."],
+  ["O conteúdo é em português?", "Sim. Todo o conteúdo é escrito em português do Brasil para as versões atuais dos exames CLF-C02, SAA-C03 e AIF-C01."],
   ["Existe fidelidade?", "Não. Você pode gerenciar ou cancelar sua assinatura diretamente pelo portal seguro de pagamento."],
 ];
 
@@ -33,7 +34,7 @@ export default function LandingPage() {
           <div className="mx-auto max-w-4xl text-center">
             <p className="cm-fade-up mx-auto inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-slate-300 backdrop-blur-xl">
               <span className="h-1.5 w-1.5 rounded-full bg-orange-400 shadow-[0_0_14px_#fb923c]" />
-              CLF-C02 e SAA-C03 · conteúdo 100% em português
+              CLF-C02, SAA-C03 e AIF-C01 · conteúdo 100% em português
             </p>
             <h1 className="cm-fade-up mt-8 text-balance text-5xl font-bold leading-[0.98] tracking-[-0.055em] sm:text-6xl lg:text-[5.2rem]">
               Sua aprovação começa com
@@ -74,7 +75,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.07] sm:grid-cols-4">
-            {[["46", "módulos autorais"], ["130+", "questões comentadas"], ["9", "labs guiados"], ["2", "certificações completas"]].map(([value, label]) => (
+            {[["80+", "módulos autorais"], ["160+", "questões comentadas"], ["11", "labs guiados"], ["3", "certificações completas"]].map(([value, label]) => (
               <div key={label} className="bg-[#0b0f17] px-4 py-5 text-center"><p className="text-2xl font-bold tracking-tight text-white">{value}</p><p className="mt-1 text-xs text-slate-600">{label}</p></div>
             ))}
           </div>
@@ -97,12 +98,12 @@ export default function LandingPage() {
       <section className="border-y border-slate-200/80 bg-[#f7f8fa] py-24 sm:py-32">
         <div className="cm-container">
           <div className="text-center"><p className="cm-kicker">Trilhas disponíveis</p><h2 className="cm-title mt-4 sm:text-5xl">Escolha sua próxima credencial.</h2></div>
-          <div className="mx-auto mt-14 grid max-w-5xl gap-5 lg:grid-cols-2">
-            {Object.values(CERTIFICATIONS).map((cert, index) => (
+          <div className="mx-auto mt-14 grid max-w-6xl gap-5 lg:grid-cols-3">
+            {Object.values(CERTIFICATIONS).map((cert) => (
               <article key={cert.id} className="relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-8 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.3)] sm:p-10">
                 <div className="absolute right-0 top-0 h-32 w-32 rounded-bl-full bg-orange-50" />
                 <p className="relative text-xs font-bold uppercase tracking-[0.2em] text-orange-600">{cert.code}</p><h3 className="relative mt-5 max-w-sm text-2xl font-bold tracking-[-0.035em] text-slate-950">{cert.name}</h3>
-                <div className="relative mt-8 grid grid-cols-3 gap-3 border-y border-slate-100 py-5 text-sm"><div><p className="font-bold">{cert.examQuestionCount}</p><p className="mt-1 text-xs text-slate-400">questões</p></div><div><p className="font-bold">{cert.examDurationMinutes} min</p><p className="mt-1 text-xs text-slate-400">de prova</p></div><div><p className="font-bold">{index === 0 ? "4" : "9"} sem.</p><p className="mt-1 text-xs text-slate-400">de trilha</p></div></div>
+                <div className="relative mt-8 grid grid-cols-3 gap-3 border-y border-slate-100 py-5 text-sm"><div><p className="font-bold">{cert.examQuestionCount}</p><p className="mt-1 text-xs text-slate-400">questões</p></div><div><p className="font-bold">{cert.examDurationMinutes} min</p><p className="mt-1 text-xs text-slate-400">de prova</p></div><div><p className="font-bold">{cert.suggestedWeeks} sem.</p><p className="mt-1 text-xs text-slate-400">de trilha</p></div></div>
                 <Link href="/signup" className="cm-button-secondary mt-7 w-full justify-between">Explorar esta trilha <span aria-hidden>→</span></Link>
               </article>
             ))}

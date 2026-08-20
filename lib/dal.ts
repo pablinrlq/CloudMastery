@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { confirmationPath, hasVerifiedEmail } from "@/lib/auth-security";
 
 // Secure (DB-backed) session check. Cached per request so calling it from
 // multiple Server Components/pages during one render doesn't re-hit Supabase.
@@ -13,6 +14,10 @@ export const verifySession = cache(async () => {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!hasVerifiedEmail(user)) {
+    redirect(confirmationPath(user.email));
   }
 
   return { userId: user.id, email: user.email! };

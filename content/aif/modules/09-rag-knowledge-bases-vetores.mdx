@@ -1,0 +1,35 @@
+---
+title: "RAG, Knowledge Bases e Busca Vetorial"
+description: "Como fundamentar respostas em dados privados e atuais com recuperação, embeddings e citações."
+domain: "Aplicações de Modelos de Fundação"
+order: 9
+durationMinutes: 65
+type: "teoria"
+week: 3
+---
+
+## O que é RAG
+
+Retrieval-Augmented Generation recupera trechos relevantes de uma base externa e os adiciona ao contexto do modelo. Ele melhora atualidade e rastreabilidade sem alterar os pesos do FM. Não garante verdade: recuperação ruim ou instruções ambíguas ainda produzem erro.
+
+## Pipeline
+
+1. ingerir documentos e preservar metadados;
+2. dividir em chunks coerentes, com sobreposição quando necessário;
+3. gerar embeddings e armazenar em índice vetorial;
+4. transformar a pergunta em embedding;
+5. recuperar candidatos por similaridade e filtros;
+6. opcionalmente reranquear;
+7. gerar resposta com trechos e citações;
+8. avaliar retrieval e resposta separadamente.
+
+Knowledge Bases for Amazon Bedrock gerencia partes desse fluxo e integra fontes, vector stores e geração. Serviços como OpenSearch Service/Serverless, Aurora PostgreSQL com pgvector e opções suportadas podem atender diferentes requisitos.
+
+## RAG vs fine-tuning
+
+RAG fornece conhecimento atualizável e fontes; fine-tuning adapta comportamento, estilo ou uma tarefa repetitiva. Para políticas que mudam semanalmente e precisam de citação, RAG é a escolha natural. Para padronizar uma transformação de linguagem com muitos exemplos, fine-tuning pode ajudar. Eles podem ser combinados.
+
+## Segurança
+
+Filtre a recuperação com metadados de autorização antes de enviar trechos ao modelo. Um índice compartilhado sem filtros pode vazar documentos entre departamentos. Criptografe fontes e índices, registre acesso e remova PII não necessária.
+

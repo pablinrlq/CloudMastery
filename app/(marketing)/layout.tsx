@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo, LogoIcon } from "@/components/logo";
+import { Logo } from "@/components/logo";
 
 export default function MarketingLayout({
   children,
@@ -40,15 +40,7 @@ export default function MarketingLayout({
         <div className="cm-container">
           <div className="flex flex-col items-start justify-between gap-8 sm:flex-row">
             <div className="max-w-xs">
-              <span className="inline-flex items-center gap-2">
-                <LogoIcon size={28} />
-                <span className="font-bold text-white">
-                  Cloud
-                  <span className="bg-gradient-to-r from-orange-500 to-amber-400 bg-clip-text text-transparent">
-                    Mastery
-                  </span>
-                </span>
-              </span>
+              <Logo dark size={30} href={null} />
               <p className="mt-4 text-sm leading-6 text-slate-500">
                 O caminho mais direto para a sua certificação AWS — em português,
                 com método e dados.
@@ -60,8 +52,8 @@ export default function MarketingLayout({
                 <ul className="mt-4 space-y-2.5 text-slate-500">
                   <li>Cloud Practitioner</li>
                   <li>Solutions Architect</li>
+                  <li>AI Practitioner</li>
                   <li className="text-slate-700">Developer (em breve)</li>
-                  <li className="text-slate-700">SysOps (em breve)</li>
                 </ul>
               </div>
               <div>

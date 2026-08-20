@@ -1,0 +1,36 @@
+---
+title: "Segurança e Privacidade em Soluções de IA"
+description: "Proteção de dados, IAM, criptografia, prompt injection, exfiltração e arquitetura de confiança mínima."
+domain: "Segurança, Conformidade e Governança para Soluções de IA"
+order: 13
+durationMinutes: 65
+type: "teoria"
+week: 5
+---
+
+## Modelo de ameaça
+
+Mapeie dados de treino, documentos RAG, prompts, outputs, embeddings, logs, modelos e ferramentas. Para cada ativo, defina quem pode ler, alterar ou executar. Dados sensíveis podem aparecer tanto na entrada quanto na saída e em telemetria aparentemente inofensiva.
+
+## Controles AWS
+
+IAM aplica least privilege; KMS protege dados em repouso; TLS protege trânsito; VPC endpoints reduzem exposição à internet; CloudTrail registra chamadas; CloudWatch monitora operação; Macie ajuda a descobrir dados sensíveis em S3. Secrets Manager armazena segredos rotacionáveis. A escolha depende do fluxo real de dados.
+
+## Ameaças generativas
+
+- prompt injection direta ou em documentos recuperados;
+- vazamento de system prompt ou dados entre usuários;
+- saída insegura executada como código/SQL/HTML;
+- tool use com privilégios excessivos;
+- poisoning de fontes ou datasets;
+- denial of wallet por prompts caros e loops;
+- model inversion/membership inference em contextos específicos.
+
+## Arquitetura
+
+Autentique o usuário antes da recuperação, aplique filtros por documento, minimize contexto, remova PII, valide a saída e autorize cada ferramenta fora do modelo. Rate limits e budgets limitam abuso. Guardrails complementam, mas não substituem IAM e validação determinística.
+
+## Cenário
+
+Um chatbot de RH usa políticas por país. O usuário só recupera documentos permitidos para sua região e função. Logs mascaram identificadores, chaves ficam no Secrets Manager e o modelo não pode chamar sistemas de folha. Solicitações de alteração viram tickets revisados por humanos.
+

@@ -1,0 +1,81 @@
+---
+title: "Outros Serviços AWS"
+description: "Mapa prático de migração, analytics, IoT, desenvolvimento, atendimento, híbrido e serviços especializados cobrados por reconhecimento."
+domain: "Tecnologia e Serviços"
+order: 20
+durationMinutes: 75
+type: "teoria"
+week: 7
+---
+
+## Como estudar serviços de baixa frequência
+
+Não tente decorar catálogos. Agrupe por problema e associe cada serviço a uma frase inequívoca.
+
+## Migração e transferência
+
+| Serviço | Uso |
+|---|---|
+| Application Migration Service | rehost de servidores |
+| Database Migration Service | migrar/replicar bancos com pouco downtime |
+| DataSync | mover arquivos pela rede |
+| Transfer Family | SFTP/FTPS/FTP gerenciado para S3/EFS |
+| Snow Family | transferência física de grandes volumes |
+| Migration Hub | acompanhar iniciativas de migração |
+
+## Dados e analytics
+
+- Kinesis ingere streaming.
+- Glue cataloga e transforma dados.
+- Athena consulta S3 com SQL.
+- Redshift é data warehouse.
+- QuickSight cria dashboards.
+- OpenSearch pesquisa e analisa logs/documentos.
+
+## Desenvolvimento
+
+- CodePipeline orquestra CI/CD.
+- CodeBuild compila e testa.
+- CodeDeploy automatiza implantação.
+- X-Ray rastreia requisições distribuídas.
+- CloudShell fornece terminal autenticado no navegador.
+
+## Aplicações corporativas
+
+- Amazon Connect oferece contact center em nuvem.
+- WorkSpaces fornece desktops virtuais.
+- AppStream 2.0 transmite aplicações.
+- SES envia email.
+- Pinpoint conduz comunicação segmentada.
+
+## IoT e dispositivos
+
+AWS IoT Core conecta dispositivos com autenticação e mensageria. Greengrass leva processamento AWS para a borda. Device Farm testa aplicativos em dispositivos reais.
+
+## Híbrido e borda
+
+Outposts leva infraestrutura AWS ao datacenter; Storage Gateway conecta armazenamento local à AWS; Local Zones aproximam compute; Wavelength atende aplicações 5G.
+
+## Cenários de arquitetura
+
+**Migração de 800 TB com link limitado:** Snowball move o volume inicial; DataSync mantém alterações posteriores; DMS replica o banco.
+
+**Central de atendimento:** Amazon Connect recebe ligações; Lex entende intenção; Polly gera fala; Lambda consulta sistemas; S3 guarda gravações conforme política.
+
+**Pipeline de logs:** Kinesis recebe eventos; Firehose entrega ao S3/OpenSearch; Glue cataloga; Athena consulta; QuickSight visualiza.
+
+## Armadilhas
+
+- DMS move bancos; MGN move servidores.
+- DataSync usa rede; Snow Family usa dispositivos físicos.
+- Athena consulta dados; Glue transforma/catalogra; QuickSight apresenta.
+- Connect é contact center; Direct Connect é conectividade dedicada.
+
+## Técnica de revisão
+
+Crie cartões “necessidade → serviço”. Se dois serviços parecerem possíveis, acrescente a diferença operacional. Exemplo: “consultar S3 sem carregar dados → Athena; warehouse de BI com consultas complexas e dados organizados → Redshift”.
+
+## Verificação de domínio
+
+Você deve conseguir mapear pelo menos vinte necessidades a serviços sem depender de logotipos ou siglas. Mais importante: explique por que a alternativa parecida não atende a palavra decisiva do cenário.
+

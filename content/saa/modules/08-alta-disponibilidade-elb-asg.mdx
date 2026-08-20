@@ -1,0 +1,38 @@
+---
+title: "Alta Disponibilidade e Escalabilidade: ELB e Auto Scaling"
+description: "Balanceamento, health checks, políticas de escala e desenho Multi-AZ com recuperação automática."
+domain: "Arquiteturas Resilientes"
+order: 8
+durationMinutes: 75
+type: "teoria"
+week: 2
+---
+
+## Disponibilidade não é apenas adicionar servidores
+
+Uma aplicação se torna resiliente quando detecta componentes doentes, deixa de enviar tráfego a eles e repõe capacidade automaticamente em domínios de falha independentes.
+
+## Escolha do balanceador
+
+| Serviço | Camada e protocolo | Escolha típica |
+|---|---|---|
+| ALB | camada 7, HTTP/HTTPS/gRPC | roteamento por host/path/header, containers e web apps |
+| NLB | camada 4, TCP/UDP/TLS | milhões de conexões, baixa latência, IP estático |
+| GWLB | appliances virtuais | firewalls e inspeção transparente de tráfego |
+
+O ALB termina TLS com certificado do ACM, executa health checks por target group e pode manter afinidade, mas aplicações stateless escalam melhor. Cross-zone distribui tráfego entre targets nas AZs habilitadas; detalhes de cobrança e comportamento variam por tipo.
+
+## Auto Scaling Group
+
+O ASG define capacidade mínima, desejada e máxima, usa launch template e distribui instâncias entre AZs. Políticas:
+
+- **target tracking:** mantém uma métrica, como CPU média ou requisições por target;
+- **step scaling:** adiciona/remove capacidade por faixas de alarme;
+- **scheduled/predictive:** antecipa horários ou padrões recorrentes.
+
+Lifecycle hooks permitem preparar ou drenar instâncias. Instance refresh substitui uma frota gradualmente após nova AMI.
+
+## Cenário completo
+
+Para um e-commerce, Route 53 aponta ao ALB público. O ALB encaminha a um ASG em sub-redes privadas de três AZs. Sessões ficam no ElastiCache/DynamoDB e arquivos no S3. O ASG escala por `RequestCountPerTarget`. Se uma AZ falhar, health checks retiram targets e a capacidade é recomposta nas AZs restantes.
+

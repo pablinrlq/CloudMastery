@@ -1,0 +1,33 @@
+---
+title: "Ciclo de Vida de Machine Learning"
+description: "Do problema de negócio à coleta de dados, treinamento, implantação, monitoramento e melhoria contínua."
+domain: "Fundamentos de IA e ML"
+order: 3
+durationMinutes: 50
+type: "teoria"
+week: 1
+---
+
+## Como funciona um projeto de ML
+
+1. **Definir o problema:** resultado, usuário, restrição e métrica de negócio.
+2. **Coletar e preparar dados:** qualidade, labels, balanceamento e lineage.
+3. **Explorar e criar features:** entender distribuição e relações.
+4. **Treinar e validar:** comparar baselines e ajustar hiperparâmetros.
+5. **Avaliar:** usar dados não vistos e métricas adequadas ao risco.
+6. **Implantar:** inferência em lote ou endpoint online.
+7. **Monitorar:** qualidade, latência, custo, drift e impactos.
+8. **Retreinar ou retirar:** responder a mudança de dados/negócio.
+
+## SageMaker AI
+
+Amazon SageMaker AI reúne preparação, treinamento, tuning, registro, implantação e monitoramento de modelos. SageMaker JumpStart oferece modelos, soluções e exemplos para acelerar experimentos. Isso não elimina governança: dados, permissões, métricas e aprovação de versões ainda precisam de controle.
+
+## Drift
+
+**Data drift** é mudança na distribuição das entradas. **Concept drift** ocorre quando a relação entre entrada e resultado muda. Um modelo de crédito pode manter a mesma latência e disponibilidade enquanto a qualidade piora silenciosamente. Monitore métricas técnicas e de negócio, com thresholds e resposta definida.
+
+## Cenário
+
+Um varejista prevê demanda diária. O baseline usa média histórica; o modelo incorpora feriados, preço e promoções. Inferência em lote grava previsões no S3, e o planejamento consome os resultados. Quando o erro por categoria ultrapassa o limite, uma pipeline revisa dados e inicia retreinamento com aprovação antes de promover a nova versão.
+

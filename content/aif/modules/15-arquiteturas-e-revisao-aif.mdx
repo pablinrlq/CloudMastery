@@ -1,0 +1,38 @@
+---
+title: "Arquiteturas, Comparações e Revisão do AIF-C01"
+description: "Cenários ponta a ponta e comparações que consolidam decisões para a prova e para produção."
+domain: "Aplicações de Modelos de Fundação"
+order: 15
+durationMinutes: 60
+type: "revisao"
+week: 6
+---
+
+## Comparações decisivas
+
+| Necessidade | Escolha provável |
+|---|---|
+| consumir FMs por API com recursos de GenAI gerenciados | Amazon Bedrock |
+| ciclo completo e customizado de ML | SageMaker AI |
+| fatos privados, atuais e citáveis | RAG/Knowledge Bases |
+| adaptar comportamento com exemplos | fine-tuning |
+| busca por significado | embeddings + índice vetorial |
+| fluxo determinístico e auditável | regras/Step Functions, não autonomia irrestrita |
+| ação flexível com ferramentas | agente com limites e aprovação |
+
+## Cenário 1: central de atendimento
+
+Transcrições entram com PII mascarada. Um classificador roteia intenção; RAG recupera políticas autorizadas; Bedrock gera resposta com citações; Guardrails filtra tópicos; baixa confiança envia ao atendente. Métricas medem resolução, groundedness, segurança, latência e custo.
+
+## Cenário 2: previsão de demanda
+
+Dados históricos e promoções alimentam uma pipeline no SageMaker AI. O modelo gera previsão em lote. Monitoramento compara previsão com vendas reais e detecta drift. GenAI pode explicar resultados, mas não substitui o modelo preditivo.
+
+## Cenário 3: agente financeiro
+
+O agente pode consultar saldo, mas transferência exige autenticação reforçada, limite, confirmação e API idempotente. O modelo nunca recebe permissão administrativa. Todas as chamadas ficam auditáveis.
+
+## Checklist final
+
+Explique claramente tokens, embeddings, hallucination, RAG, fine-tuning, agentes, métricas e princípios responsáveis. Para cada arquitetura, localize dados sensíveis, fronteira de autorização, validação da saída e responsável pela decisão.
+

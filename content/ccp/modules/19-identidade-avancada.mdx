@@ -1,0 +1,77 @@
+---
+title: "Identidade Avançada"
+description: "IAM Identity Center, federação, STS, Cognito, Organizations e acesso temporário em ambientes corporativos."
+domain: "Segurança e Conformidade"
+order: 19
+durationMinutes: 60
+type: "teoria"
+week: 6
+---
+
+## O problema de identidades permanentes
+
+Criar um usuário IAM para cada pessoa em cada conta não escala. Senhas e chaves permanentes aumentam risco, desligamentos são lentos e auditoria fica fragmentada. Ambientes modernos preferem identidade central e credenciais temporárias.
+
+## AWS STS e roles
+
+Security Token Service emite credenciais temporárias quando uma role é assumida. A role possui:
+
+- **trust policy**: quem pode assumir;
+- **permissions policy**: o que pode fazer depois de assumir.
+
+Esse padrão atende serviços AWS, acesso entre contas e federação sem distribuir chaves permanentes.
+
+## IAM Identity Center
+
+Identity Center centraliza acesso da força de trabalho a múltiplas contas e aplicações. Pode integrar um diretório corporativo e atribuir permission sets.
+
+Use quando funcionários precisam de login único, MFA centralizado e acesso consistente a várias contas.
+
+## Federação
+
+Federação confia em um provedor de identidade externo usando padrões como SAML ou OIDC. O usuário autentica no provedor e recebe acesso temporário à AWS.
+
+## Amazon Cognito
+
+Cognito é voltado a identidades dos **clientes de uma aplicação**, não à administração da força de trabalho.
+
+- User Pools gerenciam cadastro e autenticação.
+- Identity Pools trocam identidades por credenciais AWS temporárias para acesso controlado.
+
+## AWS Organizations
+
+Organizations organiza contas, consolida cobrança e aplica SCPs. Uma arquitetura multi-conta separa produção, segurança, logs e equipes, reduzindo o raio de impacto.
+
+## Cenário prático
+
+Uma empresa com 2 mil funcionários e 30 contas:
+
+1. o diretório corporativo autentica usuários;
+2. Identity Center apresenta as contas permitidas;
+3. permission sets criam roles temporárias;
+4. CloudTrail registra sessões;
+5. SCPs impedem ações proibidas em toda a organização.
+
+Para os clientes do aplicativo móvel, Cognito mantém outro domínio de identidade.
+
+## Comparações
+
+| Necessidade | Serviço/conceito |
+|---|---|
+| Funcionários em múltiplas contas | IAM Identity Center |
+| Clientes de app web/mobile | Cognito |
+| Credencial temporária | STS/role |
+| Login corporativo existente | federação SAML/OIDC |
+| Limite organizacional | Organizations + SCP |
+
+## Armadilhas
+
+- Identity Center e Cognito atendem públicos diferentes.
+- Uma role não possui credencial permanente.
+- SCP não substitui policy IAM.
+- Usuário root deve ser protegido e reservado a tarefas específicas.
+
+## Verificação de domínio
+
+Explique como um funcionário acessa uma conta sem usuário IAM permanente e como um cliente do aplicativo se autentica. As duas respostas devem usar mecanismos diferentes.
+

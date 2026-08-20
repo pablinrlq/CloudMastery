@@ -61,7 +61,7 @@ export default async function ModulePage({
 
         {isCompleted ? (
           <span className="inline-flex min-h-11 items-center justify-center rounded-xl bg-emerald-50 px-4 text-sm font-bold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
-            ✓ Módulo concluído
+            Módulo concluído
           </span>
         ) : (
           <form action={markCompletedAction}>

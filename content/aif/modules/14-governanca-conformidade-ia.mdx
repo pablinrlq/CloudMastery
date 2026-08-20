@@ -1,0 +1,35 @@
+---
+title: "Governança e Conformidade para IA"
+description: "Inventário, lineage, políticas, evidências, monitoramento e gestão de risco para workloads de IA."
+domain: "Segurança, Conformidade e Governança para Soluções de IA"
+order: 14
+durationMinutes: 55
+type: "teoria"
+week: 6
+---
+
+## Governança responde quem, o quê e por quê
+
+Uma organização precisa saber quais modelos existem, finalidade, proprietário, dados utilizados, versão implantada, usuários afetados, métricas, riscos aceitos e processo de retirada. Sem inventário e lineage, não há auditoria confiável.
+
+## Controles de ciclo de vida
+
+- classificação de risco antes do projeto;
+- aprovação de fontes e finalidade dos dados;
+- registro de datasets, prompts, modelos e avaliações;
+- separação entre desenvolvimento e produção;
+- gates de segurança/qualidade antes da promoção;
+- monitoramento, incident response e rollback;
+- retenção e exclusão conforme política;
+- revisão periódica e desativação.
+
+SageMaker Model Cards documentam uso, avaliação e limitações. Model Registry controla versões e aprovação no ciclo de ML. AWS Config, CloudTrail, Audit Manager e Artifact apoiam configuração, evidências e relatórios, cada um com escopo diferente. Bedrock possui controles e logs próprios que devem ser integrados à governança da conta.
+
+## Residência e terceiros
+
+Confirme Região, fluxo de dados, termos do provedor, retenção e uso de conteúdo para treinamento. “Serviço gerenciado” não transfere a responsabilidade sobre dados, base legal e uso apropriado.
+
+## Cenário
+
+Um banco cataloga cada caso de IA por criticidade. Modelos de marketing seguem aprovação simplificada; crédito exige validação independente, fairness, explicação, supervisão humana e evidências de auditoria. SCPs e pipelines impedem deploy fora das Regiões aprovadas.
+

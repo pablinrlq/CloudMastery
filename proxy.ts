@@ -1,12 +1,25 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { confirmationPath, hasVerifiedEmail } from "@/lib/auth-security";
 
 // Renamed from `middleware.ts` in Next.js 16. Runs on every matched request:
 // refreshes the Supabase session cookie and does an optimistic redirect for
 // signed-out users hitting protected areas. Subscription-tier access (which
 // cert a user paid for) is NOT checked here — that requires a DB read and is
 // enforced in the DAL/page (see lib/dal.ts) to keep this check cookie-only.
-const protectedPrefixes = ["/dashboard", "/course", "/simulado", "/flashcards"];
+const protectedPrefixes = [
+  "/dashboard",
+  "/course",
+  "/simulado",
+  "/flashcards",
+  "/certificado",
+];
+
+function redirectWithRefreshedCookies(url: URL, source: NextResponse) {
+  const redirectResponse = NextResponse.redirect(url);
+  source.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+  return redirectResponse;
+}
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -42,8 +55,16 @@ export async function proxy(request: NextRequest) {
 
   if (isProtected && !user) {
     const redirectUrl = new URL("/login", request.url);
-    redirectUrl.searchParams.set("next", request.nextUrl.pathname);
-    return NextResponse.redirect(redirectUrl);
+    redirectUrl.searchParams.set(
+      "next",
+      `${request.nextUrl.pathname}${request.nextUrl.search}`
+    );
+    return redirectWithRefreshedCookies(redirectUrl, response);
+  }
+
+  if (isProtected && !hasVerifiedEmail(user)) {
+    const redirectUrl = new URL(confirmationPath(user?.email), request.url);
+    return redirectWithRefreshedCookies(redirectUrl, response);
   }
 
   return response;

@@ -1,0 +1,72 @@
+---
+title: "Integrações em Nuvem"
+description: "SQS, SNS, EventBridge, Step Functions e arquiteturas orientadas a eventos para desacoplar, absorver picos e evoluir sistemas."
+domain: "Tecnologia e Serviços"
+order: 13
+durationMinutes: 70
+type: "teoria"
+week: 4
+---
+
+## Por que desacoplar
+
+Quando o produtor chama o consumidor diretamente, disponibilidade e velocidade ficam acopladas. Se o consumidor falha ou desacelera, o produtor também sofre. Mensagens e eventos criam uma fronteira assíncrona.
+
+## Amazon SQS
+
+SQS é uma fila gerenciada. Produtores enviam mensagens; consumidores retiram e confirmam processamento.
+
+**Por que usar:** absorver picos, evitar perda de trabalho e permitir que consumidores escalem no próprio ritmo.
+
+**Standard:** throughput muito alto, entrega pelo menos uma vez e ordem não garantida. Consumidores devem ser idempotentes.
+
+**FIFO:** ordem e deduplicação para fluxos que exigem sequência.
+
+Dead-letter queue recebe mensagens que falharam repetidamente, facilitando investigação.
+
+## Amazon SNS
+
+SNS é pub/sub. Uma publicação pode chegar a vários assinantes: filas SQS, Lambda, HTTP, email ou SMS. Use quando um evento precisa ser distribuído, não processado por um único grupo.
+
+O padrão **fan-out** usa SNS para distribuir e uma fila SQS por consumidor. Cada equipe processa de forma independente e mantém durabilidade.
+
+## Amazon EventBridge
+
+EventBridge é um barramento de eventos com regras por conteúdo. Integra serviços AWS, aplicações próprias e SaaS. É adequado quando produtores publicam fatos de negócio e consumidores reagem sem conhecer uns aos outros.
+
+## AWS Step Functions
+
+Step Functions orquestra etapas, escolhas, repetição, paralelismo e tratamento de erros. Use quando o fluxo precisa de estado e visualização explícita.
+
+## Comparação
+
+| Serviço | Modelo mental |
+|---|---|
+| SQS | fila e buffer |
+| SNS | difusão para assinantes |
+| EventBridge | roteamento de eventos por regras |
+| Step Functions | orquestração de workflow |
+
+## Cenário de arquitetura
+
+Ao confirmar um pedido:
+
+1. a aplicação publica `PedidoConfirmado` no EventBridge;
+2. uma regra envia faturamento para SQS;
+3. outra inicia Step Functions para separação e entrega;
+4. SNS notifica cliente e parceiros;
+5. cada consumidor escala sem bloquear o checkout.
+
+Se o faturamento estiver indisponível, a fila conserva mensagens. O pedido do cliente não precisa falhar.
+
+## Armadilhas
+
+- SQS não envia a mesma mensagem para vários grupos sem configuração adicional.
+- SNS não é fila durável para processamento posterior; combinar com SQS resolve.
+- EventBridge roteia eventos; Step Functions coordena uma sequência.
+- Processamento “pelo menos uma vez” exige idempotência para evitar efeitos duplicados.
+
+## Verificação de domínio
+
+Explique como impedir que um pico de pedidos derrube o processador de pagamentos. A resposta deve mencionar fila, escala por profundidade, retentativas e DLQ.
+

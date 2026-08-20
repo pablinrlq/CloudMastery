@@ -1,0 +1,32 @@
+---
+title: "Foundation Models, Tokens e Inferência"
+description: "Context window, parâmetros de geração, embeddings e critérios para selecionar um modelo."
+domain: "Fundamentos de IA Generativa"
+order: 6
+durationMinutes: 55
+type: "teoria"
+week: 2
+---
+
+## Tokens e contexto
+
+Modelos processam tokens, não palavras diretamente. Idioma, pontuação e código alteram a tokenização. O context window limita a soma aproximada de instruções, histórico, documentos recuperados e resposta. Mais contexto aumenta custo e pode diluir informação relevante; selecionar trechos de qualidade é melhor que enviar tudo.
+
+## Parâmetros de inferência
+
+**Temperature** controla aleatoriedade: valores baixos favorecem consistência; altos aumentam diversidade. **Top-p** restringe a amostragem ao conjunto cumulativo mais provável. **Maximum tokens** limita a saída e o custo. Stop sequences encerram a geração em marcadores definidos.
+
+Resultados sensíveis não devem depender apenas de “temperature zero”: modelos continuam sujeitos a mudança de versão, ambiguidade e limitações. Use schemas, validação e guardrails.
+
+## Escolha de modelo
+
+Compare qualidade na tarefa real, modalidades, idiomas, context window, latência, throughput, custo, opções de customização, termos de uso e requisitos de Região. Um modelo menor pode ser superior para classificação de alto volume; um modelo maior pode justificar o custo em raciocínio complexo.
+
+## Embeddings
+
+Embeddings representam significado em vetores. Documentos semanticamente próximos têm vetores próximos segundo uma métrica. Eles servem para busca semântica, recomendação, clustering e detecção de duplicatas. O modelo de embedding da indexação deve ser compatível com o usado na consulta.
+
+## Cenário
+
+Uma empresa classifica 10 milhões de tickets por mês e resume apenas casos complexos. Um modelo pequeno classifica e roteia; o modelo mais capaz é chamado em uma fração dos tickets. Essa composição reduz custo e latência sem reduzir qualidade onde ela importa.
+

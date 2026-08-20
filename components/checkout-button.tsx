@@ -32,9 +32,12 @@ export function CheckoutButton({
       const data = (await res.json().catch(() => ({}))) as {
         url?: string;
         error?: string;
+        redirectTo?: string;
       };
       if (res.ok && data.url) {
         window.location.assign(data.url);
+      } else if (data.redirectTo) {
+        window.location.assign(data.redirectTo);
       } else {
         setError(data.error ?? "Erro ao iniciar o checkout. Tente novamente.");
       }

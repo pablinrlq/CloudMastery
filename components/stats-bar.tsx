@@ -1,4 +1,5 @@
 import type { GamificationProfile } from "@/lib/gamification";
+import { LogoIcon } from "@/components/logo";
 
 // Faixa de gamificação no topo do dashboard: nível, XP, streak.
 export function StatsBar({ profile }: { profile: GamificationProfile }) {
@@ -8,23 +9,21 @@ export function StatsBar({ profile }: { profile: GamificationProfile }) {
       <div className="flex flex-wrap items-center justify-between gap-6">
         {/* Nível */}
         <div className="flex items-center gap-4">
-          <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-3xl shadow-inner">
-            {profile.level.emoji}
+          <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] shadow-inner">
+            <LogoIcon size={36} />
           </span>
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
               Nível {profile.level.index + 1}
             </p>
             <p className="mt-1 text-lg font-bold tracking-tight">{profile.level.name}</p>
+            <p className="mt-1 text-[10px] font-bold tracking-[0.18em] text-orange-400">{profile.level.code}</p>
           </div>
         </div>
 
         {/* Streak */}
         <div className="text-center">
-          <p className="flex items-center justify-center gap-1 text-2xl font-extrabold">
-            <span className={profile.streakDays > 0 ? "" : "grayscale"}>🔥</span>
-            {profile.streakDays}
-          </p>
+          <p className="text-2xl font-extrabold text-white">{profile.streakDays}</p>
           <p className="mt-1 text-xs text-slate-500">
             {profile.streakDays === 1 ? "dia seguido" : "dias seguidos"}
             {profile.studiedToday ? "" : " · estude hoje!"}
@@ -57,9 +56,10 @@ export function StatsBar({ profile }: { profile: GamificationProfile }) {
           </div>
         </div>
       ) : (
-        <p className="mt-5 text-center text-sm font-medium text-amber-300">
-          👑 Você atingiu o nível máximo. Lenda da nuvem!
-        </p>
+        <div className="mt-5 flex items-center justify-center gap-2 text-sm font-medium text-amber-300">
+          <LogoIcon size={24} />
+          Você atingiu o nível máximo. Cloud Master.
+        </div>
       )}
     </div>
   );

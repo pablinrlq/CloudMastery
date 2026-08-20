@@ -1,0 +1,34 @@
+---
+title: "Primeiros Passos com a AWS"
+description: "Contas, Regiões, Zonas de Disponibilidade, APIs e o modelo mental para operar a AWS com segurança."
+domain: "Arquiteturas Seguras"
+order: 3
+durationMinutes: 35
+type: "teoria"
+week: 1
+---
+
+## A AWS é uma plataforma orientada a APIs
+
+Console, CLI, SDKs e infraestrutura como código chamam APIs dos mesmos serviços. O Console facilita exploração; a CLI torna operações reproduzíveis; SDKs integram aplicações; CloudFormation e CDK descrevem o estado desejado da infraestrutura.
+
+Uma requisição assinada contém identidade, ação, recurso, contexto e Região. O IAM avalia políticas aplicáveis e só permite a ação quando existe um `Allow` correspondente e nenhum `Deny` explícito.
+
+## Escopo global, regional e zonal
+
+| Escopo | Exemplos | Consequência arquitetural |
+|---|---|---|
+| Global | IAM, Route 53, CloudFront | configuração compartilhada ou presença global |
+| Regional | S3, DynamoDB, Lambda, RDS | dados e endpoints pertencem a uma Região |
+| Zonal | sub-rede, instância EC2, volume EBS | falha da AZ afeta diretamente o recurso |
+
+**Região** é uma área geográfica independente. **AZ** é um ou mais datacenters com energia e conectividade independentes. Alta disponibilidade regional normalmente distribui réplicas em pelo menos duas AZs.
+
+## Cenário de arquitetura
+
+Uma API atende o Brasil e não pode parar com a falha de um datacenter. O desenho básico usa Route 53, um Application Load Balancer regional, instâncias ou tarefas em sub-redes de duas ou mais AZs e um banco Multi-AZ. Isso protege contra falha zonal, mas não contra perda de Região. Para recuperação regional, é necessário manter dados e capacidade em outra Região e definir como o tráfego mudará.
+
+## Conta raiz e operação profissional
+
+O usuário raiz deve receber MFA e ser usado somente em tarefas que exigem essa identidade. Pessoas entram por federação no IAM Identity Center; workloads recebem roles temporárias. CloudTrail registra chamadas de API, AWS Config acompanha configuração e Budgets alerta sobre gasto — cada ferramenta responde a uma pergunta diferente.
+

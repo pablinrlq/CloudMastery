@@ -1,0 +1,39 @@
+---
+title: "Guia do Curso e Materiais do SAA-C03"
+description: "Como estudar arquitetura, executar os laboratórios e transformar requisitos em decisões técnicas justificáveis."
+domain: "Arquiteturas Seguras"
+order: 2
+durationMinutes: 25
+type: "teoria"
+week: 1
+---
+
+## O que este curso realmente ensina
+
+O SAA-C03 não avalia memorização isolada de serviços. Ele apresenta uma carga de trabalho, restrições e objetivos conflitantes — disponibilidade, latência, segurança, operação e custo — e pede a **melhor decisão arquitetural**. Por isso, cada módulo deve ser estudado em quatro camadas:
+
+1. **O que é:** responsabilidade e limite do serviço.
+2. **Por que usar:** problema que ele resolve melhor que as alternativas.
+3. **Como funciona:** fluxo de dados, controle, falha e recuperação.
+4. **Quando não usar:** restrições que tornam outra opção superior.
+
+## Kit de estudo
+
+Mantenha três artefatos: um caderno de comparações, um diário de erros e diagramas reproduzidos de memória. Em cada comparação, registre requisitos decisivos. Exemplo: **SQS** retém mensagens para consumidores independentes; **SNS** distribui notificações imediatamente para vários assinantes; **EventBridge** roteia eventos por regras e integra aplicações SaaS e AWS.
+
+## Método de cenário
+
+Leia a questão em três passagens:
+
+- identifique o verbo principal: migrar, proteger, escalar, recuperar ou reduzir custo;
+- marque restrições absolutas: “sem administrar servidores”, “RPO de segundos”, “menor custo operacional”;
+- elimine respostas que funcionam tecnicamente, mas violam uma restrição.
+
+## Laboratórios e segurança
+
+Use uma conta separada de estudos, MFA no usuário raiz, alertas de orçamento e privilégios mínimos. Todo laboratório termina com limpeza de recursos. Um serviço “barato” pode gerar cobrança contínua quando NAT Gateway, endpoints, balanceadores ou volumes permanecem ativos.
+
+## Critério de domínio
+
+Você dominou um módulo quando consegue desenhar o caminho da requisição, explicar o comportamento durante uma falha de AZ e defender por que a solução é melhor que duas alternativas plausíveis.
+
