@@ -7,7 +7,7 @@ const features = [
   "Trilhas completas para CLF-C02, SAA-C03 e AIF-C01",
   "Simulados no formato e tempo oficiais",
   "Análise por domínio e tempo por questão",
-  "9 laboratórios práticos guiados",
+  "Cenários de arquitetura e prática aplicada",
   "Flashcards com revisão direcionada",
   "Diagnóstico do momento certo para a prova",
   "Novas certificações incluídas sem custo extra",

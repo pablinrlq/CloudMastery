@@ -1,0 +1,10 @@
+<svg width="720" height="180" viewBox="0 0 720 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="180" height="180" rx="52" fill="#101722"/>
+  <rect x="3" y="3" width="174" height="174" rx="49" stroke="white" stroke-opacity=".12" stroke-width="6"/>
+  <path d="M49.5 124.5h79.1a22.5 22.5 0 0 0 3-44.8 44.1 44.1 0 0 0-83.6 11.4 17.1 17.1 0 0 0 1.5 33.4Z" stroke="white" stroke-width="9.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m55.5 117.4 23.8-23.8L96 108.8l30.6-34.5" stroke="#FB923C" stroke-width="11.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M112.1 74.3h14.5v14.5" stroke="#FDBA74" stroke-width="11.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="79.3" cy="93.6" r="6.4" fill="#FFF7ED"/>
+  <text x="220" y="111" fill="#101722" font-family="Inter, Arial, sans-serif" font-size="72" font-weight="800" letter-spacing="-4">Cloud</text>
+  <text x="405" y="111" fill="#EA580C" font-family="Inter, Arial, sans-serif" font-size="72" font-weight="800" letter-spacing="-4">Mastery</text>
+</svg>

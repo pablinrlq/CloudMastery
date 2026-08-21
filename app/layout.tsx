@@ -33,7 +33,7 @@ export const metadata: Metadata = {
         url: "/og.png",
         width: 1760,
         height: 907,
-        alt: "CloudMastery — Clareza para conquistar sua certificação AWS",
+        alt: "CloudMastery — Passe na sua certificação AWS sem perder tempo",
       },
     ],
   },

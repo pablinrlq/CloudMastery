@@ -1,27 +1,56 @@
-import Image from "next/image";
 import Link from "next/link";
 
-const LOGO_SRC = "/cloudmastery-logo.png";
-
-/** Recorte da marca oficial para espaços compactos. */
-export function LogoIcon({ size = 32 }: { size?: number }) {
+function BrandMark({ size }: { size: number }) {
   return (
-    <span
-      className="relative inline-block shrink-0 overflow-hidden rounded-[22%] bg-white shadow-sm ring-1 ring-slate-200/70"
-      style={{
-        width: size,
-        height: size,
-        backgroundImage: `url(${LOGO_SRC})`,
-        backgroundRepeat: "no-repeat",
-        backgroundSize: `${size * 4}px ${size * 2}px`,
-        backgroundPosition: `${size * -0.36}px ${size * -0.48}px`,
-      }}
-      aria-hidden
-    />
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 48"
+      fill="none"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      <rect width="48" height="48" rx="14" fill="#101722" />
+      <rect
+        x="0.75"
+        y="0.75"
+        width="46.5"
+        height="46.5"
+        rx="13.25"
+        stroke="white"
+        strokeOpacity="0.12"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M13.2 33.2h21.1a6 6 0 0 0 .8-11.95 11.75 11.75 0 0 0-22.28 3.04A4.55 4.55 0 0 0 13.2 33.2Z"
+        stroke="white"
+        strokeWidth="2.55"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="m14.8 31.3 6.35-6.35 4.45 4.05 8.15-9.2"
+        stroke="#FB923C"
+        strokeWidth="3.1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M29.9 19.8h3.85v3.85"
+        stroke="#FDBA74"
+        strokeWidth="3.1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="21.15" cy="24.95" r="1.7" fill="#FFF7ED" />
+    </svg>
   );
 }
 
-/** Wordmark oficial, com o excesso de área branca do arquivo original recortado por CSS. */
+export function LogoIcon({ size = 32 }: { size?: number }) {
+  return <BrandMark size={size} />;
+}
+
 export function Logo({
   size = 30,
   dark = false,
@@ -32,29 +61,27 @@ export function Logo({
   href?: string | null;
 }) {
   const mark = (
-    <span
-      className={`relative block shrink-0 overflow-hidden rounded-lg bg-white ${
-        dark
-          ? "shadow-[0_8px_24px_rgba(0,0,0,0.2)] ring-1 ring-white/15"
-          : "ring-1 ring-slate-200/70"
-      }`}
-      style={{ width: size * 4.35, height: size }}
-    >
-      <Image
-        src={LOGO_SRC}
-        alt="CloudMastery"
-        fill
-        sizes={`${Math.round(size * 4.35)}px`}
-        className="object-cover object-center"
-      />
+    <span className="inline-flex items-center gap-2.5">
+      <BrandMark size={size} />
+      <span
+        className={`whitespace-nowrap text-[1.08rem] font-extrabold tracking-[-0.045em] sm:text-[1.18rem] ${
+          dark ? "text-white" : "cm-logo-wordmark text-slate-950 dark:text-white"
+        }`}
+      >
+        Cloud
+        <span className={dark ? "text-orange-400" : "text-orange-600 dark:text-orange-400"}>
+          Mastery
+        </span>
+      </span>
     </span>
   );
 
   if (href === null) return mark;
+
   return (
     <Link
       href={href}
-      className="inline-flex rounded-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-500/25"
+      className="inline-flex rounded-xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-500/25"
       aria-label="CloudMastery"
     >
       {mark}
