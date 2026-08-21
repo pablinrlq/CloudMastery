@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { safeRedirectPath } from "@/lib/security";
 import { siteUrl } from "@/lib/site-url";
 import { confirmationPath, hasVerifiedEmail } from "@/lib/auth-security";
+import { signupErrorMessage } from "@/lib/auth-errors";
 
 export type AuthFormState =
   | {
@@ -76,7 +77,7 @@ export async function signup(
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: signupErrorMessage(error.code) };
   }
 
   redirect(confirmationPath(email));

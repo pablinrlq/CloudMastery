@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireAccess, verifySession } from "@/lib/dal";
 import { isValidCert } from "@/lib/content";
@@ -36,4 +37,5 @@ export async function markModuleCompleted(certId: string, slug: string) {
 
   revalidatePath(`/course/${certId}`);
   revalidatePath(`/course/${certId}/${slug}`);
+  redirect(`/course/${certId}/${slug}`);
 }

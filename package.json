@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test --experimental-strip-types tests/*.test.ts"
+    "test": "node --test --experimental-strip-types tests/*.test.ts",
+    "check:production": "node scripts/check-production-readiness.mjs"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
