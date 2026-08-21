@@ -1,14 +1,69 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { signup, loginWithGoogle } from "../actions";
+import { useRouter } from "next/navigation";
+import { loginWithGoogle } from "../actions";
 import { AuthShell } from "@/components/auth-shell";
+import { passwordPolicyError } from "@/lib/password-policy";
+import { createClient } from "@/lib/supabase/client";
 
 const googleAuthEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
 
 export default function SignupPage() {
-  const [state, action, pending] = useActionState(signup, undefined);
+  const router = useRouter();
+  const [error, setError] = useState<string>();
+  const [pending, setPending] = useState(false);
+
+  async function handleSignup(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (pending) return;
+
+    const formData = new FormData(event.currentTarget);
+    const email = String(formData.get("email") ?? "").trim().toLowerCase();
+    const password = String(formData.get("password") ?? "");
+
+    if (!email || !email.includes("@")) {
+      setError("Informe um email válido.");
+      return;
+    }
+
+    const passwordError = passwordPolicyError(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
+    setPending(true);
+    setError(undefined);
+
+    // Sign-up runs from the visitor's browser, so Supabase applies IP limits
+    // to the actual visitor instead of pooling every Vercel request together.
+    const supabase = createClient();
+    const { error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (signUpError) {
+      if (signUpError.code === "over_email_send_rate_limit") {
+        setError("O envio de confirmação está temporariamente indisponível. Tente novamente em alguns minutos.");
+      } else if (signUpError.code === "over_request_rate_limit") {
+        setError("Não foi possível concluir o cadastro agora. Tente novamente.");
+      } else if (signUpError.code === "user_already_exists") {
+        setError("Esta conta já existe. Entre ou recupere sua senha.");
+      } else {
+        setError("Não foi possível criar sua conta agora. Revise os dados e tente novamente.");
+      }
+      setPending(false);
+      return;
+    }
+
+    router.replace(`/signup/confirmacao?email=${encodeURIComponent(email)}`);
+  }
 
   return (
     <AuthShell
@@ -24,7 +79,7 @@ export default function SignupPage() {
         </>
       }
     >
-      <form action={action} className="space-y-5">
+      <form onSubmit={handleSignup} className="space-y-5">
         <div>
           <label htmlFor="email" className="mb-2 block text-sm font-bold text-slate-700">
             Seu melhor email
@@ -55,9 +110,9 @@ export default function SignupPage() {
           />
           <p className="mt-2 text-xs leading-5 text-slate-400">Use 12+ caracteres com maiúscula, minúscula, número e símbolo.</p>
         </div>
-        {state?.error && (
+        {error && (
           <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            {state.error}
+            {error}
           </p>
         )}
         <button
