@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Produces the minimal self-hosted server used by the production Docker image.
-  output: "standalone",
+  // Vercel supplies its own Next.js runtime output. Standalone is only for the
+  // self-hosted Docker/EC2 image and conflicts with Vercel's build adapter.
+  output: process.env.VERCEL ? undefined : "standalone",
   async headers() {
     return [
       {
