@@ -7,6 +7,10 @@ dotenv.config({ path: ".env.local", quiet: true });
 const checks = [];
 const pass = (name, detail) => checks.push({ ok: true, name, detail });
 const fail = (name, detail) => checks.push({ ok: false, name, detail });
+const record = (condition, name, successDetail, failureDetail) => {
+  if (condition) pass(name, successDetail);
+  else fail(name, failureDetail);
+};
 
 const required = [
   "NEXT_PUBLIC_SUPABASE_URL",
@@ -19,7 +23,7 @@ const required = [
   "NEXT_PUBLIC_SITE_URL",
 ];
 const missing = required.filter((name) => !process.env[name]);
-missing.length ? fail("Variáveis", `Ausentes: ${missing.join(", ")}`) : pass("Variáveis", "Todas presentes");
+record(!missing.length, "Variáveis", "Todas presentes", `Ausentes: ${missing.join(", ")}`);
 
 let site;
 try {
@@ -61,7 +65,7 @@ if (!missing.length && site) {
       annual.livemode === liveMode &&
       monthly.recurring?.interval === "month" &&
       annual.recurring?.interval === "year";
-    pricesValid ? pass("Preços Stripe", "Mensal e anual ativos e compatíveis") : fail("Preços Stripe", "Preço inativo, intervalo incorreto ou modo divergente");
+    record(pricesValid, "Preços Stripe", "Mensal e anual ativos e compatíveis", "Preço inativo, intervalo incorreto ou modo divergente");
 
     const expectedEvents = [
       "checkout.session.completed",
@@ -72,7 +76,7 @@ if (!missing.length && site) {
       (item) => item.url === `${site.origin}/api/stripe/webhook` && item.status === "enabled"
     );
     const webhookValid = endpoint && expectedEvents.every((event) => endpoint.enabled_events.includes(event));
-    webhookValid ? pass("Webhook Stripe", "Ativo com todos os eventos obrigatórios") : fail("Webhook Stripe", "Endpoint ou eventos obrigatórios ausentes");
+    record(Boolean(webhookValid), "Webhook Stripe", "Ativo com todos os eventos obrigatórios", "Endpoint ou eventos obrigatórios ausentes");
   } catch (error) {
     fail("Stripe", error instanceof Error ? error.message : "Falha desconhecida");
   }
@@ -82,9 +86,17 @@ if (!missing.length && site) {
       headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY },
     });
     const settings = await response.json();
-    response.ok && settings.mailer_autoconfirm === false
-      ? pass("Confirmação de email", "Obrigatória")
-      : fail("Confirmação de email", "Autoconfirmação habilitada ou configuração indisponível");
+    record(
+      response.ok && settings.mailer_autoconfirm === false,
+      "Confirmação de email",
+      "Obrigatória",
+      "Autoconfirmação habilitada ou configuração indisponível"
+    );
+    const googleVisible = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
+    const googleEnabled = settings.external?.google === true;
+    if (!googleVisible) pass("Google OAuth", "Oculto até o provider ser configurado");
+    else if (googleEnabled) pass("Google OAuth", "Visível e habilitado no Supabase");
+    else fail("Google OAuth", "Visível na interface, mas desabilitado no Supabase");
   } catch (error) {
     fail("Supabase Auth", error instanceof Error ? error.message : "Falha desconhecida");
   }
@@ -96,17 +108,23 @@ if (!missing.length && site) {
   try {
     await database.connect();
     const migrations = await database.query("select filename from public.cloudmastery_migrations order by filename desc limit 1");
-    migrations.rows[0]?.filename === "0021_subscription_expiry_gate.sql"
-      ? pass("Migrations", "Schema atualizado até 0021")
-      : fail("Migrations", `Última migration: ${migrations.rows[0]?.filename ?? "nenhuma"}`);
+    record(
+      migrations.rows[0]?.filename === "0021_subscription_expiry_gate.sql",
+      "Migrations",
+      "Schema atualizado até 0021",
+      `Última migration: ${migrations.rows[0]?.filename ?? "nenhuma"}`
+    );
     const rls = await database.query(`select count(*)::int as enabled
       from pg_tables
       where schemaname = 'public'
         and tablename = any($1::text[])
         and rowsecurity`, [["subscriptions", "user_progress", "questions", "simulado_attempts", "flashcards", "user_flashcard_progress"]]);
-    rls.rows[0].enabled === 6
-      ? pass("RLS", "Ativo em todas as tabelas privadas")
-      : fail("RLS", `${rls.rows[0].enabled}/6 tabelas protegidas`);
+    record(
+      rls.rows[0].enabled === 6,
+      "RLS",
+      "Ativo em todas as tabelas privadas",
+      `${rls.rows[0].enabled}/6 tabelas protegidas`
+    );
   } catch (error) {
     fail("Banco", error instanceof Error ? error.message : "Falha desconhecida");
   } finally {
@@ -115,7 +133,7 @@ if (!missing.length && site) {
 
   try {
     const response = await fetch(`${site.origin}/api/health`, { cache: "no-store" });
-    response.ok ? pass("Produção", "Health check respondeu 200") : fail("Produção", `Health check respondeu ${response.status}`);
+    record(response.ok, "Produção", "Health check respondeu 200", `Health check respondeu ${response.status}`);
   } catch (error) {
     fail("Produção", error instanceof Error ? error.message : "Falha desconhecida");
   }

@@ -6,6 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { login, loginWithGoogle } from "../actions";
 import { AuthShell } from "@/components/auth-shell";
 
+const googleAuthEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
+
 export default function LoginPage() {
   return (
     <Suspense>
@@ -97,19 +99,19 @@ function LoginForm() {
         </button>
       </form>
 
-      <div className="my-6 flex items-center gap-4 text-xs font-medium uppercase tracking-[0.16em] text-slate-400">
-        <span className="h-px flex-1 bg-slate-200" /> ou <span className="h-px flex-1 bg-slate-200" />
-      </div>
-
-      <form action={loginWithGoogle}>
-        <button
-          type="submit"
-          className="cm-button-secondary w-full gap-3"
-        >
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-bold text-slate-800 shadow-sm">G</span>
-          Continuar com Google
-        </button>
-      </form>
+      {googleAuthEnabled && (
+        <>
+          <div className="my-6 flex items-center gap-4 text-xs font-medium uppercase tracking-[0.16em] text-slate-400">
+            <span className="h-px flex-1 bg-slate-200" /> ou <span className="h-px flex-1 bg-slate-200" />
+          </div>
+          <form action={loginWithGoogle}>
+            <button type="submit" className="cm-button-secondary w-full gap-3">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-bold text-slate-800 shadow-sm">G</span>
+              Continuar com Google
+            </button>
+          </form>
+        </>
+      )}
     </AuthShell>
   );
 }
