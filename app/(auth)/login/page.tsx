@@ -1,10 +1,13 @@
 "use client";
 
-import { Suspense, useActionState } from "react";
+import { Suspense, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { login, loginWithGoogle } from "../actions";
+import { useRouter, useSearchParams } from "next/navigation";
+import { loginWithGoogle } from "../actions";
 import { AuthShell } from "@/components/auth-shell";
+import { createClient } from "@/lib/supabase/client";
+import { hasVerifiedEmail } from "@/lib/auth-security";
+import { safeRedirectPath } from "@/lib/security";
 
 const googleAuthEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
 
@@ -17,11 +20,64 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
-  const [state, action, pending] = useActionState(login, undefined);
+  const router = useRouter();
+  const [error, setError] = useState<string>();
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string>();
+  const [pending, setPending] = useState(false);
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = safeRedirectPath(searchParams.get("next"));
   const oauthError = searchParams.get("error") === "oauth";
   const passwordUpdated = searchParams.get("password") === "updated";
+
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (pending) return;
+
+    const formData = new FormData(event.currentTarget);
+    const email = String(formData.get("email") ?? "").trim().toLowerCase();
+    const password = String(formData.get("password") ?? "");
+
+    if (!email || !password) {
+      setError("Preencha email e senha.");
+      return;
+    }
+
+    setPending(true);
+    setError(undefined);
+    setUnverifiedEmail(undefined);
+
+    // Login happens directly from the visitor's browser. This keeps Supabase's
+    // IP-based Auth protection per user instead of pooling all Vercel traffic.
+    const supabase = createClient();
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError) {
+      if (signInError.code === "email_not_confirmed") {
+        setError("Confirme seu email antes de entrar.");
+        setUnverifiedEmail(email);
+      } else if (signInError.code === "over_request_rate_limit") {
+        setError("Não foi possível concluir o login agora. Tente novamente.");
+      } else {
+        setError("Email ou senha inválidos.");
+      }
+      setPending(false);
+      return;
+    }
+
+    if (!hasVerifiedEmail(data.user)) {
+      await supabase.auth.signOut();
+      setError("Confirme seu email antes de entrar.");
+      setUnverifiedEmail(email);
+      setPending(false);
+      return;
+    }
+
+    router.replace(next);
+    router.refresh();
+  }
 
   return (
     <AuthShell
@@ -37,8 +93,7 @@ function LoginForm() {
         </>
       }
     >
-      <form action={action} className="space-y-5">
-        <input type="hidden" name="next" value={next} />
+      <form onSubmit={handleLogin} className="space-y-5">
         <div>
           <label htmlFor="email" className="mb-2 block text-sm font-bold text-slate-700">
             Seu email
@@ -72,14 +127,14 @@ function LoginForm() {
             className="cm-input"
           />
         </div>
-        {(state?.error || oauthError) && (
+        {(error || oauthError) && (
           <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            {state?.error ?? "Não foi possível entrar com o Google. Tente novamente."}
+            {error ?? "Não foi possível entrar com o Google. Tente novamente."}
           </p>
         )}
-        {state && "code" in state && state.code === "email_unverified" && (
+        {unverifiedEmail && (
           <Link
-            href={`/signup/confirmacao?email=${encodeURIComponent(state.email ?? "")}`}
+            href={`/signup/confirmacao?email=${encodeURIComponent(unverifiedEmail)}`}
             className="cm-button-secondary w-full"
           >
             Reenviar confirmação
