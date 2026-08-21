@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --test --experimental-strip-types tests/*.test.ts",
+    "db:migrate": "node db/run-migrations.mjs",
     "check:production": "node scripts/check-production-readiness.mjs"
   },
   "dependencies": {
