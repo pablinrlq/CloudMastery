@@ -23,9 +23,9 @@ export default function ResetPasswordPage() {
             name="password"
             type="password"
             required
-            minLength={8}
+            minLength={12}
             autoComplete="new-password"
-            placeholder="Mínimo de 8 caracteres"
+            placeholder="Mínimo de 12 caracteres"
             className="cm-input"
           />
         </div>
@@ -38,7 +38,7 @@ export default function ResetPasswordPage() {
             name="passwordConfirmation"
             type="password"
             required
-            minLength={8}
+            minLength={12}
             autoComplete="new-password"
             placeholder="Repita a nova senha"
             className="cm-input"

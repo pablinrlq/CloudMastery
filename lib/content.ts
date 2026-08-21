@@ -1,7 +1,7 @@
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
-import matter from "gray-matter";
+import { parseFrontmatter } from "@/lib/frontmatter";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 
@@ -36,8 +36,8 @@ export function getModules(certId: string): ModuleMeta[] {
     .map((file) => {
       const slug = file.replace(/\.mdx$/, "");
       const raw = fs.readFileSync(path.join(dir, file), "utf-8");
-      const { data } = matter(raw);
-      return { ...(data as ModuleFrontmatter), slug, certId };
+      const { data } = parseFrontmatter<ModuleFrontmatter>(raw);
+      return { ...data, slug, certId };
     })
     .sort((a, b) => a.order - b.order);
 }
@@ -47,8 +47,8 @@ export function getModule(certId: string, slug: string): ModuleContent | null {
   if (!fs.existsSync(filePath)) return null;
 
   const raw = fs.readFileSync(filePath, "utf-8");
-  const { data, content } = matter(raw);
-  return { ...(data as ModuleFrontmatter), slug, certId, body: content };
+  const { data, content } = parseFrontmatter<ModuleFrontmatter>(raw);
+  return { ...data, slug, certId, body: content };
 }
 
 export const CERTIFICATIONS = {

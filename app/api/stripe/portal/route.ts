@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { siteUrl } from "@/lib/site-url";
 import { hasVerifiedEmail } from "@/lib/auth-security";
 import { isCheckoutPlan } from "@/lib/security";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 // POST -> returns URL for the Stripe customer portal (manage/cancel plan).
 export async function POST() {
@@ -21,6 +22,9 @@ export async function POST() {
       { status: 403 }
     );
   }
+
+  const rateLimited = await enforceRateLimit("stripe-portal", user.id, 10, 600);
+  if (rateLimited) return rateLimited;
 
   const { data: subscription } = await supabase
     .from("subscriptions")

@@ -6,6 +6,7 @@ import { isCheckoutPlan } from "@/lib/security";
 import { getPriceId } from "@/lib/stripe-plans";
 import { siteUrl } from "@/lib/site-url";
 import { confirmationPath, hasVerifiedEmail } from "@/lib/auth-security";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 // POST { plan: "monthly" | "annual" } -> redirects to Stripe Checkout.
 // certAccess is fixed to "all" for the MVP (single plan covers CCP + SAA);
@@ -34,6 +35,9 @@ export async function POST(request: NextRequest) {
       { status: 403 }
     );
   }
+
+  const rateLimited = await enforceRateLimit("stripe-checkout", user.id, 5, 600);
+  if (rateLimited) return rateLimited;
 
   const payload: unknown = await request.json().catch(() => null);
   const plan =

@@ -73,6 +73,8 @@ export default function MarketingLayout({
                   ["Planos", "/#planos"],
                   ["Entrar", "/login"],
                   ["Criar conta", "/signup"],
+                  ["Privacidade", "/privacy"],
+                  ["Termos de uso", "/terms"],
                 ].map(([label, href]) => (
                   <li key={label}>
                     <Link href={href} className="text-slate-500 transition-colors hover:text-white">

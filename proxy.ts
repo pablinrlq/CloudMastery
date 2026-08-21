@@ -18,11 +18,39 @@ const protectedPrefixes = [
 function redirectWithRefreshedCookies(url: URL, source: NextResponse) {
   const redirectResponse = NextResponse.redirect(url);
   source.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+  const contentSecurityPolicy = source.headers.get("Content-Security-Policy");
+  if (contentSecurityPolicy) {
+    redirectResponse.headers.set("Content-Security-Policy", contentSecurityPolicy);
+  }
   return redirectResponse;
 }
 
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  const nonce = btoa(crypto.randomUUID());
+  const isDevelopment = process.env.NODE_ENV === "development";
+  const contentSecurityPolicy = [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ""}`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' blob: data: https:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.stripe.com https://vitals.vercel-insights.com",
+    "frame-src https://*.stripe.com",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self' https://*.stripe.com",
+    "frame-ancestors 'none'",
+    ...(isDevelopment ? [] : ["upgrade-insecure-requests"]),
+  ].join("; ");
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("Content-Security-Policy", contentSecurityPolicy);
+  const nextResponse = () => {
+    const next = NextResponse.next({ request: { headers: requestHeaders } });
+    next.headers.set("Content-Security-Policy", contentSecurityPolicy);
+    return next;
+  };
+  let response = nextResponse();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -36,7 +64,7 @@ export async function proxy(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
-          response = NextResponse.next({ request });
+          response = nextResponse();
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );

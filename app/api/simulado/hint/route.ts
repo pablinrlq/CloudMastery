@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hasVerifiedEmail } from "@/lib/auth-security";
 import { hasAccess, type Subscription } from "@/lib/dal";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 // POST { attemptId, questionId } -> { hint }
 // Registra o uso da dica no servidor ANTES de devolver o texto: a penalidade
@@ -22,6 +23,9 @@ export async function POST(request: NextRequest) {
       { status: 403 }
     );
   }
+
+  const rateLimited = await enforceRateLimit("simulado-hint", user.id, 120, 600);
+  if (rateLimited) return rateLimited;
 
   const payload: unknown = await request.json().catch(() => null);
   const { attemptId, questionId } =

@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getModules, isValidCert } from "@/lib/content";
 import { hasVerifiedEmail } from "@/lib/auth-security";
 import { hasAccess, type Subscription } from "@/lib/dal";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 type SubmittedAnswers = Record<string, string[]>; // questionId -> chosen choice ids
 type QuestionTimings = Record<string, number>; // questionId -> seconds
@@ -29,6 +30,9 @@ export async function POST(request: NextRequest) {
       { status: 403 }
     );
   }
+
+  const rateLimited = await enforceRateLimit("simulado-submit", user.id, 30, 600);
+  if (rateLimited) return rateLimited;
 
   const payload: unknown = await request.json().catch(() => null);
   if (!payload || typeof payload !== "object") {

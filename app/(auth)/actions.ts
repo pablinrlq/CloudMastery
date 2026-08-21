@@ -6,6 +6,7 @@ import { safeRedirectPath } from "@/lib/security";
 import { siteUrl } from "@/lib/site-url";
 import { confirmationPath, hasVerifiedEmail } from "@/lib/auth-security";
 import { signupErrorMessage } from "@/lib/auth-errors";
+import { passwordPolicyError } from "@/lib/password-policy";
 
 export type AuthFormState =
   | {
@@ -63,9 +64,8 @@ export async function signup(
     return { error: "Informe um email válido." };
   }
 
-  if (password.length < 8) {
-    return { error: "A senha precisa ter pelo menos 8 caracteres." };
-  }
+  const passwordError = passwordPolicyError(password);
+  if (passwordError) return { error: passwordError };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
@@ -150,9 +150,8 @@ export async function updatePassword(
   const password = String(formData.get("password") ?? "");
   const confirmation = String(formData.get("passwordConfirmation") ?? "");
 
-  if (password.length < 8) {
-    return { error: "A nova senha precisa ter pelo menos 8 caracteres." };
-  }
+  const passwordError = passwordPolicyError(password);
+  if (passwordError) return { error: passwordError };
   if (password !== confirmation) {
     return { error: "As senhas não coincidem." };
   }

@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getPlanFromPriceId, CERT_ACCESS_FOR_PLAN } from "@/lib/stripe-plans";
 import { siteUrl } from "@/lib/site-url";
 import { confirmationPath, hasVerifiedEmail } from "@/lib/auth-security";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 // GET /api/stripe/sync?session_id=cs_...
 // Destino do success_url do Checkout: confirma a sessão DIRETO na API da
@@ -29,6 +30,9 @@ export async function GET(request: NextRequest) {
   if (!hasVerifiedEmail(user)) {
     return NextResponse.redirect(siteUrl(confirmationPath(user.email)));
   }
+
+  const rateLimited = await enforceRateLimit("stripe-sync", user.id, 20, 600);
+  if (rateLimited) return rateLimited;
 
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId, {

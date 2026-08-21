@@ -2,10 +2,19 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import matter from "gray-matter";
+import { parseFrontmatter } from "../lib/frontmatter.ts";
 
 const expectedCoreSections = { ccp: 21, saa: 33, aif: 15 } as const;
 const expectedMinimumFiles = { ccp: 26, saa: 46, aif: 17 } as const;
+
+type TestFrontmatter = {
+  title: string;
+  description: string;
+  domain: string;
+  order: number;
+  durationMinutes: number;
+  type: string;
+};
 
 for (const certId of Object.keys(expectedCoreSections) as Array<keyof typeof expectedCoreSections>) {
   test(`${certId.toUpperCase()} curriculum has valid, ordered premium modules`, () => {
@@ -15,7 +24,7 @@ for (const certId of Object.keys(expectedCoreSections) as Array<keyof typeof exp
 
     const modules = files.map((file) => {
       const raw = fs.readFileSync(path.join(directory, file), "utf8");
-      const { data, content } = matter(raw);
+      const { data, content } = parseFrontmatter<TestFrontmatter>(raw);
       assert.equal(typeof data.title, "string");
       assert.ok(data.title.length > 5);
       assert.equal(typeof data.description, "string");

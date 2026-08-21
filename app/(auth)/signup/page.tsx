@@ -48,12 +48,12 @@ export default function SignupPage() {
             name="password"
             type="password"
             required
-            minLength={8}
+            minLength={12}
             autoComplete="new-password"
-            placeholder="Mínimo de 8 caracteres"
+            placeholder="Mínimo de 12 caracteres"
             className="cm-input"
           />
-          <p className="mt-2 text-xs text-slate-400">Use pelo menos 8 caracteres.</p>
+          <p className="mt-2 text-xs leading-5 text-slate-400">Use 12+ caracteres com maiúscula, minúscula, número e símbolo.</p>
         </div>
         {state?.error && (
           <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
