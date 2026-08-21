@@ -3,6 +3,10 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { confirmationPath, hasVerifiedEmail } from "@/lib/auth-security";
+import { hasAccess, type Subscription } from "@/lib/access";
+
+export { hasAccess } from "@/lib/access";
+export type { Subscription } from "@/lib/access";
 
 // Secure (DB-backed) session check. Cached per request so calling it from
 // multiple Server Components/pages during one render doesn't re-hit Supabase.
@@ -23,13 +27,6 @@ export const verifySession = cache(async () => {
   return { userId: user.id, email: user.email! };
 });
 
-export type Subscription = {
-  status: "trialing" | "active" | "past_due" | "canceled" | "incomplete" | "incomplete_expired" | "unpaid" | "paused";
-  plan: string | null;
-  cert_access: string[];
-  current_period_end: string | null;
-};
-
 export const getSubscription = cache(async (): Promise<Subscription | null> => {
   const { userId } = await verifySession();
   const supabase = await createClient();
@@ -42,13 +39,6 @@ export const getSubscription = cache(async (): Promise<Subscription | null> => {
 
   return data;
 });
-
-export function hasAccess(subscription: Subscription | null, certId: string) {
-  if (!subscription) return false;
-  const isActive = subscription.status === "active" || subscription.status === "trialing";
-  const covers = subscription.cert_access.includes(certId) || subscription.cert_access.includes("all");
-  return isActive && covers;
-}
 
 // Use in pages that require a paid plan for a specific certification, e.g.
 // `await requireAccess("ccp")` at the top of app/(app)/course/[cert]/page.tsx.

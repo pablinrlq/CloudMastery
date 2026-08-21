@@ -51,15 +51,17 @@ export default async function DashboardPage({
           <p className="relative text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Acesso completo</p>
           <h2 className="relative mt-3 max-w-lg text-2xl font-bold tracking-[-0.035em]">Transforme este dashboard no seu plano de aprovação.</h2>
           <p className="relative mt-3 max-w-xl text-sm leading-7 text-slate-400">
-            Acesso completo às trilhas, simulados cronometrados, flashcards e
-            diagnóstico de prontidão.
+            Comece agora com um diagnóstico gratuito. O Premium libera a análise por domínio,
+            revisão detalhada, trilhas, simulados completos e flashcards.
           </p>
-          <Link
-            href="/pricing"
-            className="cm-button-primary relative mt-7"
-          >
-            Ver planos
-          </Link>
+          <div className="relative mt-6 grid gap-2 sm:grid-cols-3">
+            {(Object.keys(CERTIFICATIONS) as CertId[]).map((certId) => (
+              <Link key={certId} href={`/simulado/${certId}`} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition hover:border-orange-400/50 hover:bg-orange-500/10">
+                Diagnóstico {CERTIFICATIONS[certId].code}
+              </Link>
+            ))}
+          </div>
+          <Link href="/pricing" className="cm-button-primary relative mt-5">Conhecer o Premium</Link>
           {hasStripeManagedPlan && <PortalButton />}
         </div>
       ) : (

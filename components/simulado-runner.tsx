@@ -27,26 +27,28 @@ type ReviewItem = {
 };
 
 type Results = {
+  premiumInsights: boolean;
   score: number;
   scoreNoPenalty: number;
   hintsUsedCount: number;
   overtimeSeconds: number;
   correctCount: number;
   total: number;
-  domainBreakdown: Record<string, { correct: number; total: number }>;
-  slowest: Array<{
+  domainBreakdown?: Record<string, { correct: number; total: number }>;
+  slowest?: Array<{
     prompt: string;
     domain: string;
     timeSeconds: number;
     correct: boolean;
     hintUsed: boolean;
   }>;
-  recommendations: Array<{
+  recommendations?: Array<{
     domain: string;
     pct: number;
     modules: Array<{ slug: string; title: string }>;
   }>;
-  review: ReviewItem[];
+  review?: ReviewItem[];
+  upgradeUrl?: string;
 };
 
 type Phase = "idle" | "loading" | "running" | "submitting" | "results";
@@ -70,11 +72,13 @@ export function SimuladoRunner({
   domains,
   fullDurationMinutes,
   fullQuestionCount,
+  premium,
 }: {
   certId: string;
   domains: readonly string[];
   fullDurationMinutes: number;
   fullQuestionCount: number;
+  premium: boolean;
 }) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -118,7 +122,7 @@ export function SimuladoRunner({
     enteredAtRef.current = Date.now();
   }, [phase, current, questions]);
 
-  async function start(mode: "full" | "domain", domain?: string) {
+  async function start(mode: "diagnostic" | "full" | "domain", domain?: string) {
     setPhase("loading");
     setError(null);
     try {
@@ -235,7 +239,21 @@ export function SimuladoRunner({
       <div className="space-y-6">
         {error && <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">{error}</p>}
 
-        <div className="cm-panel relative overflow-hidden p-6 sm:p-8">
+        {!premium && (
+          <div className="cm-panel relative overflow-hidden border-orange-200 p-6 sm:p-8 dark:border-orange-500/20">
+            <div className="absolute right-0 top-0 h-28 w-28 rounded-bl-full bg-orange-50 dark:bg-orange-500/10" />
+            <p className="cm-kicker relative">Grátis para sua conta</p>
+            <h2 className="relative mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Diagnóstico inicial</h2>
+            <p className="relative mt-3 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+              Responda 10 questões em 15 minutos e descubra sua pontuação atual. A análise por domínio, a revisão das respostas e o plano de estudos são recursos Premium.
+            </p>
+            <button onClick={() => start("diagnostic")} disabled={phase === "loading"} className="cm-button-primary relative mt-6">
+              {phase === "loading" ? "Preparando..." : "Fazer diagnóstico gratuito"}
+            </button>
+          </div>
+        )}
+
+        <div className={`cm-panel relative overflow-hidden p-6 sm:p-8 ${!premium ? "opacity-90" : ""}`}>
           <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-orange-50 dark:bg-orange-500/10" />
           <p className="cm-kicker relative">Experiência oficial</p>
           <h2 className="relative mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Simulado completo</h2>
@@ -247,13 +265,13 @@ export function SimuladoRunner({
           <p className="relative mt-3 text-xs font-medium text-amber-700 dark:text-amber-400">
             Dicas estão disponíveis, mas reduzem o valor da questão pela metade.
           </p>
-          <button
-            onClick={() => start("full")}
-            disabled={phase === "loading"}
-            className="cm-button-primary relative mt-6"
-          >
-            {phase === "loading" ? "Preparando..." : "Iniciar simulado completo"}
-          </button>
+          {premium ? (
+            <button onClick={() => start("full")} disabled={phase === "loading"} className="cm-button-primary relative mt-6">
+              {phase === "loading" ? "Preparando..." : "Iniciar simulado completo"}
+            </button>
+          ) : (
+            <Link href="/pricing" className="cm-button-secondary relative mt-6">Desbloquear simulados completos</Link>
+          )}
         </div>
 
         <div className="cm-panel p-6 sm:p-8">
@@ -262,7 +280,7 @@ export function SimuladoRunner({
           <p className="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
             Foque no domínio em que você está mais fraco (até 20 questões, 30 min).
           </p>
-          <div className="mt-6 grid gap-2 sm:grid-cols-2">
+          {premium ? <div className="mt-6 grid gap-2 sm:grid-cols-2">
             {domains.map((d) => (
               <button
                 key={d}
@@ -273,7 +291,7 @@ export function SimuladoRunner({
                 {d}
               </button>
             ))}
-          </div>
+          </div> : <Link href="/pricing" className="cm-button-secondary mt-6">Ver acesso Premium</Link>}
         </div>
       </div>
     );
@@ -309,7 +327,16 @@ export function SimuladoRunner({
           </p>
         </div>
 
-        <div>
+        {!results.premiumInsights && (
+          <div className="rounded-[1.5rem] border border-orange-200 bg-orange-50 p-6 text-center dark:border-orange-500/20 dark:bg-orange-500/10">
+            <p className="cm-kicker">Seu próximo passo</p>
+            <h2 className="mt-3 text-xl font-bold text-slate-950 dark:text-white">Veja onde você errou e o que estudar</h2>
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600 dark:text-slate-300">O Premium libera desempenho por domínio, explicações de cada resposta, recomendações de módulos, dicas e simulados ilimitados.</p>
+            <Link href={results.upgradeUrl ?? "/pricing"} className="cm-button-primary mt-5">Desbloquear análise completa</Link>
+          </div>
+        )}
+
+        {results.domainBreakdown && <div>
           <h2 className="text-xl font-bold tracking-tight text-slate-950 dark:text-white">Desempenho por domínio</h2>
           <div className="mt-3 space-y-3">
             {Object.entries(results.domainBreakdown).map(([domain, { correct, total }]) => {
@@ -332,16 +359,16 @@ export function SimuladoRunner({
               );
             })}
           </div>
-        </div>
+        </div>}
 
-        {results.recommendations.length > 0 && (
+        {(results.recommendations?.length ?? 0) > 0 && (
           <div className="rounded-[1.5rem] border border-orange-200 bg-orange-50/60 p-6 dark:border-orange-500/20 dark:bg-orange-500/10">
             <p className="cm-kicker">Plano de recuperação</p><h2 className="mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">O que estudar antes do próximo simulado</h2>
             <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
               Com base nos seus erros, revise estes módulos (do domínio mais fraco para o menos):
             </p>
             <div className="mt-3 space-y-3">
-              {results.recommendations.map((rec) => (
+              {results.recommendations!.map((rec) => (
                 <div key={rec.domain}>
                   <p className="text-sm font-medium">
                     {rec.domain} <span className="text-red-600">({rec.pct}%)</span>
@@ -364,11 +391,11 @@ export function SimuladoRunner({
           </div>
         )}
 
-        {results.slowest.length > 0 && (
+        {(results.slowest?.length ?? 0) > 0 && (
           <div>
             <h2 className="text-xl font-bold tracking-tight text-slate-950 dark:text-white">Onde você levou mais tempo</h2>
             <ul className="mt-3 space-y-2">
-              {results.slowest.map((s, i) => (
+              {results.slowest!.map((s, i) => (
                 <li
                   key={i}
                   className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-sm dark:border-white/10 dark:bg-slate-900"
@@ -394,7 +421,7 @@ export function SimuladoRunner({
           </div>
         )}
 
-        <div>
+        {results.review && <div>
           <h2 className="text-xl font-bold tracking-tight text-slate-950 dark:text-white">Revisão das questões</h2>
           <div className="mt-3 space-y-4">
             {results.review
@@ -444,7 +471,7 @@ export function SimuladoRunner({
                 </details>
               ))}
           </div>
-        </div>
+        </div>}
 
         <button
           onClick={() => {
@@ -524,7 +551,7 @@ export function SimuladoRunner({
         })}
       </div>
 
-      {q.hasHint && (
+      {premium && q.hasHint && (
         <div className="mt-4">
           {hintShown ? (
             <p className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">

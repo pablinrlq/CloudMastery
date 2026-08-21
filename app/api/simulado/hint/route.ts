@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hasVerifiedEmail } from "@/lib/auth-security";
+import { hasAccess, type Subscription } from "@/lib/dal";
 
 // POST { attemptId, questionId } -> { hint }
 // Registra o uso da dica no servidor ANTES de devolver o texto: a penalidade
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
 
   const { data: attempt } = await admin
     .from("simulado_attempts")
-    .select("id, user_id, completed_at, hints_used, selected_question_ids")
+    .select("id, user_id, cert_id, mode, completed_at, hints_used, selected_question_ids")
     .eq("id", attemptId)
     .maybeSingle();
 
@@ -44,6 +45,19 @@ export async function POST(request: NextRequest) {
   }
   if (attempt.completed_at) {
     return NextResponse.json({ error: "Tentativa já finalizada" }, { status: 409 });
+  }
+
+  const { data: subscription, error: subscriptionError } = await supabase
+    .from("subscriptions")
+    .select("status, plan, cert_access, current_period_end")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (
+    subscriptionError ||
+    attempt.mode === "diagnostic" ||
+    !hasAccess(subscription as Subscription | null, attempt.cert_id)
+  ) {
+    return NextResponse.json({ error: "Dicas são um recurso Premium." }, { status: 403 });
   }
   const selectedQuestionIds: string[] = Array.isArray(attempt.selected_question_ids)
     ? attempt.selected_question_ids
@@ -64,11 +78,11 @@ export async function POST(request: NextRequest) {
 
   const used: string[] = Array.isArray(attempt.hints_used) ? attempt.hints_used : [];
   if (!used.includes(questionId)) {
-    const { error } = await admin
-      .from("simulado_attempts")
-      .update({ hints_used: [...used, questionId] })
-      .eq("id", attemptId)
-      .is("completed_at", null);
+    const { error } = await admin.rpc("append_simulado_hint", {
+      p_attempt_id: attemptId,
+      p_question_id: questionId,
+      p_user_id: user.id,
+    });
     if (error) {
       return NextResponse.json({ error: "Falha ao registrar dica" }, { status: 500 });
     }

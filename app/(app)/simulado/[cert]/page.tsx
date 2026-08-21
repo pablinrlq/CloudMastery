@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { CERTIFICATIONS, isValidCert } from "@/lib/content";
-import { requireAccess } from "@/lib/dal";
+import { getSubscription, hasAccess, verifySession } from "@/lib/dal";
 import { SimuladoRunner } from "@/components/simulado-runner";
 
 export default async function SimuladoPage({
@@ -11,7 +11,9 @@ export default async function SimuladoPage({
   const { cert } = await params;
   if (!isValidCert(cert)) notFound();
 
-  await requireAccess(cert);
+  await verifySession();
+  const subscription = await getSubscription();
+  const premium = hasAccess(subscription, cert);
   const certInfo = CERTIFICATIONS[cert];
 
   return (
@@ -30,6 +32,7 @@ export default async function SimuladoPage({
           domains={certInfo.domains}
           fullDurationMinutes={certInfo.examDurationMinutes}
           fullQuestionCount={certInfo.examQuestionCount}
+          premium={premium}
         />
       </div>
     </div>

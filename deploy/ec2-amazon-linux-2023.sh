@@ -179,7 +179,7 @@ fi
 log "Verificando a saúde do container"
 for attempt in $(seq 1 30); do
   if docker exec "$APP_CONTAINER" node -e \
-    "fetch('http://127.0.0.1:3000/').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"; then
+    "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"; then
     break
   fi
   [[ "$attempt" -lt 30 ]] || { docker logs --tail 100 "$APP_CONTAINER"; fail "A aplicação não ficou saudável."; }

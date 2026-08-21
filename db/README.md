@@ -1,7 +1,7 @@
 # Database setup
 
 1. Create a project at supabase.com.
-2. In the SQL editor, run every file in `migrations/` in numeric order. Existing environments must also apply new migrations before deploying matching application code.
+2. Set `DATABASE_URL` and run `node db/run-migrations.mjs`. The runner uses a ledger, a database lock and one transaction per migration. Existing pre-ledger environments are baselined through migration 0019 automatically.
 3. Copy `.env.example` to `.env.local` and fill in the Supabase URL/keys from Project Settings > API.
 
 ## Notes

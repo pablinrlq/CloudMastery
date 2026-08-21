@@ -7,6 +7,16 @@ import {
   resolveCheckoutPlan,
   safeRedirectPath,
 } from "../lib/security.ts";
+import { hasAccess } from "../lib/access.ts";
+
+test("subscription access requires coverage and a non-expired period", () => {
+  const future = new Date(Date.now() + 60_000).toISOString();
+  const expired = new Date(Date.now() - 60_000).toISOString();
+  assert.equal(hasAccess({ status: "active", plan: "monthly", cert_access: ["ccp"], current_period_end: future }, "ccp"), true);
+  assert.equal(hasAccess({ status: "active", plan: "monthly", cert_access: ["ccp"], current_period_end: expired }, "ccp"), false);
+  assert.equal(hasAccess({ status: "active", plan: "lifetime", cert_access: ["all"], current_period_end: null }, "aif"), true);
+  assert.equal(hasAccess({ status: "canceled", plan: "lifetime", cert_access: ["all"], current_period_end: null }, "aif"), false);
+});
 import {
   confirmationPath,
   hasVerifiedEmail,

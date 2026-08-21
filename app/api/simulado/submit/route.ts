@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getModules, isValidCert } from "@/lib/content";
 import { hasVerifiedEmail } from "@/lib/auth-security";
+import { hasAccess, type Subscription } from "@/lib/dal";
 
 type SubmittedAnswers = Record<string, string[]>; // questionId -> chosen choice ids
 type QuestionTimings = Record<string, number>; // questionId -> seconds
@@ -66,6 +67,22 @@ export async function POST(request: NextRequest) {
   }
   if (attempt.completed_at) {
     return NextResponse.json({ error: "Tentativa já finalizada" }, { status: 409 });
+  }
+
+  const { data: subscription, error: subscriptionError } = await supabase
+    .from("subscriptions")
+    .select("status, plan, cert_access, current_period_end")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (subscriptionError) {
+    return NextResponse.json({ error: "Falha ao verificar acesso" }, { status: 503 });
+  }
+  const premiumInsights = hasAccess(
+    subscription as Subscription | null,
+    attempt.cert_id
+  );
+  if (attempt.mode !== "diagnostic" && !premiumInsights) {
+    return NextResponse.json({ error: "Assinatura necessária" }, { status: 403 });
   }
 
   const questionIds: string[] = Array.isArray(attempt.selected_question_ids)
@@ -226,13 +243,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Tentativa já finalizada" }, { status: 409 });
   }
 
-  return NextResponse.json({
+  const baseResult = {
     score,
     scoreNoPenalty,
     hintsUsedCount: hintsUsed.filter((id) => questionIds.includes(id)).length,
     overtimeSeconds: overtime,
     correctCount,
     total,
+    premiumInsights,
+  };
+
+  if (!premiumInsights) {
+    return NextResponse.json({
+      ...baseResult,
+      upgradeUrl: `/pricing?from=diagnostic&cert=${attempt.cert_id}`,
+    });
+  }
+
+  return NextResponse.json({
+    ...baseResult,
     domainBreakdown,
     slowest,
     recommendations,

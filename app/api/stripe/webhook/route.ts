@@ -5,6 +5,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { CERT_ACCESS_FOR_PLAN, getPlanFromPriceId } from "@/lib/stripe-plans";
 
 export async function POST(request: NextRequest) {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    return NextResponse.json({ error: "Webhook indisponível" }, { status: 503 });
+  }
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
 
@@ -17,11 +21,10 @@ export async function POST(request: NextRequest) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      webhookSecret
     );
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json({ error: `Webhook signature verification failed: ${message}` }, { status: 400 });
+  } catch {
+    return NextResponse.json({ error: "Assinatura inválida" }, { status: 400 });
   }
 
   const admin = createAdminClient();
