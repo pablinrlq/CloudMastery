@@ -6,11 +6,11 @@ import {
   normalizeSiteOrigin,
   resolveCheckoutPlan,
   safeRedirectPath,
-} from "../lib/security.ts";
+} from "../src/lib/security.ts";
 import {
   confirmationPath,
   hasVerifiedEmail,
-} from "../lib/auth-security.ts";
+} from "../src/lib/auth/security.ts";
 
 test("checkout accepts only known plans", () => {
   assert.equal(isCheckoutPlan("monthly"), true);
@@ -52,16 +52,10 @@ test("production URL guard recognizes local-only hosts", () => {
   assert.equal(isLoopbackHostname("cloudmastery.vercel.app"), false);
 });
 
-test("protected auth accepts only users with a confirmed email timestamp", () => {
+test("protected auth accepts only Better Auth users with verified email", () => {
   assert.equal(hasVerifiedEmail(null), false);
-  assert.equal(
-    hasVerifiedEmail({ email_confirmed_at: null } as never),
-    false
-  );
-  assert.equal(
-    hasVerifiedEmail({ email_confirmed_at: "2026-08-20T12:00:00Z" } as never),
-    true
-  );
+  assert.equal(hasVerifiedEmail({ emailVerified: false }), false);
+  assert.equal(hasVerifiedEmail({ emailVerified: true }), true);
 });
 
 test("confirmation path encodes email data instead of interpreting it as a URL", () => {

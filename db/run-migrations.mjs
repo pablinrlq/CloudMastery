@@ -1,6 +1,6 @@
-// Roda as migrations de db/migrations/ em ordem contra o banco do Supabase.
+// Roda as migrations de db/migrations/ em ordem contra PostgreSQL.
 // Uso: node db/run-migrations.mjs
-// Requer DATABASE_URL no .env.local (connection string "Session pooler" do Supabase).
+// Requer DATABASE_URL no .env.local.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,9 +16,17 @@ if (!url) {
   process.exit(1);
 }
 
+const parsedUrl = new URL(url);
+const isLocal = ["localhost", "127.0.0.1", "::1"].includes(parsedUrl.hostname);
+if (isLocal) {
+  parsedUrl.searchParams.delete("ssl");
+  parsedUrl.searchParams.delete("sslmode");
+}
 const client = new pg.Client({
-  connectionString: url,
-  ssl: { rejectUnauthorized: false },
+  connectionString: parsedUrl.toString(),
+  ssl: isLocal || process.env.DATABASE_SSL === "disable"
+    ? false
+    : { rejectUnauthorized: false },
 });
 
 const dir = path.join(root, "db", "migrations");

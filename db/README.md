@@ -1,11 +1,9 @@
-# Database setup
+# PostgreSQL
 
-1. Create a project at supabase.com.
-2. In the SQL editor, run every file in `migrations/` in numeric order. Existing environments must also apply new migrations before deploying matching application code.
-3. Copy `.env.example` to `.env.local` and fill in the Supabase URL/keys from Project Settings > API.
+1. Configure `DATABASE_URL` em `.env.local` (local: `postgresql://postgres:1234@localhost:5433/cloudmastery`).
+2. Execute `npm run db:migrate`.
+3. Configure `BETTER_AUTH_SECRET` com pelo menos 32 bytes aleatórios.
 
-## Notes
+O schema canônico fica em `prisma/schema.prisma`. Depois de qualquer alteração nele, execute `npm run db:generate`; o arquivo `src/generated/kysely/types.ts` não deve ser editado manualmente.
 
-- `questions` has no client-facing select policy on purpose: correct answers are only ever read server-side (service-role key) when building a simulado and when grading a submission, so they never reach the browser before grading.
-- `flashcards` is gated by `has_active_access()`, which checks for an active/trialing subscription covering that certification (or an `all` plan).
-- `subscriptions` rows are written by the Stripe webhook handler using the service-role key (bypasses RLS); users can only read their own row.
+Ao migrar uma instância Supabase existente, `0000_better_auth.sql` preserva UUIDs e emails. Por segurança, hashes de senha não são importados: cada usuário deve usar “Esqueci minha senha” uma vez.

@@ -4,8 +4,8 @@ import typography from "@tailwindcss/typography";
 const config: Config = {
   darkMode: "class",
   content: [
-    "./app/**/*.{ts,tsx,mdx}",
-    "./components/**/*.{ts,tsx}",
+    "./src/app/**/*.{ts,tsx,mdx}",
+    "./src/components/**/*.{ts,tsx}",
     "./content/**/*.mdx",
   ],
   theme: {
