@@ -1,5 +1,6 @@
 "use client";
 
+import { verifySession } from "@/lib/dal";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -60,7 +61,9 @@ export function MobileAppNav() {
                   : "text-slate-400 hover:bg-slate-50 hover:text-slate-700 dark:hover:bg-white/5 dark:hover:text-slate-200"
               }`}
             >
-              <span className="text-[10px] font-black tracking-[0.12em]">{link.shortLabel}</span>
+              <span className="text-[10px] font-black tracking-[0.12em]">
+                {link.shortLabel}
+              </span>
             </Link>
           );
         })}
