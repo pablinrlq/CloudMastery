@@ -43,7 +43,8 @@ export async function resendConfirmation(_prevState: AuthFormState, formData: Fo
   if (!email || !email.includes("@")) return { error: "Informe o email usado no cadastro." };
   try {
     await auth.api.sendVerificationEmail({ body: { email, callbackURL: siteUrl("/dashboard").toString() }, headers: await headers() });
-  } catch {
+  } catch(err) {
+    console.log(err)
     return { error: "Não foi possível reenviar agora. Tente novamente em instantes." };
   }
 
@@ -81,8 +82,6 @@ export async function updatePassword(_prevState: AuthFormState, formData: FormDa
 export async function loginWithGoogle() {
   let result;
 
-  console.log(process.env.GOOGLE_CLIENT_ID ?? "oi")
-
   try {
     result = await auth.api.signInSocial({
       body:
@@ -103,7 +102,6 @@ export async function loginWithGoogle() {
 
 export async function loginWithGithub() {
   let result;
-
 
   try {
     result = await auth.api.signInSocial({

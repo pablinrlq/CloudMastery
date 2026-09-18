@@ -3,9 +3,8 @@ import "dotenv/config"
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { sendAuthEmail } from "@/lib/email";
+import { emailVerificationTemplate, passwordResetTemplate } from "@/lib/email-templates";
 import { pool } from "@/lib/db";
-
-
 
 export const auth = betterAuth({
   database: pool,
@@ -16,16 +15,32 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
     minPasswordLength: 8,
-    sendResetPassword: async ({ user, url }) => sendAuthEmail(user.email, "Redefina sua senha — Cloud Mastery", `<p>Use o link para criar uma nova senha:</p><p><a href="${url}">Redefinir senha</a></p>`),
+    sendResetPassword: async ({ user, url }) => {
+      const email = passwordResetTemplate(url);
+      await sendAuthEmail(user.email, email.subject, email.html);
+    },
   },
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url }) => sendAuthEmail(user.email, "Confirme seu email — Cloud Mastery", `<p>Confirme seu cadastro:</p><p><a href="${url}">Confirmar email</a></p>`),
+    sendVerificationEmail: async ({ user, url }) => {
+      const email = emailVerificationTemplate(url);
+      await sendAuthEmail(user.email, email.subject, email.html);
+    },
   },
   socialProviders: process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? {
     google: { clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET },
-    github: { clientId: process.env.GITHUB_CLIENT_ID!, clientSecret: process.env.GITHUB_CLIENT_SECRET! }
+    github: {
+      clientId: process.env.GITHUB_CLIENT_ID!, clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      scope: ["user:email", "read:user"],
+      mapProfileToUser: (profile) => {
+        const email = profile.email ?? `${profile.id}+${profile.login}@users.noreply.github.com`;
+        return {
+          email,
+          emailVerified: !profile.email ? true : false, // se caiu no fallback, já marca como "verificado" pra não tentar mandar email pra endereço fake
+        };
+      },
+    }
   } : {},
   plugins: [nextCookies()],
 });
