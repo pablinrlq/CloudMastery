@@ -70,24 +70,38 @@ export async function POST(request: NextRequest) {
   const admin = createAdminClient();
 
   if (mode === "diagnostic") {
-    const { data: previous, error: previousError } = await admin
-      .from("simulado_attempts")
-      .select("id, completed_at, selected_question_ids")
+    const { data: claim, error: claimError } = await admin
+      .from("free_diagnostic_claims")
+      .select("cert_id, attempt_id")
       .eq("user_id", user.id)
-      .eq("cert_id", certId)
-      .eq("mode", "diagnostic")
       .maybeSingle();
 
-    if (previousError) {
+    if (claimError) {
       return NextResponse.json({ error: "Falha ao consultar diagnóstico" }, { status: 503 });
     }
-    if (previous?.completed_at) {
+    if (claim && claim.cert_id !== certId) {
       return NextResponse.json(
-        { error: "Seu diagnóstico gratuito já foi concluído.", upgradeUrl: "/pricing" },
+        { error: "Você já escolheu uma certificação para o seu diagnóstico gratuito.", upgradeUrl: "/pricing" },
         { status: 409 }
       );
     }
-    if (previous) {
+
+    if (claim) {
+      const { data: previous, error: previousError } = await admin
+        .from("simulado_attempts")
+        .select("id, completed_at, selected_question_ids")
+        .eq("id", claim.attempt_id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (previousError || !previous) {
+        return NextResponse.json({ error: "Falha ao retomar diagnóstico" }, { status: 503 });
+      }
+      if (previous.completed_at) {
+        return NextResponse.json(
+          { error: "Seu simulado diagnóstico gratuito já foi concluído.", upgradeUrl: "/pricing" },
+          { status: 409 }
+        );
+      }
       const ids = Array.isArray(previous.selected_question_ids)
         ? previous.selected_question_ids
         : [];
@@ -167,10 +181,30 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (attemptError?.code === "23505" && mode === "diagnostic") {
-    return NextResponse.json({ error: "Seu diagnóstico gratuito já foi iniciado." }, { status: 409 });
+    return NextResponse.json({ error: "Seu simulado diagnóstico gratuito já foi iniciado." }, { status: 409 });
   }
   if (attemptError || !attempt) {
     return NextResponse.json({ error: "Falha ao criar tentativa" }, { status: 500 });
+  }
+
+  if (mode === "diagnostic") {
+    const { error: claimError } = await admin.from("free_diagnostic_claims").insert({
+      user_id: user.id,
+      cert_id: certId,
+      attempt_id: attempt.id,
+    });
+    if (claimError) {
+      // A competing request won the account-level claim. Remove only this fresh,
+      // unstarted attempt and never expose a second free exam.
+      await admin.from("simulado_attempts").delete().eq("id", attempt.id).eq("user_id", user.id);
+      if (claimError.code === "23505") {
+        return NextResponse.json(
+          { error: "Você já iniciou seu simulado diagnóstico gratuito.", upgradeUrl: "/pricing" },
+          { status: 409 }
+        );
+      }
+      return NextResponse.json({ error: "Falha ao reservar seu diagnóstico" }, { status: 503 });
+    }
   }
 
   return NextResponse.json({

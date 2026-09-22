@@ -67,13 +67,13 @@ function FreeDashboard() {
         <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.07] text-orange-400"><LockIcon /></span>
         <p className="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Comece com um diagnóstico</p>
         <h2 className="mt-3 text-3xl font-bold tracking-[-0.045em]">Descubra seu nível antes de escolher o plano de estudo.</h2>
-        <p className="mt-4 text-sm leading-7 text-slate-400">Faça um diagnóstico gratuito para cada certificação. O Premium libera trilhas completas, simulados, revisão detalhada e flashcards.</p>
+        <p className="mt-4 text-sm leading-7 text-slate-400">Escolha uma certificação e faça seu único simulado diagnóstico gratuito: 30 questões, 45 minutos e resultado imediato. O Premium libera as trilhas, simulados ilimitados, revisão detalhada e flashcards.</p>
       </div>
       <div className="relative mt-8 grid gap-3 md:grid-cols-3">
         {(Object.keys(CERTIFICATIONS) as CertId[]).map((certId) => (
           <Link key={certId} href={`/simulado/${certId}`} className="group rounded-xl border border-white/10 bg-white/[0.055] p-4 transition hover:border-orange-400/40 hover:bg-orange-500/10 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-500/20">
             <span className="text-xs font-bold tracking-[0.12em] text-orange-400">{CERTIFICATIONS[certId].code}</span>
-            <span className="mt-2 flex items-center justify-between gap-3 text-sm font-bold text-white">Iniciar diagnóstico <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /></span>
+            <span className="mt-2 flex items-center justify-between gap-3 text-sm font-bold text-white">Escolher esta prova <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /></span>
           </Link>
         ))}
       </div>

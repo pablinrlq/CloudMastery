@@ -255,7 +255,7 @@ export function SimuladoRunner({
             <div className="relative flex items-center gap-2 text-orange-700 dark:text-orange-300"><SparkIcon className="h-4 w-4" /><p className="study-eyebrow !text-orange-700 dark:!text-orange-300">Comece sem compromisso</p></div>
             <h2 className="relative mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Diagnóstico inicial</h2>
             <p className="relative mt-3 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
-              Responda 10 questões em 15 minutos e descubra sua pontuação atual. A análise por domínio, a revisão das respostas e o plano de estudos são recursos Premium.
+              Esta é sua tentativa gratuita: 30 questões em 45 minutos na certificação que você escolheu. A análise por domínio, a revisão das respostas e o plano de estudos são recursos Premium.
             </p>
             <button onClick={() => start("diagnostic")} disabled={phase === "loading"} className="cm-button-primary relative mt-6 gap-2">
               <PracticeIcon className="h-4 w-4" />{phase === "loading" ? "Preparando..." : "Fazer diagnóstico gratuito"}<ArrowRightIcon className="h-4 w-4" />
