@@ -1,0 +1,50 @@
+@layer components {
+  .cm-workspace {
+    --workspace-ink: 15 23 42;
+    --workspace-muted: 100 116 139;
+    --workspace-line: 226 232 240;
+    --workspace-surface: 255 255 255;
+    background:
+      radial-gradient(circle at 72% -10%, rgb(249 115 22 / 0.08), transparent 28rem),
+      linear-gradient(180deg, #f8fafc 0%, #f4f6f8 100%);
+  }
+
+  .dark .cm-workspace {
+    --workspace-ink: 248 250 252;
+    --workspace-muted: 148 163 184;
+    --workspace-line: 255 255 255;
+    --workspace-surface: 13 18 28;
+    background:
+      radial-gradient(circle at 72% -10%, rgb(249 115 22 / 0.09), transparent 28rem),
+      linear-gradient(180deg, #080c13 0%, #070a10 100%);
+  }
+
+  .study-card {
+    @apply rounded-2xl border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.03),0_18px_44px_-32px_rgba(15,23,42,0.22)] dark:border-white/10 dark:bg-[#0d121c] dark:shadow-black/20;
+  }
+
+  .study-card-interactive {
+    @apply study-card transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_20px_48px_-30px_rgba(15,23,42,0.28)] dark:hover:border-white/20;
+  }
+
+  .study-eyebrow {
+    @apply text-xs font-bold uppercase tracking-[0.18em] text-orange-600 dark:text-orange-400;
+  }
+
+  .study-title {
+    @apply text-balance text-3xl font-bold tracking-[-0.045em] text-slate-950 sm:text-4xl dark:text-white;
+  }
+
+  .study-muted {
+    @apply text-sm leading-6 text-slate-500 dark:text-slate-400;
+  }
+
+  .study-progress-track {
+    @apply h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10;
+  }
+
+  .study-progress-value {
+    @apply h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-400 transition-[width] duration-500;
+  }
+}
+
