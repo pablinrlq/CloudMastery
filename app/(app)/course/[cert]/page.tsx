@@ -114,7 +114,25 @@ export default async function CoursePage({
       </section>
       </div>
 
-      <div className="mt-14 space-y-12">
+      <section className="mt-6 grid gap-4 sm:grid-cols-2" aria-label="Ferramentas de prática">
+        <div className="study-card relative overflow-hidden p-6">
+          <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-[4rem] bg-orange-50 dark:bg-orange-500/10" />
+          <div className="relative flex items-center gap-2"><PracticeIcon className="h-4 w-4 text-orange-600" /><p className="study-eyebrow">Praticar</p></div><h2 className="relative mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Simulados</h2>
+          <p className="relative mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
+            Formato oficial ({certInfo.examQuestionCount} questões, {certInfo.examDurationMinutes} min), dicas com penalidade e análise de tempo por questão.
+          </p>
+          <Link href={`/simulado/${cert}`} className="cm-button-primary relative mt-5 min-h-10 px-4">
+            <PracticeIcon className="h-4 w-4" />Fazer simulado<ArrowRightIcon className="h-4 w-4" />
+          </Link>
+        </div>
+        <div className="study-card p-6">
+          <div className="flex items-center gap-2"><ClockIcon className="h-4 w-4 text-orange-600" /><p className="study-eyebrow">Revisar</p></div><h2 className="mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Flashcards</h2>
+          <p className="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">Revisão espaçada dos conceitos que mais caem na prova.</p>
+          <Link href={`/flashcards/${cert}`} className="cm-button-secondary mt-5 min-h-10 px-4">Revisar flashcards</Link>
+        </div>
+      </section>
+
+      <div className="mt-12 space-y-12">
         {sortedWeeks.map(([week, weekModules]) => (
           <section key={week}>
             <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-xs font-bold text-white dark:bg-white dark:text-slate-950">{week}</span><h2 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
@@ -166,34 +184,6 @@ export default async function CoursePage({
         ))}
       </div>
 
-      <div className="mt-14 grid gap-4 sm:grid-cols-2">
-        <div className="study-card p-7">
-          <div className="flex items-center gap-2"><PracticeIcon className="h-4 w-4 text-orange-600" /><p className="study-eyebrow">Praticar</p></div><h2 className="mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Simulados</h2>
-          <p className="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
-            Formato oficial ({certInfo.examQuestionCount} questões,{" "}
-            {certInfo.examDurationMinutes} min), dicas com penalidade e análise de
-            tempo por questão.
-          </p>
-          <Link
-            href={`/simulado/${cert}`}
-            className="cm-button-primary mt-5 min-h-10 px-4"
-          >
-            <PracticeIcon className="h-4 w-4" />Fazer simulado<ArrowRightIcon className="h-4 w-4" />
-          </Link>
-        </div>
-        <div className="study-card p-7">
-          <div className="flex items-center gap-2"><ClockIcon className="h-4 w-4 text-orange-600" /><p className="study-eyebrow">Revisar</p></div><h2 className="mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Flashcards</h2>
-          <p className="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
-            Revisão espaçada dos conceitos que mais caem na prova.
-          </p>
-          <Link
-            href={`/flashcards/${cert}`}
-            className="cm-button-secondary mt-5 min-h-10 px-4"
-          >
-            Revisar flashcards
-          </Link>
-        </div>
-      </div>
     </div>
   );
 }
