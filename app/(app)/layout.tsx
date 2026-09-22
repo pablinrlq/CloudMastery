@@ -1,4 +1,5 @@
 import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { logout } from "@/app/(auth)/actions";
 import { DesktopAppNav, MobileAppNav } from "@/components/app-nav";
 import { LogoutIcon } from "@/components/ui-icons";
@@ -16,7 +17,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <DesktopAppNav />
         </div>
         <div className="relative border-t border-white/10 pt-4">
-          <p className="mb-2 px-2 text-xs font-semibold text-slate-500">Área de estudos</p>
+          <div className="mb-2 flex items-center justify-between px-2">
+            <span className="text-xs font-semibold text-slate-500">Aparência</span>
+            <ThemeToggle />
+          </div>
           <form action={logout}>
             <button type="submit" className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-slate-400 transition hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30">
               <LogoutIcon className="h-[18px] w-[18px]" />
@@ -31,6 +35,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <nav className="flex h-16 items-center justify-between px-5 sm:px-6">
           <Logo size={30} href="/dashboard" />
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <form action={logout}>
               <button
                 type="submit"
