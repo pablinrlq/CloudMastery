@@ -174,6 +174,9 @@ export default async function CoursePage({
                         <span className="mt-2 block text-xs font-medium text-slate-400 dark:text-slate-500">
                           {mod.domain} · ~{mod.durationMinutes} min
                         </span>
+                        <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-slate-600 transition group-hover:text-orange-600 dark:text-slate-300 dark:group-hover:text-orange-300">
+                          Ver módulo <ArrowRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                        </span>
                       </span>
                     </Link>
                   </li>
