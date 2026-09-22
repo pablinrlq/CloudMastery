@@ -6,7 +6,7 @@ import { getGamificationProfile } from "@/lib/gamification";
 import { ScoreChart } from "@/components/score-chart";
 import { StatsBar } from "@/components/stats-bar";
 import { PortalButton } from "@/components/portal-button";
-import { ArrowRightIcon, BookIcon, CardsIcon, CheckIcon, LockIcon, PracticeIcon, TargetIcon } from "@/components/ui-icons";
+import { ArrowRightIcon, BookIcon, CardsIcon, CheckIcon, PracticeIcon, TargetIcon } from "@/components/ui-icons";
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ checkout?: string }> }) {
   const [{ checkout }, { email }, subscription] = await Promise.all([
@@ -61,23 +61,28 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
 function FreeDashboard() {
   return (
-    <section className="study-card relative mt-8 overflow-hidden bg-[#101722] p-7 text-white sm:p-10 dark:bg-[#0d121c]">
-      <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-orange-500/15 blur-[80px]" />
-      <div className="relative max-w-2xl">
-        <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.07] text-orange-400"><LockIcon /></span>
-        <p className="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Comece com um diagnóstico</p>
-        <h2 className="mt-3 text-3xl font-bold tracking-[-0.045em]">Descubra seu nível antes de escolher o plano de estudo.</h2>
-        <p className="mt-4 text-sm leading-7 text-slate-400">Escolha uma certificação e faça seu único simulado diagnóstico gratuito: 30 questões, 45 minutos e resultado imediato. O Premium libera as trilhas, simulados ilimitados, revisão detalhada e flashcards.</p>
+    <section className="relative mt-8 overflow-hidden rounded-[2rem] bg-[#0a101b] px-6 py-8 text-white shadow-[0_30px_80px_-48px_rgba(15,23,42,.9)] sm:px-9 sm:py-10">
+      <div className="pointer-events-none absolute inset-0 cm-grid-bg opacity-50" />
+      <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-orange-500/20 blur-[80px]" />
+      <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-end">
+      <div className="max-w-2xl">
+        <div className="flex items-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.07] text-orange-400"><TargetIcon /></span><p className="text-xs font-bold uppercase tracking-[0.2em] text-orange-300">Seu primeiro passo</p></div>
+        <h2 className="mt-6 text-3xl font-bold tracking-[-0.05em] sm:text-4xl">Escolha a prova. Veja o seu nível real.</h2>
+        <p className="mt-4 max-w-xl text-sm leading-7 text-slate-300">Você tem direito a um simulado diagnóstico de 30 questões e 45 minutos. Escolha a certificação que quer conquistar e receba sua pontuação imediatamente.</p>
       </div>
-      <div className="relative mt-8 grid gap-3 md:grid-cols-3">
+      <div className="rounded-2xl border border-white/10 bg-white/[0.055] p-5 backdrop-blur-sm">
+        <p className="text-[11px] font-bold uppercase tracking-[.16em] text-slate-400">O que você recebe</p>
+        <dl className="mt-4 space-y-3 text-sm"><div className="flex items-center justify-between border-b border-white/10 pb-3"><dt className="text-slate-400">Questões</dt><dd className="font-bold text-white">30</dd></div><div className="flex items-center justify-between border-b border-white/10 pb-3"><dt className="text-slate-400">Tempo</dt><dd className="font-bold text-white">45 min</dd></div><div className="flex items-center justify-between"><dt className="text-slate-400">Tentativas</dt><dd className="font-bold text-orange-300">1 por conta</dd></div></dl>
+      </div></div>
+      <div className="relative mt-8"><p className="mb-3 text-[11px] font-bold uppercase tracking-[.16em] text-slate-400">Escolha sua certificação</p><div className="grid gap-3 md:grid-cols-3">
         {(Object.keys(CERTIFICATIONS) as CertId[]).map((certId) => (
-          <Link key={certId} href={`/simulado/${certId}`} className="group rounded-xl border border-white/10 bg-white/[0.055] p-4 transition hover:border-orange-400/40 hover:bg-orange-500/10 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-500/20">
+          <Link key={certId} href={`/simulado/${certId}`} className="group rounded-2xl border border-white/10 bg-white/[0.055] p-5 transition duration-200 hover:-translate-y-0.5 hover:border-orange-400/50 hover:bg-orange-500/10 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-500/20">
             <span className="text-xs font-bold tracking-[0.12em] text-orange-400">{CERTIFICATIONS[certId].code}</span>
-            <span className="mt-2 flex items-center justify-between gap-3 text-sm font-bold text-white">Escolher esta prova <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /></span>
+            <span className="mt-3 flex items-center justify-between gap-3 text-sm font-bold text-white">Escolher esta prova <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /></span>
           </Link>
         ))}
-      </div>
-      <Link href="/pricing" className="cm-button-primary relative mt-6">Conhecer o Premium</Link>
+      </div></div>
+      <Link href="/pricing" className="cm-button-primary relative mt-6">Ver tudo que o Premium libera<ArrowRightIcon className="h-4 w-4" /></Link>
     </section>
   );
 }

@@ -4,8 +4,9 @@
     --workspace-line: 226 232 240;
     --workspace-surface: 255 255 255;
     background:
-      radial-gradient(circle at 72% -10%, rgb(249 115 22 / 0.08), transparent 28rem),
-      linear-gradient(180deg, #f8fafc 0%, #f4f6f8 100%);
+      radial-gradient(circle at 82% -12%, rgb(249 115 22 / 0.13), transparent 28rem),
+      radial-gradient(circle at 22% 25%, rgb(14 165 233 / 0.045), transparent 25rem),
+      linear-gradient(180deg, #f9fafb 0%, #f3f5f8 100%);
 }
 
 .dark .cm-workspace {
@@ -20,14 +21,14 @@
 
 .study-card {
   border: 1px solid rgb(226 232 240 / 0.8);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   background: #fff;
   box-shadow: 0 1px 2px rgb(15 23 42 / 0.03), 0 18px 44px -32px rgb(15 23 42 / 0.22);
 }
 
 .study-card-interactive {
   border: 1px solid rgb(226 232 240 / 0.8);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   background: #fff;
   box-shadow: 0 1px 2px rgb(15 23 42 / 0.03), 0 18px 44px -32px rgb(15 23 42 / 0.22);
   transition: transform 200ms, border-color 200ms, box-shadow 200ms;

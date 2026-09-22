@@ -8,20 +8,21 @@ import "./workspace.css";
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="cm-workspace min-h-screen pb-20 lg:grid lg:grid-cols-[272px_minmax(0,1fr)] lg:pb-0">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[272px] flex-col border-r border-slate-200/80 bg-white/85 px-4 py-5 backdrop-blur-xl dark:border-white/10 dark:bg-[#090d14]/90 lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[272px] flex-col border-r border-white/10 bg-[#0a0f18] px-4 py-5 text-white shadow-[18px_0_45px_-34px_rgba(2,6,23,.75)] lg:flex">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_40%_-10%,rgba(249,115,22,.26),transparent_65%)]" />
         <div className="px-2">
-          <Logo size={34} href="/dashboard" />
+          <Logo size={34} dark href="/dashboard" />
         </div>
-        <div className="mt-9 flex min-h-0 flex-1 flex-col">
+        <div className="relative mt-9 flex min-h-0 flex-1 flex-col">
           <DesktopAppNav />
         </div>
-        <div className="border-t border-slate-200/80 pt-4 dark:border-white/10">
+        <div className="relative border-t border-white/10 pt-4">
           <div className="mb-2 flex items-center justify-between px-2">
-            <span className="text-xs font-semibold text-slate-400 dark:text-slate-600">Aparência</span>
+            <span className="text-xs font-semibold text-slate-500">Aparência</span>
             <ThemeToggle />
           </div>
           <form action={logout}>
-            <button type="submit" className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30 dark:text-slate-400 dark:hover:bg-white/[0.07] dark:hover:text-white">
+            <button type="submit" className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-slate-400 transition hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30">
               <LogoutIcon className="h-[18px] w-[18px]" />
               Sair da conta
             </button>
