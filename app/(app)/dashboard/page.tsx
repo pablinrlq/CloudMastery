@@ -1,219 +1,140 @@
 import Link from "next/link";
 import { verifySession, getSubscription, hasAccess } from "@/lib/dal";
 import { CERTIFICATIONS, type CertId } from "@/lib/content";
-import { getReadiness } from "@/lib/readiness";
+import { getReadiness, type Readiness } from "@/lib/readiness";
 import { getGamificationProfile } from "@/lib/gamification";
 import { ScoreChart } from "@/components/score-chart";
 import { StatsBar } from "@/components/stats-bar";
 import { PortalButton } from "@/components/portal-button";
-import { LogoIcon } from "@/components/logo";
+import { ArrowRightIcon, BookIcon, CardsIcon, CheckIcon, LockIcon, PracticeIcon, TargetIcon } from "@/components/ui-icons";
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ checkout?: string }>;
-}) {
-  const { checkout } = await searchParams;
-  const { email } = await verifySession();
-  const subscription = await getSubscription();
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ checkout?: string }> }) {
+  const [{ checkout }, { email }, subscription] = await Promise.all([
+    searchParams,
+    verifySession(),
+    getSubscription(),
+  ]);
 
-  const accessibleCerts = (Object.keys(CERTIFICATIONS) as CertId[]).filter((certId) =>
-    hasAccess(subscription, certId)
-  );
+  const accessibleCerts = (Object.keys(CERTIFICATIONS) as CertId[]).filter((certId) => hasAccess(subscription, certId));
   const hasAnyAccess = accessibleCerts.length > 0;
-  const hasStripeManagedPlan =
-    subscription?.plan === "monthly" || subscription?.plan === "annual";
-  const profile = hasAnyAccess ? await getGamificationProfile() : null;
+  const hasStripeManagedPlan = subscription?.plan === "monthly" || subscription?.plan === "annual";
+  const [profile, readinessList] = hasAnyAccess
+    ? await Promise.all([getGamificationProfile(), Promise.all(accessibleCerts.map((certId) => getReadiness(certId)))])
+    : [null, []];
 
   return (
-    <div className="cm-container py-10 sm:py-14">
-      <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+    <div className="mx-auto w-full max-w-[1180px] px-5 py-8 sm:px-8 sm:py-10 xl:px-10 xl:py-12">
+      <header className="flex flex-col justify-between gap-5 border-b border-slate-200/70 pb-8 sm:flex-row sm:items-end dark:border-white/10">
         <div>
-          <p className="cm-kicker">Seu espaço de evolução</p>
-          <h1 className="cm-title mt-3">Visão geral</h1>
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Acompanhe seu ritmo, desempenho e próximos passos.</p>
+          <p className="study-eyebrow">Seu centro de estudos</p>
+          <h1 className="study-title mt-3">Visão geral</h1>
+          <p className="study-muted mt-3 max-w-2xl">Acompanhe seu preparo, escolha a próxima atividade e mantenha o ritmo até a prova.</p>
         </div>
-        <span className="inline-flex max-w-fit items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-400">{email}</span>
-      </div>
+        <span className="inline-flex max-w-fit items-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-400">{email}</span>
+      </header>
 
-      {checkout === "success" && (
-        <p
-          role="status"
-          className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300"
-        >
-          Assinatura confirmada. Seu acesso já está liberado — bons estudos!
-        </p>
-      )}
-
-      {!hasAnyAccess ? (
-        <div className="relative mt-10 overflow-hidden rounded-[1.75rem] border border-slate-800 bg-[#0d121c] p-7 text-white shadow-[0_28px_70px_-38px_rgba(15,23,42,0.65)] sm:p-10">
-          <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-orange-500/15 blur-[80px]" />
-          <p className="relative text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Acesso completo</p>
-          <h2 className="relative mt-3 max-w-lg text-2xl font-bold tracking-[-0.035em]">Transforme este dashboard no seu plano de aprovação.</h2>
-          <p className="relative mt-3 max-w-xl text-sm leading-7 text-slate-400">
-            Comece agora com um diagnóstico gratuito. O Premium libera a análise por domínio,
-            revisão detalhada, trilhas, simulados completos e flashcards.
-          </p>
-          <div className="relative mt-6 grid gap-2 sm:grid-cols-3">
-            {(Object.keys(CERTIFICATIONS) as CertId[]).map((certId) => (
-              <Link key={certId} href={`/simulado/${certId}`} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition hover:border-orange-400/50 hover:bg-orange-500/10">
-                Diagnóstico {CERTIFICATIONS[certId].code}
-              </Link>
-            ))}
-          </div>
-          <Link href="/pricing" className="cm-button-primary relative mt-5">Conhecer o Premium</Link>
-          {hasStripeManagedPlan && <PortalButton />}
+      {checkout === "success" ? (
+        <div role="status" className="mt-7 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+          <CheckIcon className="mt-0.5 h-5 w-5 shrink-0" /> Assinatura confirmada. Seu acesso já está disponível.
         </div>
-      ) : (
+      ) : null}
+
+      {!hasAnyAccess ? <FreeDashboard /> : (
         <>
-          <div className="mt-10 space-y-6">
-            {profile && <StatsBar profile={profile} />}
-            {accessibleCerts.map((certId) => (
-                <CertPanel key={certId} certId={certId} />
-              ))}
+          <div className="mt-8">{profile ? <StatsBar profile={profile} /> : null}</div>
+          <div className="mt-10 flex items-end justify-between gap-4">
+            <div>
+              <p className="study-eyebrow">Suas certificações</p>
+              <h2 className="mt-2 text-2xl font-bold tracking-[-0.035em] text-slate-950 dark:text-white">Continue de onde parou</h2>
+            </div>
+            <span className="hidden text-xs font-semibold text-slate-400 sm:block">{accessibleCerts.length} {accessibleCerts.length === 1 ? "trilha ativa" : "trilhas ativas"}</span>
           </div>
-          {hasStripeManagedPlan && <PortalButton />}
+          <div className="mt-5 grid gap-5 xl:grid-cols-2">
+            {readinessList.map((readiness) => <CertPanel key={readiness.certId} readiness={readiness} />)}
+          </div>
+          {hasStripeManagedPlan ? <PortalButton /> : null}
         </>
       )}
     </div>
   );
 }
 
-async function CertPanel({ certId }: { certId: CertId }) {
-  const cert = CERTIFICATIONS[certId];
-  const readiness = await getReadiness(certId);
-  const modulePct = readiness.modulesTotal
-    ? Math.round((readiness.modulesCompleted / readiness.modulesTotal) * 100)
-    : 0;
-
+function FreeDashboard() {
   return (
-    <section className="cm-panel overflow-hidden p-6 sm:p-8">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="cm-kicker">{cert.code}</p>
-          <h2 className="mt-2 text-xl font-bold tracking-[-0.025em] text-slate-950 dark:text-white">
-            {cert.name}
-          </h2>
-        </div>
-        <span
-          className={`rounded-full border px-3 py-1.5 text-xs font-bold ${
-            readiness.ready
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400"
-              : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400"
-          }`}
-        >
-          {readiness.ready ? "Pronto para a prova" : "Em preparação"}
-        </span>
+    <section className="study-card relative mt-8 overflow-hidden bg-[#101722] p-7 text-white sm:p-10 dark:bg-[#0d121c]">
+      <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-orange-500/15 blur-[80px]" />
+      <div className="relative max-w-2xl">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.07] text-orange-400"><LockIcon /></span>
+        <p className="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Comece com um diagnóstico</p>
+        <h2 className="mt-3 text-3xl font-bold tracking-[-0.045em]">Descubra seu nível antes de escolher o plano de estudo.</h2>
+        <p className="mt-4 text-sm leading-7 text-slate-400">Faça um diagnóstico gratuito para cada certificação. O Premium libera trilhas completas, simulados, revisão detalhada e flashcards.</p>
       </div>
-
-      <p className="mt-5 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-6 text-slate-600 dark:border-white/5 dark:bg-white/[0.035] dark:text-slate-300">
-        {readiness.advice}
-      </p>
-
-      {readiness.ready && (
-        <Link
-          href={`/certificado/${certId}`}
-          className="mt-4 flex items-center justify-between rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm font-bold text-orange-800 transition hover:border-orange-300 hover:bg-orange-100/70 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-300"
-        >
-          <span className="flex items-center gap-2"><LogoIcon size={24} /> Você desbloqueou o certificado de conclusão.</span>
-          <span aria-hidden>→</span>
-        </Link>
-      )}
-
-      <div className="mt-6 grid gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 sm:grid-cols-3 dark:border-white/10 dark:bg-white/10">
-        <Stat label="Trilha de estudo" value={`${modulePct}%`}>
-          {readiness.modulesCompleted}/{readiness.modulesTotal} módulos
-        </Stat>
-        <Stat
-          label="Média (últimos 3 completos)"
-          value={readiness.avgRecentScore !== null ? `${readiness.avgRecentScore}%` : "—"}
-        >
-          {readiness.fullAttempts} simulado(s) completo(s)
-        </Stat>
-        <Stat label="Meta de prontidão" value="≥ 75%">
-          média em 3 simulados + trilha 100%
-        </Stat>
+      <div className="relative mt-8 grid gap-3 md:grid-cols-3">
+        {(Object.keys(CERTIFICATIONS) as CertId[]).map((certId) => (
+          <Link key={certId} href={`/simulado/${certId}`} className="group rounded-xl border border-white/10 bg-white/[0.055] p-4 transition hover:border-orange-400/40 hover:bg-orange-500/10 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-500/20">
+            <span className="text-xs font-bold tracking-[0.12em] text-orange-400">{CERTIFICATIONS[certId].code}</span>
+            <span className="mt-2 flex items-center justify-between gap-3 text-sm font-bold text-white">Iniciar diagnóstico <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /></span>
+          </Link>
+        ))}
       </div>
-
-      {readiness.scoreHistory.length >= 2 && (
-        <div className="mt-5">
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-200">
-            Sua evolução nos simulados
-          </p>
-          <div className="mt-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 dark:border-white/5 dark:bg-black/20">
-            <ScoreChart history={readiness.scoreHistory} />
-          </div>
-        </div>
-      )}
-
-      {readiness.weakestDomains.length > 0 && (
-        <div className="mt-5">
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-200">
-            Onde focar agora
-          </p>
-          <div className="mt-2 space-y-2">
-            {readiness.weakestDomains.map((d) => (
-              <div key={d.domain} className="flex items-center gap-3">
-                <div className="h-2 flex-1 rounded-full bg-gray-100 dark:bg-gray-800">
-                  <div
-                    className={`h-2 rounded-full ${d.pct < 72 ? "bg-red-400" : "bg-green-500"}`}
-                    style={{ width: `${d.pct}%` }}
-                  />
-                </div>
-                <span className="w-44 truncate text-xs text-gray-600 dark:text-gray-400">
-                  {d.domain}
-                </span>
-                <span
-                  className={`w-10 text-right text-xs font-medium ${
-                    d.pct < 72 ? "text-red-600 dark:text-red-400" : "text-gray-600 dark:text-gray-400"
-                  }`}
-                >
-                  {d.pct}%
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="mt-7 flex flex-wrap gap-2.5 border-t border-slate-100 pt-6 dark:border-white/10">
-        <Link
-          href={`/course/${certId}`}
-          className="cm-button-primary min-h-10 px-4"
-        >
-          Continuar estudando
-        </Link>
-        <Link
-          href={`/simulado/${certId}`}
-          className="cm-button-secondary min-h-10 px-4"
-        >
-          Fazer simulado
-        </Link>
-        <Link
-          href={`/flashcards/${certId}`}
-          className="cm-button-secondary min-h-10 px-4"
-        >
-          Flashcards
-        </Link>
-      </div>
+      <Link href="/pricing" className="cm-button-primary relative mt-6">Conhecer o Premium</Link>
     </section>
   );
 }
 
-function Stat({
-  label,
-  value,
-  children,
-}: {
-  label: string;
-  value: string;
-  children: React.ReactNode;
-}) {
+function CertPanel({ readiness }: { readiness: Readiness }) {
+  const certId = readiness.certId;
+  const cert = CERTIFICATIONS[certId];
+  const modulePct = readiness.modulesTotal ? Math.round((readiness.modulesCompleted / readiness.modulesTotal) * 100) : 0;
+  const average = readiness.avgRecentScore;
+
   return (
-    <div className="bg-white p-5 dark:bg-slate-900">
-      <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">{label}</p>
-      <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">{value}</p>
-      <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">{children}</p>
-    </div>
+    <article className="study-card flex flex-col overflow-hidden">
+      <div className="p-6 sm:p-7">
+        <div className="flex items-start justify-between gap-4">
+          <div><p className="study-eyebrow">{cert.code}</p><h3 className="mt-2 text-xl font-bold tracking-[-0.03em] text-slate-950 dark:text-white">{cert.name}</h3></div>
+          <span className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-bold ${readiness.ready ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300" : "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"}`}>{readiness.ready ? "Pronto para a prova" : "Em preparação"}</span>
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <ProgressMetric label="Trilha concluída" value={`${modulePct}%`} caption={`${readiness.modulesCompleted}/${readiness.modulesTotal} módulos`} progress={modulePct} />
+          <ProgressMetric label="Média recente" value={average === null ? "—" : `${average}%`} caption={`${readiness.fullAttempts} simulados completos`} progress={average ?? 0} />
+        </div>
+
+        <div className="mt-5 rounded-xl bg-slate-50 p-4 dark:bg-white/[0.04]"><div className="flex items-start gap-3"><TargetIcon className="mt-0.5 h-5 w-5 shrink-0 text-orange-500" /><p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{readiness.advice}</p></div></div>
+
+        {readiness.scoreHistory.length >= 2 ? (
+          <div className="mt-5 border-t border-slate-100 pt-5 dark:border-white/10"><p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Evolução das notas</p><ScoreChart history={readiness.scoreHistory} /></div>
+        ) : null}
+
+        {readiness.weakestDomains.length > 0 ? (
+          <div className="mt-5 border-t border-slate-100 pt-5 dark:border-white/10">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Prioridade de revisão</p>
+            <div className="mt-3 space-y-3">
+              {readiness.weakestDomains.slice(0, 2).map((domain) => (
+                <div key={domain.domain}>
+                  <div className="mb-1.5 flex items-center justify-between gap-4 text-xs"><span className="truncate font-semibold text-slate-600 dark:text-slate-300">{domain.domain}</span><span className="font-bold text-slate-950 dark:text-white">{domain.pct}%</span></div>
+                  <div className="study-progress-track"><div className="h-full rounded-full bg-slate-900 dark:bg-slate-200" style={{ width: `${domain.pct}%` }} /></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="mt-auto grid grid-cols-3 border-t border-slate-100 bg-slate-50/70 dark:border-white/10 dark:bg-white/[0.025]">
+        <ActionLink href={`/course/${certId}`} icon={<BookIcon />} label="Trilha" primary />
+        <ActionLink href={`/simulado/${certId}`} icon={<PracticeIcon />} label="Simulado" />
+        <ActionLink href={`/flashcards/${certId}`} icon={<CardsIcon />} label="Flashcards" />
+      </div>
+    </article>
   );
+}
+
+function ProgressMetric({ label, value, caption, progress }: { label: string; value: string; caption: string; progress: number }) {
+  return <div className="rounded-xl border border-slate-100 p-4 dark:border-white/10"><p className="text-xs font-semibold text-slate-400">{label}</p><p className="mt-2 text-2xl font-bold tracking-[-0.035em] text-slate-950 dark:text-white">{value}</p><p className="mt-1 truncate text-[11px] text-slate-400 dark:text-slate-500">{caption}</p><div className="study-progress-track mt-3"><div className="study-progress-value" style={{ width: `${Math.min(100, progress)}%` }} /></div></div>;
+}
+
+function ActionLink({ href, icon, label, primary = false }: { href: string; icon: React.ReactNode; label: string; primary?: boolean }) {
+  return <Link href={href} className={`flex min-h-16 items-center justify-center gap-2 border-r border-slate-100 px-2 text-xs font-bold transition last:border-r-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-orange-500/30 dark:border-white/10 ${primary ? "text-orange-600 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-500/10" : "text-slate-500 hover:bg-white hover:text-slate-950 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white"}`}>{icon}{label}</Link>;
 }
