@@ -1,5 +1,6 @@
-export const DIAGNOSTIC_QUESTION_COUNT = 10;
-export const DIAGNOSTIC_DURATION_MINUTES = 15;
+/** One free, resumable exam per new account — certification is chosen by the student. */
+export const DIAGNOSTIC_QUESTION_COUNT = 30;
+export const DIAGNOSTIC_DURATION_MINUTES = 45;
 
 export type SimuladoMode = "diagnostic" | "full" | "domain";
 

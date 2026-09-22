@@ -16,8 +16,8 @@ test("simulado modes reject forged values", () => {
 });
 
 test("free diagnostic has a bounded product allowance", () => {
-  assert.equal(DIAGNOSTIC_QUESTION_COUNT, 10);
-  assert.equal(DIAGNOSTIC_DURATION_MINUTES, 15);
+  assert.equal(DIAGNOSTIC_QUESTION_COUNT, 30);
+  assert.equal(DIAGNOSTIC_DURATION_MINUTES, 45);
 });
 
 test("shuffle does not mutate the question source", () => {

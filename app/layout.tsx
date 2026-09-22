@@ -67,7 +67,7 @@ export default async function RootLayout({
       <head>
         {/* Anti-flash: aplica o tema salvo antes do primeiro paint. */}
         <Script id="cloudmastery-theme" nonce={nonce} strategy="beforeInteractive">
-          {`(function(){try{var t=localStorage.getItem('cm-theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})();`}
+          {`(function(){try{var t=localStorage.getItem('cm-theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}else{document.documentElement.classList.remove('dark')}}catch(e){}})();`}
         </Script>
       </head>
       <body className="flex min-h-full flex-col bg-white text-slate-900 dark:bg-[#070a10] dark:text-slate-100">

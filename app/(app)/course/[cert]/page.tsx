@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getModules, CERTIFICATIONS, isValidCert, type ModuleMeta } from "@/lib/content";
 import { requireAccess } from "@/lib/dal";
 import { getProgressForCert } from "@/lib/progress";
+import { ArrowRightIcon, BookIcon, CheckIcon, ClockIcon, PracticeIcon, TargetIcon } from "@/components/ui-icons";
 
 const TYPE_BADGE: Record<string, { label: string; className: string }> = {
   teoria: { label: "Teoria", className: "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300" },
@@ -48,25 +49,26 @@ export default async function CoursePage({
   const totalMinutes = modules.reduce((acc, m) => acc + m.durationMinutes, 0);
 
   return (
-    <div className="cm-container py-10 sm:py-14">
+    <div className="mx-auto max-w-[1180px] px-5 py-8 sm:px-8 sm:py-12">
       <div className="grid gap-8 lg:grid-cols-[1fr_320px] lg:items-start">
-        <div>
-          <p className="cm-kicker">{certInfo.code} · Trilha completa</p>
-          <h1 className="cm-title mt-3 max-w-2xl">{certInfo.name}</h1>
-          <p className="mt-4 text-sm leading-6 text-slate-500 dark:text-slate-400">
+        <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-8 text-white shadow-xl shadow-slate-950/10 sm:px-9 sm:py-10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_0%,rgba(249,115,22,.26),transparent_35%),linear-gradient(145deg,rgba(255,255,255,.06),transparent_42%)]" />
+          <div className="relative"><div className="flex items-center gap-2 text-orange-300"><BookIcon className="h-4 w-4" /><p className="study-eyebrow !text-orange-300">{certInfo.code} · Trilha completa</p></div>
+          <h1 className="mt-4 max-w-2xl text-3xl font-bold tracking-[-0.04em] sm:text-4xl">{certInfo.name}</h1>
+          <p className="mt-4 text-sm leading-6 text-slate-300">
         {modules.length} módulos ({labCount} labs práticos) · ~
         {Math.round(totalMinutes / 60)}h de estudo · {sortedWeeks.length} semanas
         sugeridas
           </p>
 
           <div className="mt-7 max-w-2xl">
-        <div className="flex justify-between text-xs font-semibold text-slate-500 dark:text-slate-400">
+        <div className="flex justify-between text-xs font-semibold text-slate-300">
           <span>
             {completed} de {modules.length} módulos concluídos
           </span>
           <span>{Math.round((completed / modules.length) * 100)}%</span>
         </div>
-        <div className="mt-2 h-2.5 rounded-full bg-slate-200/70 dark:bg-white/10">
+        <div className="mt-2 h-2.5 rounded-full bg-white/15">
           <div
             className="h-2.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-300 transition-all duration-500"
             style={{ width: `${(completed / modules.length) * 100}%` }}
@@ -77,7 +79,7 @@ export default async function CoursePage({
       {nextModule && (
         <Link
           href={`/course/${cert}/${nextModule.slug}`}
-          className="group mt-7 flex max-w-2xl items-center justify-between rounded-2xl bg-slate-950 p-5 text-white shadow-[0_20px_45px_-28px_rgba(15,23,42,0.7)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-900 hover:shadow-[0_25px_55px_-28px_rgba(15,23,42,0.8)] dark:bg-orange-500 dark:hover:bg-orange-400"
+          className="group mt-7 flex max-w-2xl items-center justify-between rounded-2xl border border-white/15 bg-white/10 p-5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/15"
         >
           <span>
             <span className="block text-xs font-semibold text-slate-400 dark:text-orange-100">
@@ -85,15 +87,15 @@ export default async function CoursePage({
             </span>
             <span className="mt-1 block font-bold">{nextModule.title}</span>
           </span>
-          <span className="text-xl transition-transform group-hover:translate-x-1" aria-hidden>→</span>
+          <ArrowRightIcon className="h-5 w-5 transition-transform group-hover:translate-x-1" />
         </Link>
       )}
-        </div>
+        </div></div>
 
-      <section className="cm-panel p-6 lg:mt-0">
-        <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+      <section className="study-card p-6 lg:mt-0">
+        <div className="flex items-center gap-2"><TargetIcon className="h-4 w-4 text-orange-600" /><h2 className="study-eyebrow">
           Domínios do exame
-        </h2>
+        </h2></div>
         <div className="mt-5 grid gap-4 text-sm text-slate-800 dark:text-slate-200">
           {domainStats.map(({ domain, total, done }) => (
             <div key={domain} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0 dark:border-white/5">
@@ -112,7 +114,25 @@ export default async function CoursePage({
       </section>
       </div>
 
-      <div className="mt-14 space-y-12">
+      <section className="mt-6 grid gap-4 sm:grid-cols-2" aria-label="Ferramentas de prática">
+        <div className="study-card relative overflow-hidden p-6">
+          <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-[4rem] bg-orange-50 dark:bg-orange-500/10" />
+          <div className="relative flex items-center gap-2"><PracticeIcon className="h-4 w-4 text-orange-600" /><p className="study-eyebrow">Praticar</p></div><h2 className="relative mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Simulados</h2>
+          <p className="relative mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
+            Formato oficial ({certInfo.examQuestionCount} questões, {certInfo.examDurationMinutes} min), dicas com penalidade e análise de tempo por questão.
+          </p>
+          <Link href={`/simulado/${cert}`} className="cm-button-primary relative mt-5 min-h-10 px-4">
+            <PracticeIcon className="h-4 w-4" />Fazer simulado<ArrowRightIcon className="h-4 w-4" />
+          </Link>
+        </div>
+        <div className="study-card p-6">
+          <div className="flex items-center gap-2"><ClockIcon className="h-4 w-4 text-orange-600" /><p className="study-eyebrow">Revisar</p></div><h2 className="mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Flashcards</h2>
+          <p className="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">Revisão espaçada dos conceitos que mais caem na prova.</p>
+          <Link href={`/flashcards/${cert}`} className="cm-button-secondary mt-5 min-h-10 px-4">Revisar flashcards</Link>
+        </div>
+      </section>
+
+      <div className="mt-12 space-y-12">
         {sortedWeeks.map(([week, weekModules]) => (
           <section key={week}>
             <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-xs font-bold text-white dark:bg-white dark:text-slate-950">{week}</span><h2 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
@@ -126,7 +146,7 @@ export default async function CoursePage({
                   <li key={mod.slug}>
                     <Link
                       href={`/course/${cert}/${mod.slug}`}
-                      className="group flex h-full items-start gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.02)] transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-[0_16px_36px_-28px_rgba(15,23,42,0.4)] dark:border-white/10 dark:bg-slate-900 dark:hover:border-orange-500/30"
+                      className="study-card-interactive group flex h-full items-start gap-4 p-5"
                     >
                       <span
                         className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-medium ${
@@ -135,7 +155,7 @@ export default async function CoursePage({
                             : "bg-slate-100 text-slate-500 transition group-hover:bg-orange-50 group-hover:text-orange-600 dark:bg-white/5 dark:text-slate-400"
                         }`}
                       >
-                        {done ? "OK" : mod.order}
+                        {done ? <CheckIcon className="h-4 w-4" /> : mod.order}
                       </span>
                       <span className="min-w-0">
                         <span className="flex flex-wrap items-center gap-2">
@@ -154,6 +174,9 @@ export default async function CoursePage({
                         <span className="mt-2 block text-xs font-medium text-slate-400 dark:text-slate-500">
                           {mod.domain} · ~{mod.durationMinutes} min
                         </span>
+                        <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-slate-600 transition group-hover:text-orange-600 dark:text-slate-300 dark:group-hover:text-orange-300">
+                          Ver módulo <ArrowRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                        </span>
                       </span>
                     </Link>
                   </li>
@@ -164,34 +187,6 @@ export default async function CoursePage({
         ))}
       </div>
 
-      <div className="mt-14 grid gap-4 sm:grid-cols-2">
-        <div className="cm-panel p-7">
-          <p className="cm-kicker">Praticar</p><h2 className="mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Simulados</h2>
-          <p className="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
-            Formato oficial ({certInfo.examQuestionCount} questões,{" "}
-            {certInfo.examDurationMinutes} min), dicas com penalidade e análise de
-            tempo por questão.
-          </p>
-          <Link
-            href={`/simulado/${cert}`}
-            className="cm-button-primary mt-5 min-h-10 px-4"
-          >
-            Fazer simulado
-          </Link>
-        </div>
-        <div className="cm-panel p-7">
-          <p className="cm-kicker">Revisar</p><h2 className="mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Flashcards</h2>
-          <p className="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
-            Revisão espaçada dos conceitos que mais caem na prova.
-          </p>
-          <Link
-            href={`/flashcards/${cert}`}
-            className="cm-button-secondary mt-5 min-h-10 px-4"
-          >
-            Revisar flashcards
-          </Link>
-        </div>
-      </div>
     </div>
   );
 }
