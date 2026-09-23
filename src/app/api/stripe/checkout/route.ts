@@ -1,0 +1,111 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { stripe } from "@/lib/stripe";
+import { getApiUser } from "@/lib/auth/api";
+import { db } from "@/lib/db";
+import { isCheckoutPlan } from "@/lib/security";
+import { getPriceId } from "@/lib/stripe/plans";
+import { siteUrl } from "@/lib/site-url";
+import { confirmationPath, hasVerifiedEmail } from "@/lib/auth/security";
+
+// POST { plan: "monthly" | "annual" } -> redirects to Stripe Checkout.
+// certAccess is fixed to "all" for the MVP (single plan covers CCP + SAA);
+// swap for a per-cert price map if per-certification plans are added later.
+export async function POST(request: NextRequest) {
+  const user = await getApiUser();
+
+  if (!user) {
+    return NextResponse.json(
+      {
+        error: "Entre na sua conta para assinar.",
+        redirectTo: "/login?next=/pricing",
+      },
+      { status: 401 }
+    );
+  }
+  if (!hasVerifiedEmail(user)) {
+    return NextResponse.json(
+      {
+        error: "Confirme seu email antes de iniciar o pagamento.",
+        redirectTo: confirmationPath(user.email),
+      },
+      { status: 403 }
+    );
+  }
+
+  const rateLimited = await enforceRateLimit("stripe-checkout", user.id, 5, 600);
+  if (rateLimited) return rateLimited;
+
+  const payload: unknown = await request.json().catch(() => null);
+  const plan =
+    payload && typeof payload === "object" && "plan" in payload
+      ? (payload as { plan?: unknown }).plan
+      : undefined;
+  if (!isCheckoutPlan(plan)) {
+    return NextResponse.json({ error: "Plano inválido" }, { status: 400 });
+  }
+
+  let priceId: string;
+  try {
+    priceId = getPriceId(plan);
+  } catch {
+    return NextResponse.json(
+      { error: "Checkout temporariamente indisponível" },
+      { status: 503 }
+    );
+  }
+
+  const existing = await db.selectFrom("subscriptions").select(["stripe_customer_id", "status"]).where("user_id", "=", user.id).executeTakeFirst();
+
+  let customerId = existing?.stripe_customer_id;
+
+  if (
+    existing &&
+    ["active", "trialing", "past_due", "unpaid", "paused"].includes(existing.status)
+  ) {
+    return NextResponse.json(
+      { error: "Você já possui uma assinatura. Gerencie o pagamento pelo dashboard." },
+      { status: 409 }
+    );
+  }
+
+  if (!customerId) {
+    const customer = await stripe.customers.create(
+      {
+        email: user.email,
+        metadata: { user_id: user.id },
+      },
+      { idempotencyKey: `cloudmastery-customer-${user.id}` }
+    );
+    customerId = customer.id;
+
+    await db.insertInto("subscriptions").values({
+        user_id: user.id,
+        stripe_customer_id: customerId,
+        status: "incomplete",
+        plan,
+        cert_access: [],
+      }).onConflict((oc) => oc.column("user_id").doUpdateSet({ stripe_customer_id: customerId, status: "incomplete", plan, cert_access: [] })).execute();
+  }
+
+  const checkoutSession = await stripe.checkout.sessions.create({
+    customer: customerId,
+    mode: "subscription",
+    allow_promotion_codes: false,
+    line_items: [{ price: priceId, quantity: 1 }],
+    success_url: siteUrl(
+      "/api/stripe/sync?session_id={CHECKOUT_SESSION_ID}"
+    ).toString(),
+    cancel_url: siteUrl("/pricing?checkout=cancelled").toString(),
+    client_reference_id: user.id,
+    metadata: { user_id: user.id, plan },
+    subscription_data: {
+      metadata: { user_id: user.id },
+    },
+  });
+
+  if (!checkoutSession.url) {
+    return NextResponse.json({ error: "Falha ao criar checkout" }, { status: 500 });
+  }
+
+  return NextResponse.json({ url: checkoutSession.url });
+}

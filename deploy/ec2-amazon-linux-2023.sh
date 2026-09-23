@@ -72,10 +72,10 @@ if [[ -z "${NEXT_PUBLIC_SITE_URL:-}" ]]; then
   export NEXT_PUBLIC_SITE_URL
 fi
 
-prompt_required NEXT_PUBLIC_SUPABASE_URL "URL do projeto Supabase"
-prompt_required NEXT_PUBLIC_SUPABASE_ANON_KEY "Chave anon/publishable do Supabase" true
-prompt_required SUPABASE_SERVICE_ROLE_KEY "Service role key do Supabase" true
-prompt_required DATABASE_URL "Connection string do banco Supabase" true
+prompt_required DATABASE_URL "Connection string do PostgreSQL" true
+prompt_required BETTER_AUTH_SECRET "Secret do Better Auth (mínimo 32 bytes)" true
+prompt_required RESEND_API_KEY "API key do Resend" true
+prompt_required AUTH_EMAIL_FROM "Remetente verificado (ex: Cloud Mastery <auth@dominio.com>)"
 prompt_required STRIPE_SECRET_KEY "Secret key do Stripe" true
 prompt_required STRIPE_WEBHOOK_SECRET "Webhook signing secret do Stripe" true
 prompt_required STRIPE_PRICE_ID_MONTHLY "Price ID mensal do Stripe"
@@ -86,9 +86,10 @@ umask 077
 {
   printf 'NODE_ENV=production\n'
   printf 'NEXT_PUBLIC_SITE_URL=%s\n' "$NEXT_PUBLIC_SITE_URL"
-  printf 'NEXT_PUBLIC_SUPABASE_URL=%s\n' "$NEXT_PUBLIC_SUPABASE_URL"
-  printf 'NEXT_PUBLIC_SUPABASE_ANON_KEY=%s\n' "$NEXT_PUBLIC_SUPABASE_ANON_KEY"
-  printf 'SUPABASE_SERVICE_ROLE_KEY=%s\n' "$SUPABASE_SERVICE_ROLE_KEY"
+  printf 'BETTER_AUTH_URL=%s\n' "$NEXT_PUBLIC_SITE_URL"
+  printf 'BETTER_AUTH_SECRET=%s\n' "$BETTER_AUTH_SECRET"
+  printf 'RESEND_API_KEY=%s\n' "$RESEND_API_KEY"
+  printf 'AUTH_EMAIL_FROM=%s\n' "$AUTH_EMAIL_FROM"
   printf 'DATABASE_URL=%s\n' "$DATABASE_URL"
   printf 'STRIPE_SECRET_KEY=%s\n' "$STRIPE_SECRET_KEY"
   printf 'STRIPE_WEBHOOK_SECRET=%s\n' "$STRIPE_WEBHOOK_SECRET"
@@ -110,14 +111,12 @@ fi
 
 log "Construindo imagens Docker de produção"
 docker build \
-  --build-arg "NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}" \
-  --build-arg "NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}" \
   --build-arg "NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}" \
   --target runner \
   -t "$IMAGE_NAME" "$SOURCE_DIR"
 docker build --target migrator -t "$MIGRATOR_IMAGE" "$SOURCE_DIR"
 
-log "Aplicando migrations do Supabase"
+log "Aplicando migrations do PostgreSQL"
 docker run --rm --env-file "$RUNTIME_ENV_FILE" "$MIGRATOR_IMAGE"
 
 log "Subindo a aplicação com reinício automático"
@@ -190,5 +189,5 @@ docker image prune -f >/dev/null
 
 log "Deploy concluído em ${NEXT_PUBLIC_SITE_URL}"
 printf '\nNo Security Group da EC2, libere TCP 80 e, com domínio, TCP/UDP 443.\n'
-printf 'No Supabase, use esta mesma URL em Authentication → URL Configuration.\n'
+printf 'O Better Auth usa a URL pública %s.\n' "$NEXT_PUBLIC_SITE_URL"
 printf 'Configure o webhook Stripe em %s/api/stripe/webhook.\n' "$NEXT_PUBLIC_SITE_URL"

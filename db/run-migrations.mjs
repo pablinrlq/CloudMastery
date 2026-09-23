@@ -1,4 +1,6 @@
-// Transactional, concurrency-safe migration runner for local, CI and EC2.
+// Roda as migrations de db/migrations/ em ordem contra PostgreSQL.
+// Uso: node db/run-migrations.mjs
+// Requer DATABASE_URL no .env.local.
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -9,7 +11,23 @@ import dotenv from "dotenv";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 dotenv.config({ path: path.join(root, ".env.local") });
 const url = process.env.DATABASE_URL;
-if (!url) throw new Error("DATABASE_URL não encontrada.");
+if (!url) {
+  console.error("DATABASE_URL não encontrada no .env.local");
+  process.exit(1);
+}
+
+const parsedUrl = new URL(url);
+const isLocal = ["localhost", "127.0.0.1", "::1"].includes(parsedUrl.hostname);
+if (isLocal) {
+  parsedUrl.searchParams.delete("ssl");
+  parsedUrl.searchParams.delete("sslmode");
+}
+const client = new pg.Client({
+  connectionString: parsedUrl.toString(),
+  ssl: isLocal || process.env.DATABASE_SSL === "disable"
+    ? false
+    : { rejectUnauthorized: false },
+});
 
 const dir = path.join(root, "db", "migrations");
 const files = fs.readdirSync(dir).filter((file) => file.endsWith(".sql")).sort();

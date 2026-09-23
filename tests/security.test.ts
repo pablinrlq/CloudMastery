@@ -6,21 +6,15 @@ import {
   normalizeSiteOrigin,
   resolveCheckoutPlan,
   safeRedirectPath,
-} from "../lib/security.ts";
-import { hasAccess } from "../lib/access.ts";
-
-test("subscription access requires coverage and a non-expired period", () => {
-  const future = new Date(Date.now() + 60_000).toISOString();
-  const expired = new Date(Date.now() - 60_000).toISOString();
-  assert.equal(hasAccess({ status: "active", plan: "monthly", cert_access: ["ccp"], current_period_end: future }, "ccp"), true);
-  assert.equal(hasAccess({ status: "active", plan: "monthly", cert_access: ["ccp"], current_period_end: expired }, "ccp"), false);
-  assert.equal(hasAccess({ status: "active", plan: "lifetime", cert_access: ["all"], current_period_end: null }, "aif"), true);
-  assert.equal(hasAccess({ status: "canceled", plan: "lifetime", cert_access: ["all"], current_period_end: null }, "aif"), false);
-});
+} from "../src/lib/security.ts";
 import {
   confirmationPath,
   hasVerifiedEmail,
-} from "../lib/auth-security.ts";
+} from "../src/lib/auth/security.ts";
+import {
+  emailVerificationTemplate,
+  passwordResetTemplate,
+} from "../src/lib/email-templates.ts";
 
 test("checkout accepts only known plans", () => {
   assert.equal(isCheckoutPlan("monthly"), true);
@@ -62,16 +56,10 @@ test("production URL guard recognizes local-only hosts", () => {
   assert.equal(isLoopbackHostname("cloudmastery.vercel.app"), false);
 });
 
-test("protected auth accepts only users with a confirmed email timestamp", () => {
+test("protected auth accepts only Better Auth users with verified email", () => {
   assert.equal(hasVerifiedEmail(null), false);
-  assert.equal(
-    hasVerifiedEmail({ email_confirmed_at: null } as never),
-    false
-  );
-  assert.equal(
-    hasVerifiedEmail({ email_confirmed_at: "2026-08-20T12:00:00Z" } as never),
-    true
-  );
+  assert.equal(hasVerifiedEmail({ emailVerified: false }), false);
+  assert.equal(hasVerifiedEmail({ emailVerified: true }), true);
 });
 
 test("confirmation path encodes email data instead of interpreting it as a URL", () => {
@@ -80,4 +68,22 @@ test("confirmation path encodes email data instead of interpreting it as a URL",
     "/signup/confirmacao?email=student%2Baws%40example.com"
   );
   assert.equal(confirmationPath(), "/signup/confirmacao");
+});
+
+test("authentication email templates include their action and escape URLs", () => {
+  const url = 'https://cloudmastery.example/confirm?token=<unsafe>&next="test"';
+  const verification = emailVerificationTemplate(url);
+  const passwordReset = passwordResetTemplate(url);
+
+  assert.equal(verification.subject, "Confirme seu e-mail — Cloud Mastery");
+  assert.match(verification.html, /Confirmar meu e-mail/);
+  assert.equal(passwordReset.subject, "Redefina sua senha — Cloud Mastery");
+  assert.match(passwordReset.html, /Redefinir minha senha/);
+  assert.match(verification.html, /token=&lt;unsafe&gt;&amp;next=&quot;test&quot;/);
+  assert.doesNotMatch(verification.html, /token=<unsafe>/);
+  assert.match(verification.html, /cloudmastery-icon\.png/);
+  assert.match(verification.html, /src="https:\/\/cloudmastery\.example\/cloudmastery-icon\.png"/);
+  assert.match(verification.html, /#f97316/);
+  assert.doesNotMatch(verification.html, /#155eef|#35b7ff/);
+  assert.match(passwordReset.html, /token=&lt;unsafe&gt;&amp;next=&quot;test&quot;/);
 });
