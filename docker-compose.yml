@@ -5,14 +5,14 @@ services:
     image: postgres:latest
     container_name: postgres_db
     environment:
-      POSTGRES_USER: postgres        
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: cloudmastery
     ports:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql
-  
+
     restart: always
 
 volumes:
