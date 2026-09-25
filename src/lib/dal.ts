@@ -12,8 +12,9 @@ export const verifySession = cache(async () => {
   const session = await auth.api.getSession({ headers: await headers() });
   const user = session?.user;
 
+
   if (!user) {
-    redirect("/login");
+    redirect("/login")
   }
 
   if (!hasVerifiedEmail(user)) {
@@ -21,6 +22,24 @@ export const verifySession = cache(async () => {
   }
 
   return { userId: user.id, email: user.email, user };
+});
+
+export const getSession = cache(async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  const user = session?.user;
+
+  if (!user) {
+    return null;
+  }
+
+  return {
+    userId: user.id,
+    email: user.email,
+    user,
+  };
 });
 
 export type Subscription = {
