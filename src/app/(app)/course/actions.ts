@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { verifySession } from "@/lib/dal";
+import { isValidCert } from "@/lib/learning/content";
 
 export async function markModuleCompleted(certId: string, slug: string) {
   if (!isValidCert(certId) || !/^[a-z0-9-]{1,100}$/.test(slug)) {
@@ -11,7 +13,6 @@ export async function markModuleCompleted(certId: string, slug: string) {
   const { userId } = await verifySession();
   const mod = await db.selectFrom("modules").select("id").where("cert_id", "=", certId).where("slug", "=", slug).executeTakeFirst();
 
-  if (moduleError) throw new Error("Não foi possível localizar o módulo.");
   if (!mod) throw new Error("Módulo não encontrado.");
 
   await db.insertInto("user_progress").values({

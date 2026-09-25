@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getApiUser } from "@/lib/auth/api";
 import { db } from "@/lib/db";
+import { hasAccess, type Subscription } from "@/lib/dal";
 import { hasVerifiedEmail } from "@/lib/auth/security";
+import { enforceRateLimit } from "@/lib/learning/rate-limit";
 
 // POST { attemptId, questionId } -> { hint }
 // Registra o uso da dica no servidor ANTES de devolver o texto: a penalidade
@@ -31,7 +33,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Parâmetros inválidos" }, { status: 400 });
   }
 
-  const attempt = await db.selectFrom("simulado_attempts").select(["id", "user_id", "completed_at", "hints_used", "selected_question_ids"]).where("id", "=", attemptId).executeTakeFirst();
+  const attempt = await db.selectFrom("simulado_attempts").select(["id", "user_id", "cert_id", "mode", "completed_at", "hints_used", "selected_question_ids"]).where("id", "=", attemptId).executeTakeFirst();
 
 
   if (!attempt || attempt.user_id !== user.id) {
@@ -41,16 +43,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Tentativa já finalizada" }, { status: 409 });
   }
 
-  const { data: subscription, error: subscriptionError } = await supabase
-    .from("subscriptions")
-    .select("status, plan, cert_access, current_period_end")
-    .eq("user_id", user.id)
-    .maybeSingle();
-  if (
-    subscriptionError ||
-    attempt.mode === "diagnostic" ||
-    !hasAccess(subscription as Subscription | null, attempt.cert_id)
-  ) {
+  const subscription = await db.selectFrom("subscriptions")
+    .select(["status", "plan", "cert_access", "current_period_end"])
+    .where("user_id", "=", user.id)
+    .executeTakeFirst();
+  if (!hasAccess(subscription as Subscription | null, attempt.cert_id)) {
     return NextResponse.json({ error: "Dicas são um recurso Premium." }, { status: 403 });
   }
   const selectedQuestionIds: string[] = Array.isArray(attempt.selected_question_ids)

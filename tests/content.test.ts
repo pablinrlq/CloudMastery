@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { parseFrontmatter } from "../lib/frontmatter.ts";
+import { parseFrontmatter } from "../src/lib/learning/frontmatter.ts";
 
 const expectedCoreSections = { ccp: 21, saa: 33, aif: 15 } as const;
 const expectedMinimumFiles = { ccp: 26, saa: 46, aif: 17 } as const;

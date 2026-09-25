@@ -3,6 +3,14 @@ import { notFound } from "next/navigation";
 import { getModules, CERTIFICATIONS, isValidCert, type ModuleMeta } from "@/lib/learning/content";
 import { requireAccess } from "@/lib/dal";
 import { getProgressForCert } from "@/lib/learning/progress";
+import {
+  ArrowRightIcon,
+  BookIcon,
+  CheckIcon,
+  ClockIcon,
+  PracticeIcon,
+  TargetIcon,
+} from "@/components/ui-icons";
 
 const TYPE_BADGE: Record<string, { label: string; className: string }> = {
   teoria: { label: "Teoria", className: "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300" },

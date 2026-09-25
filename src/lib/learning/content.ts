@@ -1,7 +1,7 @@
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
-import { parseFrontmatter } from "@/lib/frontmatter";
+import { parseFrontmatter } from "@/lib/learning/frontmatter";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 

@@ -6,6 +6,7 @@ import { isCheckoutPlan } from "@/lib/security";
 import { getPriceId } from "@/lib/stripe/plans";
 import { siteUrl } from "@/lib/site-url";
 import { confirmationPath, hasVerifiedEmail } from "@/lib/auth/security";
+import { enforceRateLimit } from "@/lib/learning/rate-limit";
 
 // POST { plan: "monthly" | "annual" } -> redirects to Stripe Checkout.
 // certAccess is fixed to "all" for the MVP (single plan covers CCP + SAA);

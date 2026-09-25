@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { getPlanFromPriceId, CERT_ACCESS_FOR_PLAN } from "@/lib/stripe/plans";
 import { siteUrl } from "@/lib/site-url";
 import { confirmationPath, hasVerifiedEmail } from "@/lib/auth/security";
+import { enforceRateLimit } from "@/lib/learning/rate-limit";
 
 // GET /api/stripe/sync?session_id=cs_...
 // Destino do success_url do Checkout: confirma a sessão DIRETO na API da

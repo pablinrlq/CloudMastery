@@ -1,68 +1,12 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useActionState } from "react";
 import Link from "next/link";
 import { signup, loginWithGoogle, loginWithGithub } from "../actions";
 import { AuthShell } from "@/components/auth-shell";
-import { passwordPolicyError } from "@/lib/password-policy";
-import { createClient } from "@/lib/supabase/client";
-
-const googleAuthEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
 
 export default function SignupPage() {
-  const router = useRouter();
-  const [error, setError] = useState<string>();
-  const [pending, setPending] = useState(false);
-
-  async function handleSignup(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (pending) return;
-
-    const formData = new FormData(event.currentTarget);
-    const email = String(formData.get("email") ?? "").trim().toLowerCase();
-    const password = String(formData.get("password") ?? "");
-
-    if (!email || !email.includes("@")) {
-      setError("Informe um email válido.");
-      return;
-    }
-
-    const passwordError = passwordPolicyError(password);
-    if (passwordError) {
-      setError(passwordError);
-      return;
-    }
-
-    setPending(true);
-    setError(undefined);
-
-    // Sign-up runs from the visitor's browser, so Supabase applies IP limits
-    // to the actual visitor instead of pooling every Vercel request together.
-    const supabase = createClient();
-    const { error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (signUpError) {
-      if (signUpError.code === "over_email_send_rate_limit") {
-        setError("O envio de confirmação está temporariamente indisponível. Tente novamente em alguns minutos.");
-      } else if (signUpError.code === "over_request_rate_limit") {
-        setError("Não foi possível concluir o cadastro agora. Tente novamente.");
-      } else if (signUpError.code === "user_already_exists") {
-        setError("Esta conta já existe. Entre ou recupere sua senha.");
-      } else {
-        setError("Não foi possível criar sua conta agora. Revise os dados e tente novamente.");
-      }
-      setPending(false);
-      return;
-    }
-
-    router.replace(`/signup/confirmacao?email=${encodeURIComponent(email)}`);
-  }
+  const [state, action, pending] = useActionState(signup, undefined);
 
   return (
     <AuthShell
@@ -78,7 +22,7 @@ export default function SignupPage() {
         </>
       }
     >
-      <form onSubmit={handleSignup} className="space-y-5">
+      <form action={action} className="space-y-5">
         <div>
           <label
             htmlFor="email"

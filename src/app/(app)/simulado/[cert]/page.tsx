@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { CERTIFICATIONS, isValidCert } from "@/lib/learning/content";
-import { requireAccess } from "@/lib/dal";
+import { getSubscription, hasAccess, verifySession } from "@/lib/dal";
 import { SimuladoRunner } from "@/components/simulado-runner";
 import { ClockIcon, PracticeIcon, TargetIcon } from "@/components/ui-icons";
 

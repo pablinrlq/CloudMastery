@@ -5,6 +5,9 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { confirmationPath, hasVerifiedEmail } from "@/lib/auth/security";
+import { hasAccess } from "@/lib/learning/access";
+
+export { hasAccess } from "@/lib/learning/access";
 
 // Secure (DB-backed) session check. Cached per request so calling it from
 // multiple Server Components/pages during one render doesn't re-hit Supabase.

@@ -1,13 +1,12 @@
 import "server-only";
 
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 
-type RateLimitResult = {
-  allowed: boolean;
-  remaining: number;
-  retry_after: number;
-};
+type Bucket = { count: number; resetAt: number };
+
+// Process-local fallback for the standalone Postgres/Better Auth runtime.
+// Use a shared Redis limiter before horizontally scaling production.
+const buckets = new Map<string, Bucket>();
 
 export async function enforceRateLimit(
   route: string,
@@ -15,30 +14,24 @@ export async function enforceRateLimit(
   limit: number,
   windowSeconds: number
 ) {
-  const admin = createAdminClient();
-  const { data, error } = await admin.rpc("consume_api_rate_limit", {
-    p_bucket_key: `${route}:${userId}`,
-    p_limit: limit,
-    p_window_seconds: windowSeconds,
-  });
+  const key = `${route}:${userId}`;
+  const now = Date.now();
+  const current = buckets.get(key);
+  const bucket = !current || current.resetAt <= now
+    ? { count: 0, resetAt: now + windowSeconds * 1000 }
+    : current;
 
-  // Fail closed: a database outage must not turn into an unlimited expensive API.
-  if (error) {
-    console.error("rate_limit_unavailable", { route, code: error.code });
-    return NextResponse.json(
-      { error: "Serviço temporariamente indisponível." },
-      { status: 503, headers: { "Retry-After": "30" } }
-    );
-  }
+  bucket.count += 1;
+  buckets.set(key, bucket);
 
-  const result = (Array.isArray(data) ? data[0] : data) as RateLimitResult | null;
-  if (!result?.allowed) {
+  if (bucket.count > limit) {
+    const retryAfter = Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
     return NextResponse.json(
       { error: "Muitas solicitações. Aguarde um pouco e tente novamente." },
       {
         status: 429,
         headers: {
-          "Retry-After": String(result?.retry_after ?? windowSeconds),
+          "Retry-After": String(retryAfter),
           "X-RateLimit-Limit": String(limit),
           "X-RateLimit-Remaining": "0",
         },

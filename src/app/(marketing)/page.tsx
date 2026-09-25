@@ -17,11 +17,7 @@ const readinessLog = [
   ["→", "prontidão", "sim — agendamento seguro em 9 dias"],
 ] as const;
 
-const features: Array<{
-  icon: FeatureIconName;
-  title: string;
-  text: string;
-}> = [
+const features = [
   {
     icon: "route",
     title: "Trilha que elimina a dúvida",
@@ -49,6 +45,13 @@ const platformNumbers = [
   ["162", "questões explicadas"],
   ["83", "flashcards de revisão"],
   ["3", "certificações completas"],
+];
+
+const steps = [
+  ["Mapeie", "Escolha a certificação e veja o plano completo até a prova."],
+  ["Domine", "Avance pela trilha com teoria direta, labs e flashcards."],
+  ["Valide", "Faça simulados e descubra onde seu raciocínio ainda falha."],
+  ["Conquiste", "Agende quando seus dados mostrarem consistência real."],
 ];
 
 const faq = [
@@ -175,9 +178,9 @@ export default function LandingPage() {
         <div className="cm-container">
           <Reveal className="max-w-2xl"><p className="cm-kicker">Método CloudMastery</p><h2 className="cm-title mt-4 sm:text-5xl">Tudo que você precisa. Nada que roube seu foco.</h2><p className="cm-copy mt-5 text-lg">Cada recurso existe para reduzir incerteza e acelerar decisões melhores durante o estudo e a prova.</p></Reveal>
           <div className="mt-14 grid gap-4 md:grid-cols-2">
-            {features.map(([number, title, text], index) => (
-              <Reveal key={number} as="article" delay={index * 90} className="cm-card-hover group rounded-[1.5rem] border border-slate-200 bg-white p-7 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:p-8">
-                <div className="flex items-start justify-between gap-6"><div><p className="text-xs font-bold tracking-[0.2em] text-orange-500">{number}</p><h3 className="mt-5 text-xl font-bold tracking-[-0.025em] text-slate-950">{title}</h3><p className="mt-3 max-w-xl text-[15px] leading-7 text-slate-600">{text}</p></div><span className="mt-1 text-2xl text-slate-200 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-orange-400" aria-hidden>↗</span></div>
+            {features.map((feature, index) => (
+              <Reveal key={feature.icon} as="article" delay={index * 90} className="cm-card-hover group rounded-[1.5rem] border border-slate-200 bg-white p-7 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:p-8">
+                <div className="flex items-start justify-between gap-6"><div><p className="text-xs font-bold tracking-[0.2em] text-orange-500">{String(index + 1).padStart(2, "0")}</p><h3 className="mt-5 text-xl font-bold tracking-[-0.025em] text-slate-950">{feature.title}</h3><p className="mt-3 max-w-xl text-[15px] leading-7 text-slate-600">{feature.text}</p></div><span className="mt-1 text-2xl text-slate-200 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-orange-400" aria-hidden>↗</span></div>
               </Reveal>
             ))}
           </div>

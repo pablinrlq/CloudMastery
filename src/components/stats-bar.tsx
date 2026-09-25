@@ -1,5 +1,6 @@
 import type { GamificationProfile } from "@/lib/learning/gamification";
 import { LogoIcon } from "@/components/logo";
+import { SparkIcon, TargetIcon, TrophyIcon } from "@/components/ui-icons";
 
 const LEVEL_NAMES = [
   "Cloud Rookie",

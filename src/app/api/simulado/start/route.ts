@@ -4,6 +4,13 @@ import { db } from "@/lib/db";
 import { hasAccess, type Subscription } from "@/lib/dal";
 import { CERTIFICATIONS, isValidCert } from "@/lib/learning/content";
 import { hasVerifiedEmail } from "@/lib/auth/security";
+import {
+  DIAGNOSTIC_DURATION_MINUTES,
+  DIAGNOSTIC_QUESTION_COUNT,
+  isSimuladoMode,
+  shuffledCopy,
+} from "@/lib/learning/simulado";
+import { enforceRateLimit } from "@/lib/learning/rate-limit";
 
 // POST { certId, mode: "diagnostic" | "full" | "domain", domain? }
 // Creates an attempt and returns questions WITHOUT correct answers.
@@ -42,10 +49,6 @@ export async function POST(request: NextRequest) {
   }
 
   const subscription = await db.selectFrom("subscriptions").select(["status", "plan", "cert_access", "current_period_end"]).where("user_id", "=", user.id).executeTakeFirst();
-
-  if (subscriptionError) {
-    return NextResponse.json({ error: "Falha ao verificar acesso" }, { status: 503 });
-  }
 
   const premium = hasAccess(subscription as Subscription | null, certId);
   if (mode !== "diagnostic" && !premium) {
@@ -97,26 +100,6 @@ export async function POST(request: NextRequest) {
 
   if (!attempt) {
     return NextResponse.json({ error: "Falha ao criar tentativa" }, { status: 500 });
-  }
-
-  if (mode === "diagnostic") {
-    const { error: claimError } = await admin.from("free_diagnostic_claims").insert({
-      user_id: user.id,
-      cert_id: certId,
-      attempt_id: attempt.id,
-    });
-    if (claimError) {
-      // A competing request won the account-level claim. Remove only this fresh,
-      // unstarted attempt and never expose a second free exam.
-      await admin.from("simulado_attempts").delete().eq("id", attempt.id).eq("user_id", user.id);
-      if (claimError.code === "23505") {
-        return NextResponse.json(
-          { error: "Você já iniciou seu simulado diagnóstico gratuito.", upgradeUrl: "/pricing" },
-          { status: 409 }
-        );
-      }
-      return NextResponse.json({ error: "Falha ao reservar seu diagnóstico" }, { status: 503 });
-    }
   }
 
   return NextResponse.json({

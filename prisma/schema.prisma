@@ -165,7 +165,7 @@ model SimuladoAttempt {
   id                  String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId              String        @map("user_id") @db.Uuid
   certId              String        @map("cert_id")
-  /// @kyselyType('full' | 'domain')
+  /// @kyselyType('full' | 'domain' | 'diagnostic')
   mode                String
   domain              String?
   /// @kyselyType(number | string | null)

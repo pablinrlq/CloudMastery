@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const required = [
-    "NEXT_PUBLIC_SUPABASE_URL",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-    "SUPABASE_SERVICE_ROLE_KEY",
+    "DATABASE_URL",
+    "BETTER_AUTH_SECRET",
     "STRIPE_SECRET_KEY",
     "STRIPE_WEBHOOK_SECRET",
     "STRIPE_PRICE_ID_MONTHLY",
@@ -15,12 +14,11 @@ export async function GET() {
     "NEXT_PUBLIC_SITE_URL",
   ];
   const configurationReady = required.every((name) => Boolean(process.env[name]));
+
   let databaseReady = false;
   try {
-    const { error } = await createAdminClient()
-      .from("certifications")
-      .select("id", { head: true, count: "exact" });
-    databaseReady = !error;
+    await db.selectFrom("certifications").select("id").limit(1).execute();
+    databaseReady = true;
   } catch {
     databaseReady = false;
   }

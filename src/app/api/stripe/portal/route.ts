@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { siteUrl } from "@/lib/site-url";
 import { hasVerifiedEmail } from "@/lib/auth/security";
 import { isCheckoutPlan } from "@/lib/security";
-import { enforceRateLimit } from "@/lib/rate-limit";
+import { enforceRateLimit } from "@/lib/learning/rate-limit";
 
 // POST -> returns URL for the Stripe customer portal (manage/cancel plan).
 export async function POST() {

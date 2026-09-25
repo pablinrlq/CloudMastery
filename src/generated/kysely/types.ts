@@ -95,9 +95,9 @@ export type SimuladoAttemptTable = {
     user_id: string;
     cert_id: string;
     /**
-     * @kyselyType('full' | 'domain')
+     * @kyselyType('full' | 'domain' | 'diagnostic')
      */
-    mode: 'full' | 'domain';
+    mode: 'full' | 'domain' | 'diagnostic';
     domain: string | null;
     /**
      * @kyselyType(number | string | null)

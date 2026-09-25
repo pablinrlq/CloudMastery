@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { signupErrorMessage } from "../lib/auth-errors.ts";
+import { signupErrorMessage } from "../src/lib/learning/auth-errors.ts";
 
 test("signup errors never expose provider internals", () => {
   assert.equal(

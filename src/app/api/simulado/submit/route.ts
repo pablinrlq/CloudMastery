@@ -3,6 +3,8 @@ import { getApiUser } from "@/lib/auth/api";
 import { db } from "@/lib/db";
 import { getModules, isValidCert } from "@/lib/learning/content";
 import { hasVerifiedEmail } from "@/lib/auth/security";
+import { hasAccess, type Subscription } from "@/lib/dal";
+import { enforceRateLimit } from "@/lib/learning/rate-limit";
 
 type SubmittedAnswers = Record<string, string[]>; // questionId -> chosen choice ids
 type QuestionTimings = Record<string, number>; // questionId -> seconds
@@ -62,19 +64,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Tentativa já finalizada" }, { status: 409 });
   }
 
-  const { data: subscription, error: subscriptionError } = await supabase
-    .from("subscriptions")
-    .select("status, plan, cert_access, current_period_end")
-    .eq("user_id", user.id)
-    .maybeSingle();
-  if (subscriptionError) {
-    return NextResponse.json({ error: "Falha ao verificar acesso" }, { status: 503 });
-  }
+  const subscription = await db.selectFrom("subscriptions")
+    .select(["status", "plan", "cert_access", "current_period_end"])
+    .where("user_id", "=", user.id)
+    .executeTakeFirst();
   const premiumInsights = hasAccess(
     subscription as Subscription | null,
     attempt.cert_id
   );
-  if (attempt.mode !== "diagnostic" && !premiumInsights) {
+  if (!premiumInsights) {
     return NextResponse.json({ error: "Assinatura necessária" }, { status: 403 });
   }
 

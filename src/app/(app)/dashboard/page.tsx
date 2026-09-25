@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { verifySession, getSubscription, hasAccess } from "@/lib/dal";
 import { CERTIFICATIONS, type CertId } from "@/lib/learning/content";
-import { getReadiness } from "@/lib/learning/readiness";
+import { getReadiness, type Readiness } from "@/lib/learning/readiness";
 import { getGamificationProfile } from "@/lib/learning/gamification";
 import { ScoreChart } from "@/components/score-chart";
 import { StatsBar } from "@/components/stats-bar";
