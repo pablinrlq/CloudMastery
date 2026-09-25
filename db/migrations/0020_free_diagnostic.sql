@@ -34,5 +34,12 @@ as $$
 $$;
 
 revoke all on function public.append_simulado_hint(uuid, uuid, uuid) from public;
--- The app invokes this with its service-role client after checking ownership.
-grant execute on function public.append_simulado_hint(uuid, uuid, uuid) to service_role;
+-- Supabase exposes service_role. Keep the grant there without making local
+-- Better Auth/Postgres installations depend on a Supabase-only database role.
+do $$
+begin
+  if exists (select 1 from pg_roles where rolname = 'service_role') then
+    execute 'grant execute on function public.append_simulado_hint(uuid, uuid, uuid) to service_role';
+  end if;
+end;
+$$;

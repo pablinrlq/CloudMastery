@@ -10,6 +10,7 @@ import dotenv from "dotenv";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 dotenv.config({ path: path.join(root, ".env.local") });
+dotenv.config({ path: path.join(root, ".env") });
 const url = process.env.DATABASE_URL;
 if (!url) {
   console.error("DATABASE_URL não encontrada no .env.local");
@@ -31,8 +32,6 @@ const client = new pg.Client({
 
 const dir = path.join(root, "db", "migrations");
 const files = fs.readdirSync(dir).filter((file) => file.endsWith(".sql")).sort();
-const client = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false } });
-
 await client.connect();
 try {
   await client.query("select pg_advisory_lock(hashtext('cloudmastery_migrations'))");
