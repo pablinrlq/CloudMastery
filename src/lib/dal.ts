@@ -12,8 +12,9 @@ export const verifySession = cache(async () => {
   const session = await auth.api.getSession({ headers: await headers() });
   const user = session?.user;
 
+
   if (!user) {
-    redirect("/login");
+    redirect("/login")
   }
 
   if (!hasVerifiedEmail(user)) {
@@ -22,6 +23,31 @@ export const verifySession = cache(async () => {
 
   return { userId: user.id, email: user.email, user };
 });
+
+export const getSession = cache(async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  const user = session?.user;
+
+  if (!user) {
+    return null;
+  }
+
+  return {
+    userId: user.id,
+    email: user.email,
+    user,
+  };
+});
+
+export type Subscription = {
+  status: "trialing" | "active" | "past_due" | "canceled" | "incomplete" | "incomplete_expired" | "unpaid" | "paused";
+  plan: string | null;
+  cert_access: string[];
+  current_period_end: string | null;
+};
 
 export const getSubscription = cache(async (): Promise<Subscription | null> => {
   const { userId } = await verifySession();
