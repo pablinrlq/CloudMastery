@@ -1,0 +1,35 @@
+.studio { --ink: #f4f7fb; --muted: #94a3b8; --line: rgba(148,163,184,.18); min-height: 100vh; display: flex; color: var(--ink); background: #070b12; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+.skip { position: absolute; left: -9999px; }
+.skip:focus { left: 1rem; top: 1rem; z-index: 20; padding: .6rem 1rem; border-radius: .6rem; background: #f97316; color: #111827; }
+.sidebar { width: 248px; flex: 0 0 248px; min-height: 100vh; padding: 30px 22px 22px; display: flex; flex-direction: column; border-right: 1px solid var(--line); background: linear-gradient(180deg, rgba(20,28,41,.96), rgba(9,13,21,.96)); }
+.navLabel, .tinyLabel, .eyebrow { margin: 38px 0 13px; color: #8291a6; font-size: 10px; font-weight: 800; letter-spacing: .16em; }
+.navigation { display: grid; gap: 6px; }
+.navigation a { position: relative; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 13px; color: #9aa8bb; border-radius: 10px; font-size: 14px; text-decoration: none; transition: .2s ease; }
+.navigation a:hover, .navigation a[aria-current="page"] { color: #fff; background: linear-gradient(100deg, rgba(249,115,22,.2), rgba(35,55,76,.55)); box-shadow: inset 0 0 0 1px rgba(249,115,22,.22); }
+.navigation a[aria-current="page"] svg { color: #ff9f5b; }
+.activeDot, .liveDot { width: 6px; height: 6px; margin-left: auto; border-radius: 99px; background: #f97316; box-shadow: 0 0 12px #f97316; }
+.sidebarNote { margin-top: auto; padding: 18px 14px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.035); }
+.sidebarNote .tinyLabel { margin: 0; font-size: 9px; }
+.sidebarNote p { margin: 10px 0 14px; color: #c7d0dc; font-size: 12px; line-height: 1.55; }
+.noteLine { display: block; width: 42px; height: 2px; background: #f97316; }
+.account { display: flex; align-items: center; gap: 10px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.avatar { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #f97316; border-radius: 50%; color: #ffd1b0; background: #182332; font-size: 11px; font-weight: 800; }
+.account strong, .account span { display: block; overflow: hidden; max-width: 150px; text-overflow: ellipsis; white-space: nowrap; }
+.account strong { font-size: 12px; } .account span { margin-top: 3px; color: var(--muted); font-size: 10px; }
+.workspace { min-width: 0; flex: 1; background: radial-gradient(circle at 70% 0%, rgba(21,62,90,.22), transparent 30%), #070b12; }
+.topbar { display: flex; justify-content: space-between; align-items: center; min-height: 65px; padding: 0 clamp(22px, 4vw, 60px); border-bottom: 1px solid var(--line); color: #8493a7; font-size: 12px; }
+.topbar strong { color: #dce5ef; } .breadcrumb { padding: 0 8px; color: #425168; } .topActions { display: flex; align-items: center; gap: 9px; color: #aab6c7; font-size: 11px; }
+.content { max-width: 1280px; margin: 0 auto; padding: 35px clamp(22px, 4vw, 60px) 55px; }
+.footer { padding: 18px clamp(22px, 4vw, 60px); border-top: 1px solid var(--line); color: #596a80; font-size: 10px; } .footer span { margin-right: 14px; color: #a3b3c7; font-weight: 700; }
+.previewNotice { padding: 10px 13px; border: 1px solid rgba(249,115,22,.25); border-radius: 8px; color: #ffc28c; background: rgba(249,115,22,.08); font-size: 11px; }
+.heading { display: flex; justify-content: space-between; gap: 30px; align-items: end; margin-top: 25px; }
+.eyebrow { margin: 0; color: #f59a5b; } .eyebrow span { color: #64748b; }
+.heading h1 { max-width: 720px; margin: 13px 0 10px; color: #f5f1e8; font-family: Georgia, serif; font-size: clamp(34px, 4vw, 62px); font-weight: 400; line-height: .98; letter-spacing: -.04em; }
+.heading h1 span { display: block; margin-top: 13px; color: #9eacbd; font-family: Inter, sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0; }
+.heading p:last-child { margin: 0; color: #8d9bae; font-size: 13px; }
+.compassCard { display: flex; align-items: center; justify-content: space-between; min-width: 265px; padding: 18px 19px; border: 1px solid rgba(115,144,173,.25); border-radius: 15px; background: linear-gradient(135deg, rgba(28,42,60,.95), rgba(14,20,30,.9)); box-shadow: 0 16px 30px rgba(0,0,0,.2); }
+.compassCard .tinyLabel { margin: 0 0 9px; color: #f59a5b; } .compassCard strong { display: block; font-family: Georgia, serif; font-size: 20px; font-weight: 400; line-height: 1.05; } .compassCaption { display: block; margin-top: 12px; color: #8da0b6; font-size: 10px; }
+.compass { position: relative; display: grid; place-items: center; width: 70px; height: 70px; border: 1px solid rgba(249,115,22,.55); border-radius: 50%; background: radial-gradient(circle, #30455f 0 22%, #111a28 23% 57%, #070b12 58%); box-shadow: inset 0 0 0 6px rgba(255,255,255,.05), 0 0 25px rgba(249,115,22,.12); } .compass:after { content: ""; position: absolute; width: 2px; height: 37px; background: #f97316; transform: rotate(36deg); } .compass span { align-self: start; color: #e2e8f0; font-size: 8px; } .compass i { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: #f97316; }
+.certTabs { display: flex; gap: 8px; margin-top: 37px; padding: 6px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.025); } .certTabs a { flex: 1; padding: 11px 14px; color: #8493a7; border-radius: 8px; font-size: 12px; text-decoration: none; } .certTabs a:hover, .certTabs a[aria-current="page"] { color: #fff; background: rgba(249,115,22,.14); } .certTabs span { display: block; margin-top: 4px; color: #64748b; font-size: 9px; }
+.diagram { margin-top: 22px; padding: 18px 22px; border: 1px solid rgba(115,144,173,.2); border-radius: 14px; background: linear-gradient(110deg, rgba(19,33,49,.9), rgba(11,17,26,.9)); } .diagramLabel { display: flex; align-items: center; gap: 8px; color: #9bacbf; font-size: 9px; font-weight: 800; letter-spacing: .15em; } .diagramNodes { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 20px; } .diagramNodes > div { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 125px; color: #ffad70; } .diagramNodes strong { color: #eef2f7; font-size: 12px; } .diagramNodes span:not(.connector) { color: #8090a5; font-size: 10px; } .connector { color: #f97316; font-size: 20px; }
+@media (max-width: 800px) { .studio { display: block; } .sidebar { width: auto; min-height: 0; padding: 18px 20px; border-right: 0; border-bottom: 1px solid var(--line); } .navLabel, .sidebarNote, .account { display: none; } .navigation { display: flex; margin-top: 18px; overflow-x: auto; } .navigation a { flex: 0 0 auto; } .navigation a span:not(.activeDot) { display: none; } .topbar { min-height: 54px; } .topActions { display: none; } .heading { display: block; } .compassCard { margin-top: 25px; } .certTabs { overflow-x: auto; } .certTabs a { min-width: 155px; } .diagramNodes { gap: 6px; } .diagramNodes > div { min-width: 80px; text-align: center; } .diagramNodes span:not(.connector) { font-size: 9px; } }
