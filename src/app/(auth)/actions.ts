@@ -43,7 +43,7 @@ export async function resendConfirmation(_prevState: AuthFormState, formData: Fo
   if (!email || !email.includes("@")) return { error: "Informe o email usado no cadastro." };
   try {
     await auth.api.sendVerificationEmail({ body: { email, callbackURL: siteUrl("/dashboard").toString() }, headers: await headers() });
-  } catch(err) {
+  } catch (err) {
     console.log(err)
     return { error: "Não foi possível reenviar agora. Tente novamente em instantes." };
   }
@@ -116,7 +116,10 @@ export async function loginWithGithub() {
     redirect("/login?error=oauth");
   }
 
-  if (!result.url) redirect("/login?error=oauth");
+  if (!result.url) {
+    redirect("/login?error=oauth")
+
+  };
   redirect(result.url);
 }
 

@@ -289,7 +289,10 @@ export function HeroNetwork() {
 
     if (!reduceMotion) {
       window.addEventListener("pointermove", handlePointerMove);
-      window.addEventListener("pointerdown", handlePointerDown);
+      // Only the initial press must land on the animation itself — move/up
+      // stay on window so a drag started here keeps tracking even once the
+      // pointer wanders outside the container.
+      container.addEventListener("pointerdown", handlePointerDown);
       window.addEventListener("pointerup", handlePointerUp);
     }
 
@@ -422,7 +425,7 @@ export function HeroNetwork() {
       intersectionObserver.disconnect();
       resizeObserver.disconnect();
       window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerdown", handlePointerDown);
+      container.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("pointerup", handlePointerUp);
       document.removeEventListener("selectstart", handleSelectStart);
       if (dragging) restoreSelection();

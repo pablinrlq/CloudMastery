@@ -109,11 +109,11 @@ export default function LandingPage() {
                 sem perder tempo.
               </span>
             </h1>
-            <p className="cm-fade-up-delay-2 mt-7 max-w-2xl text-pretty text-lg leading-8 text-slate-300 sm:text-xl">
+            <p className="cm-fade-up-delay-2 mx-auto mt-7 max-w-2xl text-pretty text-lg leading-8 text-slate-300 sm:text-xl">
               Trilhas guiadas, simulados no formato oficial e diagnósticos que mostram
               exatamente quando você está pronto para agendar a prova.
             </p>
-            <div className="cm-fade-up-delay-2 mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="cm-fade-up-delay-2 mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link href="/signup" className="cm-button-primary min-w-48 px-7">
                 Criar conta grátis
                 <span className="ml-2" aria-hidden>→</span>
