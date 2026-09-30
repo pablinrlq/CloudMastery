@@ -2,8 +2,9 @@ import { notFound } from "next/navigation";
 import { CERTIFICATIONS, isValidCert } from "@/lib/content";
 import { requireAccess, verifySession } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
+import { CERT_META } from "@/lib/cert-meta";
+import { CertEmblem } from "@/components/cert-emblem";
 import { FlashcardDeck, type Flashcard } from "@/components/flashcard-deck";
-import { CardsIcon, TargetIcon } from "@/components/ui-icons";
 
 export default async function FlashcardsPage({
   params,
@@ -16,6 +17,7 @@ export default async function FlashcardsPage({
   await requireAccess(cert);
   const { userId } = await verifySession();
   const certInfo = CERTIFICATIONS[cert];
+  const meta = CERT_META[cert];
 
   const supabase = await createClient();
 
@@ -40,17 +42,54 @@ export default async function FlashcardsPage({
     status: statusById.get(c.id) ?? "new",
   }));
 
+  const counts = {
+    known: deck.filter((card) => card.status === "known").length,
+    review: deck.filter((card) => card.status === "review_later").length,
+    fresh: deck.filter((card) => card.status === "new").length,
+  };
+  const total = deck.length || 1;
+
   return (
-    <div className="mx-auto max-w-[960px] px-5 py-8 sm:px-8 sm:py-12">
-      <section className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-7 shadow-[0_20px_60px_-45px_rgba(15,23,42,.4)] dark:border-white/10 dark:bg-slate-900 sm:p-9">
-        <div className="absolute right-0 top-0 h-40 w-40 rounded-bl-[6rem] bg-orange-50 dark:bg-orange-500/10" />
-        <div className="relative"><div className="flex items-center gap-2"><CardsIcon className="h-4 w-4 text-orange-600" /><p className="study-eyebrow">{certInfo.code} · Revisão ativa</p></div>
-        <h1 className="mt-4 text-3xl font-bold tracking-[-0.04em] text-slate-950 dark:text-white sm:text-4xl">Flashcards de {certInfo.name}</h1>
-        <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">Cartões marcados como &quot;revisar depois&quot; voltam primeiro na próxima sessão.</p>
-        <p className="mt-6 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600 dark:bg-white/5 dark:text-slate-300"><TargetIcon className="h-4 w-4 text-orange-600" />Revele a resposta antes de classificar seu domínio</p></div>
+    <div className="mx-auto w-full max-w-[1240px] px-4 py-5 sm:px-8 sm:py-8 xl:px-10 xl:py-10">
+      <section className="ws-ink ws-rise p-6 sm:p-8" aria-labelledby="flashcards-title">
+        <div className="grid grid-cols-1 gap-7 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-center">
+          <div>
+            <div className="flex items-center gap-3">
+              <CertEmblem certId={cert} size="md" />
+              <p className="ws-eyebrow !text-orange-200/80">{meta.code} · Flashcards</p>
+            </div>
+            <h1 id="flashcards-title" className="mt-5 text-balance text-[1.9rem] font-semibold leading-[1.08] tracking-[-0.04em] text-white sm:text-[2.4rem]">
+              Revisão ativa.
+              <span className="block text-slate-400">Os conceitos que mais caem em {certInfo.name.replace("AWS Certified ", "")}.</span>
+            </h1>
+            <p className="mt-4 max-w-xl text-[15px] leading-7 text-slate-400">
+              Tente lembrar antes de virar o cartão. Os marcados como “revisar depois” voltam primeiro na próxima sessão.
+            </p>
+          </div>
+
+          <div className="ws-glass p-4">
+            <p className="ws-eyebrow !text-slate-400">Seu baralho · {deck.length} cartões</p>
+            <div className="mt-4 flex h-2.5 overflow-hidden rounded-full bg-white/10" aria-hidden="true">
+              <span className="bg-gradient-to-r from-emerald-500 to-emerald-300" style={{ width: `${(counts.known / total) * 100}%` }} />
+              <span className="bg-gradient-to-r from-amber-500 to-amber-300" style={{ width: `${(counts.review / total) * 100}%` }} />
+            </div>
+            <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
+              {[
+                ["Dominados", counts.known, "text-emerald-300"],
+                ["Revisar", counts.review, "text-amber-300"],
+                ["Novos", counts.fresh, "text-slate-200"],
+              ].map(([label, value, color]) => (
+                <div key={label as string} className="rounded-xl bg-black/20 px-2 py-2.5">
+                  <dd className={`ws-num text-2xl ${color}`}>{value}</dd>
+                  <dt className="mt-1 text-[11px] text-slate-400">{label}</dt>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
       </section>
 
-      <div className="mt-6">
+      <div className="mt-10">
         <FlashcardDeck cards={deck} />
       </div>
     </div>

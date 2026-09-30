@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SettingsIcon } from "@/components/ui-icons";
 
 export function PortalButton() {
   const [loading, setLoading] = useState(false);
@@ -28,18 +29,19 @@ export function PortalButton() {
   }
 
   return (
-    <div className="mt-7 border-t border-slate-200/80 pt-5 dark:border-white/10">
+    <div>
       <button
         type="button"
         onClick={openPortal}
         disabled={loading}
         aria-busy={loading}
-        className="rounded-lg text-sm font-semibold text-slate-500 underline decoration-dotted underline-offset-4 transition hover:text-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-400 dark:hover:text-orange-400"
+        className="ws-btn ws-btn-ghost ws-btn-sm"
       >
-        {loading ? "Abrindo portal seguro…" : "Gerenciar ou cancelar assinatura"}
+        <SettingsIcon className="h-4 w-4" />
+        {loading ? "Abrindo portal seguro…" : "Gerenciar assinatura"}
       </button>
       {error && (
-        <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className="mt-2 text-sm text-ws-danger-ink">
           {error}
         </p>
       )}

@@ -1,12 +1,51 @@
 import Link from "next/link";
+import { isValidElement, type ComponentPropsWithoutRef, type ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import { getModule, getModules, isValidCert } from "@/lib/content";
 import { requireAccess } from "@/lib/dal";
 import { getProgressForCert } from "@/lib/progress";
+import { CERT_META } from "@/lib/cert-meta";
+import { extractHeadings, slugifyHeading } from "@/lib/study-format";
 import { markModuleCompleted } from "../../actions";
-import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ClockIcon } from "@/components/ui-icons";
+import { CertEmblem } from "@/components/cert-emblem";
+import { ModuleToc } from "@/components/module-toc";
+import { ProgressBar } from "@/components/workspace-ui";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  BoltIcon,
+  BookIcon,
+  CheckCircleIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  ClockIcon,
+  LayersIcon,
+  RotateIcon,
+} from "@/components/ui-icons";
+
+const TYPE_META = {
+  teoria: { label: "Teoria", icon: BookIcon },
+  lab: { label: "Lab prático", icon: LayersIcon },
+  revisao: { label: "Revisão", icon: RotateIcon },
+} as const;
+
+function textOf(node: ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(textOf).join("");
+  if (isValidElement(node)) return textOf((node.props as { children?: ReactNode }).children);
+  return "";
+}
+
+const mdxComponents = {
+  h2: ({ children, ...props }: ComponentPropsWithoutRef<"h2">) => (
+    <h2 id={slugifyHeading(textOf(children))} {...props}>
+      {children}
+    </h2>
+  ),
+};
 
 export default async function ModulePage({
   params,
@@ -28,64 +67,173 @@ export default async function ModulePage({
 
   const progress = await getProgressForCert(cert);
   const isCompleted = progress[`${cert}/${slug}`] === "completed";
+  const completedCount = modules.filter((m) => progress[`${cert}/${m.slug}`] === "completed").length;
 
   const markCompletedAction = markModuleCompleted.bind(null, cert, slug);
+  const headings = extractHeadings(mod.body);
+  const type = TYPE_META[mod.type ?? "teoria"];
+  const TypeIcon = type.icon;
+  const meta = CERT_META[cert];
 
   return (
-    <div className="mx-auto max-w-[960px] px-5 py-8 sm:px-8 sm:py-12">
-      <Link href={`/course/${cert}`} className="inline-flex items-center gap-2 rounded-lg text-sm font-semibold text-slate-500 transition hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30 dark:text-slate-400 dark:hover:text-white">
-        <ArrowLeftIcon className="h-4 w-4" />Voltar para a trilha
-      </Link>
-
-      <div className="study-card mt-6 p-7 sm:p-9"><p className="study-eyebrow">
-        {mod.domain}
-      </p><h1 className="mt-4 text-balance text-3xl font-bold tracking-[-0.045em] text-slate-950 sm:text-5xl dark:text-white">{mod.title}</h1><p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">{mod.description}</p><p className="mt-5 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-500 dark:bg-white/5 dark:text-slate-400"><ClockIcon className="h-4 w-4 text-orange-600" />~{mod.durationMinutes} min de estudo</p></div>
-
-      <article className="prose prose-slate mt-6 max-w-none rounded-[1.75rem] border border-slate-200 bg-white p-7 prose-headings:scroll-mt-24 prose-headings:tracking-tight prose-a:text-orange-600 prose-a:decoration-orange-300 prose-a:underline-offset-4 prose-blockquote:rounded-r-xl prose-blockquote:border-orange-400 prose-blockquote:bg-orange-50/60 prose-blockquote:py-1 prose-blockquote:not-italic prose-code:rounded prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-table:text-sm dark:prose-invert dark:border-white/10 dark:bg-slate-900 dark:prose-a:text-orange-400 dark:prose-blockquote:bg-orange-500/10 dark:prose-code:bg-white/10 dark:prose-headings:text-white dark:prose-th:text-slate-200 dark:prose-td:text-slate-300 sm:p-10">
-        <MDXRemote
-          source={mod.body}
-          options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
-        />
-      </article>
-
-      <div className="mt-12 grid gap-3 border-t border-slate-200 pt-7 sm:grid-cols-[1fr_auto_1fr] sm:items-center dark:border-white/10">
-        {prev ? (
-          <Link
-            href={`/course/${cert}/${prev.slug}`}
-            className="text-sm font-semibold text-slate-500 transition hover:text-slate-950 dark:text-slate-400 dark:hover:text-white"
-          >
-            <ArrowLeftIcon className="mr-1 inline h-4 w-4" />{prev.title}
+    <>
+      <div className="ws-reading-progress" aria-hidden="true" />
+      <div className="mx-auto w-full max-w-[1240px] px-4 py-5 sm:px-8 sm:py-8 xl:px-10 xl:py-10">
+        <nav aria-label="Trilha" className="flex flex-wrap items-center gap-2 text-sm">
+          <Link href={`/course/${cert}`} className="ws-btn ws-btn-secondary ws-btn-sm !pl-2.5">
+            <ArrowLeftIcon className="h-4 w-4" />
+            <CertEmblem certId={cert} size="xs" className="!h-5 !w-5 !rounded-md [&>svg]:!h-3 [&>svg]:!w-3" />
+            {meta.code}
           </Link>
-        ) : (
-          <span />
-        )}
+          <ChevronRightIcon className="h-4 w-4 text-ws-subtle" />
+          <span className="text-ws-muted">Semana {mod.week ?? 1}</span>
+          <ChevronRightIcon className="h-4 w-4 text-ws-subtle" />
+          <span className="font-mono text-xs text-ws-subtle">Módulo {index + 1} de {modules.length}</span>
+        </nav>
 
-        {isCompleted ? (
-          <span className="inline-flex min-h-11 items-center justify-center rounded-xl bg-emerald-50 px-4 text-sm font-bold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
-            <CheckIcon className="mr-2 h-4 w-4" />Módulo concluído
-          </span>
-        ) : (
-          <form action={markCompletedAction}>
-            <button
-              type="submit"
-              className="cm-button-primary min-h-11"
+        <div className="mt-8 grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_16rem]">
+          <div className="min-w-0 max-w-[48rem]">
+            <header className="ws-rise">
+              <p className="ws-eyebrow ws-eyebrow-accent">{mod.domain}</p>
+              <h1 className="ws-h1 mt-3 !text-[clamp(2rem,4vw,3rem)]">{mod.title}</h1>
+              <p className="mt-4 text-pretty text-lg leading-8 text-ws-muted">{mod.description}</p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <span className="ws-chip"><TypeIcon className="h-3.5 w-3.5" />{type.label}</span>
+                <span className="ws-chip"><ClockIcon className="h-3.5 w-3.5" />~{mod.durationMinutes} min</span>
+                {isCompleted ? (
+                  <span className="ws-chip ws-chip-success"><CheckCircleIcon className="h-3.5 w-3.5" />Concluído</span>
+                ) : (
+                  <span className="ws-chip ws-chip-accent"><BoltIcon className="h-3.5 w-3.5" />+50 XP ao concluir</span>
+                )}
+              </div>
+            </header>
+
+            {headings.length > 1 ? (
+              <details className="ws-card group mt-8 xl:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-sm font-semibold text-ws-ink [&::-webkit-details-marker]:hidden">
+                  Neste módulo · {headings.length} seções
+                  <ChevronDownIcon className="h-4 w-4 text-ws-subtle transition-transform group-open:rotate-180" />
+                </summary>
+                <div className="px-5 pb-5">
+                  <ModuleToc headings={headings} />
+                </div>
+              </details>
+            ) : null}
+
+            <article className="ws-card ws-prose prose mt-8 max-w-none p-6 sm:p-10">
+              <MDXRemote
+                source={mod.body}
+                components={mdxComponents}
+                options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
+              />
+            </article>
+
+            <section
+              aria-label="Conclusão do módulo"
+              className={`ws-ink mt-6 flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:p-7 ${isCompleted ? "ws-ink-success" : ""}`}
             >
-              Marcar como concluído
-            </button>
-          </form>
-        )}
+              <span
+                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
+                  isCompleted
+                    ? "bg-gradient-to-br from-emerald-300 to-emerald-500 text-[#03170f]"
+                    : "bg-gradient-to-br from-orange-300 to-orange-500 text-[#1a0d03]"
+                }`}
+              >
+                {isCompleted ? <CheckIcon className="h-5 w-5" strokeWidth={2.6} /> : <BoltIcon className="h-5 w-5" />}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-lg font-semibold tracking-[-0.02em] text-white">
+                  {isCompleted ? "Módulo concluído. Mandou bem!" : "Terminou a leitura?"}
+                </p>
+                <p className="mt-1 text-sm text-slate-400">
+                  {isCompleted
+                    ? next
+                      ? `Siga o ritmo: próximo é “${next.title}”.`
+                      : "Você chegou ao fim da trilha. Hora dos simulados completos."
+                    : "Marque como concluído para somar +50 XP e avançar na trilha."}
+                </p>
+              </div>
+              {isCompleted ? (
+                next ? (
+                  <Link href={`/course/${cert}/${next.slug}`} className="ws-btn ws-btn-primary shrink-0">
+                    Próximo módulo
+                    <ArrowRightIcon className="h-4 w-4" />
+                  </Link>
+                ) : (
+                  <Link href={`/simulado/${cert}`} className="ws-btn ws-btn-primary shrink-0">
+                    Fazer simulado
+                    <ArrowRightIcon className="h-4 w-4" />
+                  </Link>
+                )
+              ) : (
+                <form action={markCompletedAction} className="shrink-0">
+                  <button type="submit" className="ws-btn ws-btn-primary w-full sm:w-auto">
+                    <CheckIcon className="h-4 w-4" strokeWidth={2.4} />
+                    Marcar como concluído
+                  </button>
+                </form>
+              )}
+            </section>
 
-        {next ? (
-          <Link
-            href={`/course/${cert}/${next.slug}`}
-            className="text-right text-sm font-semibold text-slate-500 transition hover:text-slate-950 dark:text-slate-400 dark:hover:text-white"
-          >
-            {next.title}<ArrowRightIcon className="ml-1 inline h-4 w-4" />
-          </Link>
-        ) : (
-          <span />
-        )}
+            <nav aria-label="Navegação entre módulos" className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {prev ? (
+                <Link href={`/course/${cert}/${prev.slug}`} className="ws-card ws-card-hover group flex items-center gap-3 p-4">
+                  <ArrowLeftIcon className="h-4 w-4 shrink-0 text-ws-subtle transition-transform group-hover:-translate-x-0.5" />
+                  <span className="min-w-0">
+                    <span className="block font-mono text-[10px] uppercase tracking-wider text-ws-subtle">Anterior</span>
+                    <span className="mt-0.5 block truncate text-sm font-medium text-ws-ink">{prev.title}</span>
+                  </span>
+                </Link>
+              ) : (
+                <span className="hidden sm:block" />
+              )}
+              {next ? (
+                <Link href={`/course/${cert}/${next.slug}`} className="ws-card ws-card-hover group flex items-center justify-end gap-3 p-4 text-right">
+                  <span className="min-w-0">
+                    <span className="block font-mono text-[10px] uppercase tracking-wider text-ws-subtle">Próximo</span>
+                    <span className="mt-0.5 block truncate text-sm font-medium text-ws-ink">{next.title}</span>
+                  </span>
+                  <ArrowRightIcon className="h-4 w-4 shrink-0 text-ws-subtle transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              ) : null}
+            </nav>
+          </div>
+
+          <aside className="hidden xl:block">
+            <div className="sticky top-8 space-y-6">
+              {headings.length > 1 ? (
+                <div>
+                  <p className="ws-eyebrow mb-3">Neste módulo</p>
+                  <ModuleToc headings={headings} />
+                </div>
+              ) : null}
+              <div className="ws-card p-4">
+                <p className="ws-eyebrow">Progresso da trilha</p>
+                <p className="mt-2 flex items-baseline gap-1">
+                  <span className="ws-num text-2xl text-ws-ink">{completedCount}</span>
+                  <span className="text-sm text-ws-subtle">/ {modules.length} módulos</span>
+                </p>
+                <div className="mt-3">
+                  <ProgressBar value={(completedCount / modules.length) * 100} label="Progresso da trilha" />
+                </div>
+                {!isCompleted ? (
+                  <form action={markCompletedAction} className="mt-4">
+                    <button type="submit" className="ws-btn ws-btn-secondary ws-btn-sm w-full">
+                      <CheckIcon className="h-4 w-4" />
+                      Marcar como concluído
+                    </button>
+                  </form>
+                ) : (
+                  <p className="mt-4 flex items-center gap-2 text-sm font-medium text-ws-success-ink">
+                    <CheckCircleIcon className="h-4 w-4" />
+                    Módulo concluído
+                  </p>
+                )}
+              </div>
+            </div>
+          </aside>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

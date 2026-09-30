@@ -1,15 +1,37 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import { getModules, CERTIFICATIONS, isValidCert, type ModuleMeta } from "@/lib/content";
 import { requireAccess } from "@/lib/dal";
 import { getProgressForCert } from "@/lib/progress";
-import { ArrowRightIcon, BookIcon, CheckIcon, ClockIcon, PracticeIcon, TargetIcon } from "@/components/ui-icons";
+import { getReadiness, READY_SCORE } from "@/lib/readiness";
+import { CERT_META } from "@/lib/cert-meta";
+import { formatMinutes } from "@/lib/study-format";
+import { CertEmblem } from "@/components/cert-emblem";
+import { ProgressRing } from "@/components/progress-ring";
+import { ProgressBar, SectionHeader } from "@/components/workspace-ui";
+import {
+  ArrowRightIcon,
+  AwardIcon,
+  BoltIcon,
+  BookIcon,
+  CardsIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  ClockIcon,
+  LayersIcon,
+  LockIcon,
+  PracticeIcon,
+  RotateIcon,
+  TargetIcon,
+} from "@/components/ui-icons";
 
-const TYPE_BADGE: Record<string, { label: string; className: string }> = {
-  teoria: { label: "Teoria", className: "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300" },
-  lab: { label: "Lab", className: "bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300" },
-  revisao: { label: "Revisão", className: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" },
-};
+const TYPE_BADGE = {
+  teoria: { label: "Teoria", className: "", icon: BookIcon },
+  lab: { label: "Lab", className: "ws-chip-indigo", icon: LayersIcon },
+  revisao: { label: "Revisão", className: "ws-chip-warn", icon: RotateIcon },
+} as const;
 
 export default async function CoursePage({
   params,
@@ -22,12 +44,16 @@ export default async function CoursePage({
   await requireAccess(cert);
 
   const certInfo = CERTIFICATIONS[cert];
+  const meta = CERT_META[cert];
   const modules = getModules(cert);
-  const progress = await getProgressForCert(cert);
+  const [progress, readiness] = await Promise.all([getProgressForCert(cert), getReadiness(cert)]);
 
   const isDone = (m: ModuleMeta) => progress[`${cert}/${m.slug}`] === "completed";
   const completed = modules.filter(isDone).length;
-  const nextModule = modules.find((m) => !isDone(m));
+  const nextIndex = modules.findIndex((m) => !isDone(m));
+  const nextModule = nextIndex >= 0 ? modules[nextIndex] : null;
+  const pct = modules.length ? Math.round((completed / modules.length) * 100) : 0;
+  const position = new Map(modules.map((m, index) => [m.slug, index + 1]));
 
   // Agrupa por semana do mapa de estudos
   const weeks = new Map<number, ModuleMeta[]>();
@@ -38,7 +64,6 @@ export default async function CoursePage({
   }
   const sortedWeeks = [...weeks.entries()].sort(([a], [b]) => a - b);
 
-  // Progresso por domínio (para a tabela de domínios)
   const domainStats = certInfo.domains.map((domain) => {
     const domainModules = modules.filter((m) => m.domain === domain);
     const done = domainModules.filter(isDone).length;
@@ -47,146 +72,322 @@ export default async function CoursePage({
 
   const labCount = modules.filter((m) => m.type === "lab").length;
   const totalMinutes = modules.reduce((acc, m) => acc + m.durationMinutes, 0);
+  const remainingMinutes = modules.filter((m) => !isDone(m)).reduce((acc, m) => acc + m.durationMinutes, 0);
 
   return (
-    <div className="mx-auto max-w-[1180px] px-5 py-8 sm:px-8 sm:py-12">
-      <div className="grid gap-8 lg:grid-cols-[1fr_320px] lg:items-start">
-        <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-8 text-white shadow-xl shadow-slate-950/10 sm:px-9 sm:py-10">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_0%,rgba(249,115,22,.26),transparent_35%),linear-gradient(145deg,rgba(255,255,255,.06),transparent_42%)]" />
-          <div className="relative"><div className="flex items-center gap-2 text-orange-300"><BookIcon className="h-4 w-4" /><p className="study-eyebrow !text-orange-300">{certInfo.code} · Trilha completa</p></div>
-          <h1 className="mt-4 max-w-2xl text-3xl font-bold tracking-[-0.04em] sm:text-4xl">{certInfo.name}</h1>
-          <p className="mt-4 text-sm leading-6 text-slate-300">
-        {modules.length} módulos ({labCount} labs práticos) · ~
-        {Math.round(totalMinutes / 60)}h de estudo · {sortedWeeks.length} semanas
-        sugeridas
-          </p>
+    <div className="mx-auto w-full max-w-[1240px] px-4 py-5 sm:px-8 sm:py-8 xl:px-10 xl:py-10">
+      <section className="ws-ink ws-rise p-6 sm:p-8 xl:p-10" aria-labelledby="course-title">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-center xl:gap-12">
+          <div className="min-w-0">
+            <div className="flex items-center gap-4">
+              <CertEmblem certId={cert} size="lg" />
+              <div>
+                <p className="ws-eyebrow !text-orange-200/80">{meta.code} · {meta.tier}</p>
+                <p className="mt-1 text-sm text-slate-400">Trilha de preparação completa</p>
+              </div>
+            </div>
+            <h1 id="course-title" className="mt-6 max-w-3xl text-balance text-[1.9rem] font-semibold leading-[1.08] tracking-[-0.04em] text-white sm:text-[2.5rem]">
+              {certInfo.name}
+            </h1>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span className="ws-chip-glass"><BookIcon className="h-3.5 w-3.5 text-orange-300" />{modules.length} módulos</span>
+              <span className="ws-chip-glass"><LayersIcon className="h-3.5 w-3.5 text-orange-300" />{labCount} labs práticos</span>
+              <span className="ws-chip-glass"><ClockIcon className="h-3.5 w-3.5 text-orange-300" />~{Math.round(totalMinutes / 60)}h de estudo</span>
+              <span className="ws-chip-glass"><TargetIcon className="h-3.5 w-3.5 text-orange-300" />{sortedWeeks.length} semanas</span>
+            </div>
 
-          <div className="mt-7 max-w-2xl">
-        <div className="flex justify-between text-xs font-semibold text-slate-300">
-          <span>
-            {completed} de {modules.length} módulos concluídos
-          </span>
-          <span>{Math.round((completed / modules.length) * 100)}%</span>
-        </div>
-        <div className="mt-2 h-2.5 rounded-full bg-white/15">
-          <div
-            className="h-2.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-300 transition-all duration-500"
-            style={{ width: `${(completed / modules.length) * 100}%` }}
-          />
-        </div>
+            {nextModule ? (
+              <Link href={`/course/${cert}/${nextModule.slug}`} className="ws-glass group mt-7 flex items-center gap-4 p-4 transition-colors hover:border-orange-400/40 sm:p-5">
+                <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-300 to-orange-500 text-[#1a0d03] shadow-[0_10px_24px_-10px_rgba(249,115,22,.9)] sm:flex">
+                  <ArrowRightIcon className="h-5 w-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="ws-eyebrow block !text-slate-400">
+                    {completed > 0 ? "Continuar de onde parou" : "Comece por aqui"} · Módulo {nextIndex + 1} de {modules.length}
+                  </span>
+                  <span className="mt-1 block text-lg font-semibold leading-snug tracking-[-0.02em] text-white">{nextModule.title}</span>
+                  <span className="mt-1 block text-xs text-slate-400">
+                    {TYPE_BADGE[nextModule.type ?? "teoria"].label} · {nextModule.durationMinutes} min · <span className="text-orange-300">+50 XP</span>
+                  </span>
+                </span>
+                <ChevronRightIcon className="h-5 w-5 shrink-0 text-slate-400 transition-transform group-hover:translate-x-1 group-hover:text-white" />
+              </Link>
+            ) : (
+              <Link href={`/simulado/${cert}`} className="ws-glass group mt-7 flex items-center gap-4 p-4 transition-colors hover:border-emerald-400/40 sm:p-5">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-300 to-emerald-500 text-[#03170f]">
+                  <CheckIcon className="h-5 w-5" strokeWidth={2.4} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="ws-eyebrow block !text-emerald-300/80">Trilha concluída</span>
+                  <span className="mt-1 block text-lg font-semibold tracking-[-0.02em] text-white">Hora de consolidar com simulados completos</span>
+                </span>
+                <ChevronRightIcon className="h-5 w-5 shrink-0 text-slate-400 transition-transform group-hover:translate-x-1" />
+              </Link>
+            )}
           </div>
 
-      {nextModule && (
-        <Link
-          href={`/course/${cert}/${nextModule.slug}`}
-          className="group mt-7 flex max-w-2xl items-center justify-between rounded-2xl border border-white/15 bg-white/10 p-5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/15"
-        >
-          <span>
-            <span className="block text-xs font-semibold text-slate-400 dark:text-orange-100">
-              {completed > 0 ? "Continuar de onde parou" : "Começar agora"}
-            </span>
-            <span className="mt-1 block font-bold">{nextModule.title}</span>
-          </span>
-          <ArrowRightIcon className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-        </Link>
-      )}
-        </div></div>
+          <div className="flex items-center gap-6 border-t border-white/10 pt-6 lg:flex-col lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
+            <ProgressRing
+              id="course-ring"
+              size={168}
+              rings={[{ value: pct, tone: pct >= 100 ? "success" : "accent", width: 11 }]}
+              glass
+              delay={1}
+              label={`${pct}% da trilha concluída`}
+              className="hidden sm:inline-flex"
+            >
+              <span className="ws-num text-[2.75rem] text-white">{pct}<span className="text-2xl text-slate-400">%</span></span>
+              <span className="mt-1 font-mono text-[11px] text-slate-400">{completed} de {modules.length}</span>
+            </ProgressRing>
+            <dl className="grid grid-cols-1 flex-1 gap-3 sm:w-full lg:flex-none">
+              <HeroStat label="Restante" value={remainingMinutes ? `~${formatMinutes(remainingMinutes)}` : "Nada!"} />
+              <HeroStat label="Média recente" value={readiness.avgRecentScore === null ? "—" : `${readiness.avgRecentScore}%`} hint={`meta ${READY_SCORE}%`} />
+              <HeroStat label="Prova" value={`${certInfo.examQuestionCount}q · ${certInfo.examDurationMinutes}min`} />
+            </dl>
+          </div>
+        </div>
+      </section>
 
-      <section className="study-card p-6 lg:mt-0">
-        <div className="flex items-center gap-2"><TargetIcon className="h-4 w-4 text-orange-600" /><h2 className="study-eyebrow">
-          Domínios do exame
-        </h2></div>
-        <div className="mt-5 grid gap-4 text-sm text-slate-800 dark:text-slate-200">
-          {domainStats.map(({ domain, total, done }) => (
-            <div key={domain} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0 dark:border-white/5">
-              <div className="flex items-center justify-between gap-3"><span className="font-medium">{domain}</span>
-              <span className="shrink-0 text-xs text-slate-400 dark:text-slate-500">
-                {done}/{total} módulos
-              </span></div>
-              <div className="mt-2 h-1 rounded-full bg-slate-100 dark:bg-white/10"><div className="h-1 rounded-full bg-orange-400" style={{ width: total ? `${(done / total) * 100}%` : "0%" }} /></div>
+      <section className="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]" aria-label="Domínios e prática">
+        <div className="ws-card ws-rise p-5 sm:p-6" style={{ "--d": 1 } as CSSProperties}>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="ws-eyebrow">Blueprint do exame</p>
+              <h2 className="ws-h2 mt-1.5">Cobertura por domínio</h2>
             </div>
-          ))}
+            <span className="ws-chip font-mono">{certInfo.domains.length} domínios</span>
+          </div>
+          <ul className="mt-6 space-y-4">
+            {domainStats.map(({ domain, total, done }, index) => {
+              const value = total ? (done / total) * 100 : 0;
+              return (
+                <li key={domain}>
+                  <div className="mb-2 flex items-baseline justify-between gap-3">
+                    <span className="min-w-0 truncate text-sm font-medium text-ws-ink">{domain}</span>
+                    <span className="shrink-0 font-mono text-xs text-ws-subtle">
+                      <span className="font-semibold text-ws-ink">{done}</span>/{total}
+                    </span>
+                  </div>
+                  <ProgressBar value={value} tone={value >= 100 ? "success" : "accent"} delay={index} />
+                </li>
+              );
+            })}
+          </ul>
         </div>
-        <p className="mt-5 rounded-xl bg-slate-50 p-3 text-xs leading-5 text-slate-400 dark:bg-white/[0.035] dark:text-slate-500">
-          Formato oficial: {certInfo.examQuestionCount} questões ·{" "}
-          {certInfo.examDurationMinutes} minutos
-        </p>
+
+        <div className="grid grid-cols-1 gap-3">
+          <PracticeTile
+            href={`/simulado/${cert}`}
+            icon={<PracticeIcon className="h-5 w-5" />}
+            eyebrow="Praticar"
+            title="Simulados no formato oficial"
+            text={`${certInfo.examQuestionCount} questões · ${certInfo.examDurationMinutes} min · análise por domínio`}
+            primary
+            delay={2}
+          />
+          <PracticeTile
+            href={`/flashcards/${cert}`}
+            icon={<CardsIcon className="h-5 w-5" />}
+            eyebrow="Revisar"
+            title="Flashcards de revisão ativa"
+            text="Os conceitos que mais caem, em sessões curtas"
+            delay={3}
+          />
+          <PracticeTile
+            href={`/certificado/${cert}`}
+            icon={readiness.ready ? <AwardIcon className="h-5 w-5" /> : <LockIcon className="h-5 w-5" />}
+            eyebrow={readiness.ready ? "Conquista liberada" : "Conquista"}
+            title="Certificado de conclusão"
+            text={readiness.ready ? "Você atingiu a prontidão. Emita o seu!" : `Trilha 100% + média ≥ ${READY_SCORE}% em 3 simulados`}
+            delay={4}
+          />
+        </div>
       </section>
-      </div>
 
-      <section className="mt-6 grid gap-4 sm:grid-cols-2" aria-label="Ferramentas de prática">
-        <div className="study-card relative overflow-hidden p-6">
-          <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-[4rem] bg-orange-50 dark:bg-orange-500/10" />
-          <div className="relative flex items-center gap-2"><PracticeIcon className="h-4 w-4 text-orange-600" /><p className="study-eyebrow">Praticar</p></div><h2 className="relative mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Simulados</h2>
-          <p className="relative mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
-            Formato oficial ({certInfo.examQuestionCount} questões, {certInfo.examDurationMinutes} min), dicas com penalidade e análise de tempo por questão.
-          </p>
-          <Link href={`/simulado/${cert}`} className="cm-button-primary relative mt-5 min-h-10 px-4">
-            <PracticeIcon className="h-4 w-4" />Fazer simulado<ArrowRightIcon className="h-4 w-4" />
-          </Link>
-        </div>
-        <div className="study-card p-6">
-          <div className="flex items-center gap-2"><ClockIcon className="h-4 w-4 text-orange-600" /><p className="study-eyebrow">Revisar</p></div><h2 className="mt-3 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Flashcards</h2>
-          <p className="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">Revisão espaçada dos conceitos que mais caem na prova.</p>
-          <Link href={`/flashcards/${cert}`} className="cm-button-secondary mt-5 min-h-10 px-4">Revisar flashcards</Link>
-        </div>
+      <section className="mt-14" aria-labelledby="map-title">
+        <SectionHeader
+          id="map-title"
+          eyebrow="Mapa de estudos"
+          title={`${sortedWeeks.length} semanas até a prova`}
+          description="Siga a ordem sugerida ou vá direto ao que precisa. Semanas concluídas ficam recolhidas."
+        />
+
+        <ol className="relative mt-8">
+          {sortedWeeks.map(([week, weekModules], weekIndex) => {
+            const weekDone = weekModules.filter(isDone).length;
+            const complete = weekDone === weekModules.length;
+            const current = !complete && weekModules.some((m) => m.slug === nextModule?.slug);
+            const last = weekIndex === sortedWeeks.length - 1;
+            return (
+              <li key={week} className="relative pl-12 sm:pl-16">
+                {!last ? (
+                  <span
+                    aria-hidden="true"
+                    className={`absolute bottom-0 left-[17px] top-10 w-0.5 sm:left-[21px] ${complete ? "bg-gradient-to-b from-orange-400 to-orange-400/40" : "bg-ws-line/10"}`}
+                  />
+                ) : null}
+                <span
+                  aria-hidden="true"
+                  className={`absolute left-0 top-0 flex h-9 w-9 items-center justify-center rounded-full font-mono text-xs font-semibold sm:h-11 sm:w-11 sm:text-sm ${
+                    complete
+                      ? "bg-gradient-to-br from-amber-300 to-orange-500 text-[#1a0d03] shadow-[0_8px_20px_-8px_rgba(249,115,22,.8)]"
+                      : current
+                        ? "bg-ws-ink text-ws-canvas shadow-[0_0_0_5px_rgb(var(--ws-accent)/0.22)]"
+                        : "border border-ws-line/15 bg-ws-surface text-ws-subtle"
+                  }`}
+                >
+                  {complete ? <CheckIcon className="h-4 w-4" strokeWidth={2.6} /> : String(week).padStart(2, "0")}
+                </span>
+
+                <details className="group pb-10" open={!complete}>
+                  <summary className="flex min-h-9 cursor-pointer list-none items-center gap-3 rounded-xl sm:min-h-11 [&::-webkit-details-marker]:hidden">
+                    <span className="min-w-0">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="text-base font-semibold tracking-[-0.02em] text-ws-ink">Semana {week}</span>
+                        {current ? <span className="ws-chip ws-chip-accent !h-5 !px-2 !text-[11px]">Você está aqui</span> : null}
+                        {complete ? <span className="ws-chip ws-chip-success !h-5 !px-2 !text-[11px]">Concluída</span> : null}
+                      </span>
+                      <span className="mt-0.5 block font-mono text-[11px] text-ws-subtle">
+                        {weekDone}/{weekModules.length} módulos · {formatMinutes(weekModules.reduce((acc, m) => acc + m.durationMinutes, 0))}
+                      </span>
+                    </span>
+                    <span className="ml-auto hidden w-32 sm:block">
+                      <ProgressBar value={(weekDone / weekModules.length) * 100} tone={complete ? "success" : "accent"} />
+                    </span>
+                    <ChevronDownIcon className="h-4 w-4 shrink-0 text-ws-subtle transition-transform group-open:rotate-180" />
+                  </summary>
+
+                  <ul className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+                    {weekModules.map((mod) => (
+                      <li key={mod.slug}>
+                        <ModuleTile
+                          href={`/course/${cert}/${mod.slug}`}
+                          mod={mod}
+                          position={position.get(mod.slug) ?? 0}
+                          done={isDone(mod)}
+                          next={mod.slug === nextModule?.slug}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </li>
+            );
+          })}
+        </ol>
       </section>
-
-      <div className="mt-12 space-y-12">
-        {sortedWeeks.map(([week, weekModules]) => (
-          <section key={week}>
-            <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-xs font-bold text-white dark:bg-white dark:text-slate-950">{week}</span><h2 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
-              Semana {week}
-            </h2></div>
-            <ol className="mt-4 grid gap-3 lg:grid-cols-2">
-              {weekModules.map((mod) => {
-                const done = isDone(mod);
-                const badge = TYPE_BADGE[mod.type ?? "teoria"];
-                return (
-                  <li key={mod.slug}>
-                    <Link
-                      href={`/course/${cert}/${mod.slug}`}
-                      className="study-card-interactive group flex h-full items-start gap-4 p-5"
-                    >
-                      <span
-                        className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-medium ${
-                          done
-                            ? "bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-400"
-                            : "bg-slate-100 text-slate-500 transition group-hover:bg-orange-50 group-hover:text-orange-600 dark:bg-white/5 dark:text-slate-400"
-                        }`}
-                      >
-                        {done ? <CheckIcon className="h-4 w-4" /> : mod.order}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="flex flex-wrap items-center gap-2">
-                          <span className="font-bold tracking-tight text-slate-900 dark:text-white">
-                            {mod.title}
-                          </span>
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${badge.className}`}
-                          >
-                            {badge.label}
-                          </span>
-                        </span>
-                        <span className="mt-2 block text-sm leading-6 text-slate-500 dark:text-slate-400">
-                          {mod.description}
-                        </span>
-                        <span className="mt-2 block text-xs font-medium text-slate-400 dark:text-slate-500">
-                          {mod.domain} · ~{mod.durationMinutes} min
-                        </span>
-                        <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-slate-600 transition group-hover:text-orange-600 dark:text-slate-300 dark:group-hover:text-orange-300">
-                          Ver módulo <ArrowRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                        </span>
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ol>
-          </section>
-        ))}
-      </div>
-
     </div>
+  );
+}
+
+function HeroStat({ label, value, hint }: { label: string; value: string; hint?: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5">
+      <dt className="text-xs text-slate-400">{label}</dt>
+      <dd className="text-right font-mono text-sm font-semibold text-white">
+        {value}
+        {hint ? <span className="ml-1.5 text-[10px] font-normal text-slate-500">{hint}</span> : null}
+      </dd>
+    </div>
+  );
+}
+
+function PracticeTile({
+  href,
+  icon,
+  eyebrow,
+  title,
+  text,
+  primary = false,
+  delay,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  eyebrow: string;
+  title: string;
+  text: string;
+  primary?: boolean;
+  delay: number;
+}) {
+  return (
+    <Link href={href} className="ws-card ws-card-hover ws-rise group flex items-center gap-4 p-4 sm:p-5" style={{ "--d": delay } as CSSProperties}>
+      <span
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
+          primary
+            ? "bg-gradient-to-br from-orange-300 to-orange-500 text-[#1a0d03] shadow-[0_10px_22px_-10px_rgba(249,115,22,.9)]"
+            : "bg-ws-accent/10 text-ws-accent-ink"
+        }`}
+      >
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="ws-eyebrow block">{eyebrow}</span>
+        <span className="mt-0.5 block text-[15px] font-semibold tracking-[-0.015em] text-ws-ink">{title}</span>
+        <span className="mt-0.5 block truncate text-xs text-ws-muted">{text}</span>
+      </span>
+      <ChevronRightIcon className="h-4 w-4 shrink-0 text-ws-subtle transition-transform group-hover:translate-x-0.5 group-hover:text-ws-accent-ink" />
+    </Link>
+  );
+}
+
+function ModuleTile({
+  href,
+  mod,
+  position,
+  done,
+  next,
+}: {
+  href: string;
+  mod: ModuleMeta;
+  position: number;
+  done: boolean;
+  next: boolean;
+}) {
+  const badge = TYPE_BADGE[mod.type ?? "teoria"];
+  const BadgeIcon = badge.icon;
+
+  return (
+    <Link
+      href={href}
+      className={`ws-card ws-card-hover group flex h-full gap-4 p-4 sm:p-5 ${
+        next ? "!border-ws-accent/60 shadow-[0_0_0_4px_rgb(var(--ws-accent)/0.12),0_20px_40px_-24px_rgb(var(--ws-accent)/0.7)]" : ""
+      }`}
+    >
+      <span
+        className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-mono text-xs font-semibold ${
+          done
+            ? "bg-ws-success/15 text-ws-success-ink"
+            : next
+              ? "bg-gradient-to-br from-orange-300 to-orange-500 text-[#1a0d03]"
+              : "bg-ws-line/[0.06] text-ws-muted"
+        }`}
+      >
+        {done ? <CheckIcon className="h-4 w-4" strokeWidth={2.4} /> : String(position).padStart(2, "0")}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
+          {next ? <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-ws-accent-ink">Próximo</span> : null}
+          {done ? <span className="font-mono text-[10px] uppercase tracking-wider text-ws-success-ink">Concluído</span> : null}
+          <span className="font-mono text-[10px] uppercase tracking-wider text-ws-subtle">{mod.durationMinutes} min</span>
+        </span>
+        <span className="mt-1 block text-[15px] font-semibold leading-snug tracking-[-0.015em] text-ws-ink">{mod.title}</span>
+        <span className="mt-1.5 line-clamp-2 block text-[13px] leading-5 text-ws-muted">{mod.description}</span>
+        <span className="mt-3 flex flex-wrap items-center gap-1.5">
+          <span className={`ws-chip !h-6 !text-[11px] ${badge.className}`}>
+            <BadgeIcon className="h-3 w-3" />
+            {badge.label}
+          </span>
+          <span className="ws-chip !h-6 min-w-0 max-w-full !text-[11px]">
+            <span className="truncate">{mod.domain}</span>
+          </span>
+          {next ? (
+            <span className="ws-chip ws-chip-accent !h-6 !text-[11px]">
+              <BoltIcon className="h-3 w-3" />+50 XP
+            </span>
+          ) : null}
+        </span>
+      </span>
+      <ChevronRightIcon className="mt-1 h-4 w-4 shrink-0 text-ws-subtle transition-transform group-hover:translate-x-0.5 group-hover:text-ws-accent-ink" />
+    </Link>
   );
 }

@@ -1,59 +1,172 @@
+import Link from "next/link";
+import { Geist, Geist_Mono } from "next/font/google";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { logout } from "@/app/(auth)/actions";
-import { DesktopAppNav, MobileAppNav } from "@/components/app-nav";
-import { LogoutIcon } from "@/components/ui-icons";
-import "./workspace.css";
+import { AccountMenu, MobileCertTabs, MobileTabBar, SidebarNav } from "@/components/app-nav";
+import { ProgressRing } from "@/components/progress-ring";
+import { ArrowRightIcon, BoltIcon, CheckCircleIcon, FlameIcon, LogoutIcon, SparkIcon } from "@/components/ui-icons";
+import { getWorkspaceSummary, type WorkspaceSummary } from "@/lib/workspace";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
+
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const summary = await getWorkspaceSummary();
+
   return (
-    <div className="cm-workspace min-h-screen pb-20 lg:grid lg:grid-cols-[272px_minmax(0,1fr)] lg:pb-0">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[272px] flex-col border-r border-white/10 bg-[#0a0f18] px-4 py-5 text-white shadow-[18px_0_45px_-34px_rgba(2,6,23,.75)] lg:flex">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_40%_-10%,rgba(249,115,22,.26),transparent_65%)]" />
-        <div className="px-2">
-          <Logo size={34} dark href="/dashboard" />
+    <div className={`cm-workspace ${geist.variable} ${geistMono.variable}`}>
+      <div className="ws-backdrop" aria-hidden="true" />
+      <a
+        href="#conteudo"
+        className="sr-only z-[80] rounded-xl bg-ws-ink px-4 py-2 text-sm font-semibold text-ws-canvas focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+      >
+        Pular para o conteúdo
+      </a>
+
+      <aside className="ws-sidebar hidden flex-col lg:flex">
+        <div className="px-5 pt-5">
+          <Logo size={32} dark href="/dashboard" />
         </div>
-        <div className="relative mt-9 flex min-h-0 flex-1 flex-col">
-          <DesktopAppNav />
+        <div className="px-3 pt-5">
+          <PlayerCard summary={summary} />
         </div>
-        <div className="relative border-t border-white/10 pt-4">
-          <div className="mb-2 flex items-center justify-between px-2">
-            <span className="text-xs font-semibold text-slate-500">Aparência</span>
-            <ThemeToggle />
-          </div>
-          <form action={logout}>
-            <button type="submit" className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-slate-400 transition hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30">
-              <LogoutIcon className="h-[18px] w-[18px]" />
-              Sair da conta
-            </button>
-          </form>
+        <div className="ws-scrollbar-none min-h-0 flex-1 overflow-y-auto px-3 pb-4 pt-7">
+          <SidebarNav certs={summary.certs} premium={summary.premium} />
+        </div>
+        <div className="space-y-2.5 border-t border-white/[0.07] px-3 pb-3 pt-3">
+          {summary.premium ? (
+            <div className="flex items-center justify-between gap-2 px-1.5">
+              <span className="flex min-w-0 items-center gap-2 text-xs font-medium text-slate-300">
+                <CheckCircleIcon className="h-4 w-4 shrink-0 text-emerald-400" />
+                <span className="truncate">{summary.planLabel}</span>
+              </span>
+              <form action={logout}>
+                <button
+                  type="submit"
+                  aria-label="Sair da conta"
+                  title="Sair da conta"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-white/[0.07] hover:text-white"
+                >
+                  <LogoutIcon className="h-4 w-4" />
+                </button>
+              </form>
+            </div>
+          ) : (
+            <UpgradeCard />
+          )}
+          <ThemeToggle variant="segmented" />
+          {!summary.premium ? (
+            <form action={logout}>
+              <button type="submit" className="flex h-9 w-full items-center gap-2.5 rounded-xl px-2.5 text-[13px] font-medium text-slate-400 transition-colors hover:bg-white/[0.06] hover:text-white">
+                <LogoutIcon className="h-4 w-4" />
+                Sair da conta
+              </button>
+            </form>
+          ) : null}
         </div>
       </aside>
 
-      <div className="min-w-0 lg:col-start-2">
-      <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-[#080c13]/80 lg:hidden">
-        <nav className="flex h-16 items-center justify-between px-5 sm:px-6">
-          <Logo size={30} href="/dashboard" />
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <form action={logout}>
-              <button
-                type="submit"
-                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white"
-                aria-label="Sair da conta"
-              >
-                <LogoutIcon className="h-[18px] w-[18px]" />
-              </button>
-            </form>
+      <div className="flex min-h-screen flex-col lg:pl-[18.5rem]">
+        <header className="ws-topbar sticky top-0 z-40 lg:hidden">
+          <div className="flex h-14 items-center justify-between px-4 sm:px-6">
+            <Logo size={28} href="/dashboard" />
+            <AccountMenu
+              initials={summary.initials}
+              name={summary.name}
+              email={summary.email}
+              planLabel={summary.planLabel}
+              streakDays={summary.profile ? summary.profile.streakDays : null}
+            />
           </div>
-        </nav>
-      </header>
-      <main className="min-h-[calc(100vh-9rem)]">{children}</main>
-      <footer className="border-t border-slate-200/70 bg-white/40 px-5 py-5 text-center text-xs text-slate-400 dark:border-white/10 dark:bg-white/[0.01] dark:text-slate-600">
-        CloudMastery — material de estudo independente, sem afiliação com a AWS.
-      </footer>
-      <MobileAppNav />
+          <MobileCertTabs certs={summary.certs} />
+        </header>
+
+        <main id="conteudo" className="flex-1">
+          {children}
+        </main>
+
+        <footer className="px-5 pb-32 pt-8 text-center text-xs text-ws-subtle lg:pb-8">
+          CloudMastery · material de estudo independente, sem afiliação com a AWS.
+        </footer>
       </div>
+
+      <MobileTabBar certs={summary.certs} />
     </div>
+  );
+}
+
+function PlayerCard({ summary }: { summary: WorkspaceSummary }) {
+  const { profile } = summary;
+  const avatar = (
+    <span className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-gradient-to-br from-orange-300 to-orange-500 text-[12px] font-bold text-[#1a0d03] shadow-[inset_0_1px_0_rgba(255,255,255,.45)]">
+      {summary.initials}
+    </span>
+  );
+
+  return (
+    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,.05)]">
+      <div className="flex items-center gap-3">
+        {profile ? (
+          <ProgressRing
+            id="player-level"
+            size={44}
+            rings={[{ value: profile.progressToNext, tone: "accent", width: 3 }]}
+            glass
+            label={`${profile.progressToNext}% até o próximo nível`}
+          >
+            {avatar}
+          </ProgressRing>
+        ) : (
+          avatar
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-white">{summary.name ?? "Estudante"}</p>
+          <p className="truncate text-xs text-orange-300/90">{profile ? profile.level.name : "Plano gratuito"}</p>
+        </div>
+        {profile ? (
+          <span className="rounded-md border border-white/10 px-1.5 py-0.5 font-mono text-[10px] text-slate-400" title={`Nível ${profile.level.index + 1}`}>
+            {profile.level.code}
+          </span>
+        ) : null}
+      </div>
+      {profile ? (
+        <div className="mt-3 grid grid-cols-2 gap-1.5">
+          <span className="flex items-center gap-2 rounded-xl bg-black/20 px-2.5 py-2">
+            <FlameIcon className={`h-4 w-4 ${profile.streakDays > 0 ? "text-orange-400" : "text-slate-500"}`} />
+            <span className="leading-none">
+              <span className="block font-mono text-sm font-semibold text-white">{profile.streakDays}</span>
+              <span className="text-[10px] text-slate-500">{profile.streakDays === 1 ? "dia seguido" : "dias seguidos"}</span>
+            </span>
+          </span>
+          <span className="flex items-center gap-2 rounded-xl bg-black/20 px-2.5 py-2">
+            <BoltIcon className="h-4 w-4 text-amber-300" />
+            <span className="leading-none">
+              <span className="block font-mono text-sm font-semibold text-white">{profile.totalXp.toLocaleString("pt-BR")}</span>
+              <span className="text-[10px] text-slate-500">XP total</span>
+            </span>
+          </span>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function UpgradeCard() {
+  return (
+    <Link
+      href="/pricing"
+      className="group block rounded-2xl border border-orange-400/25 bg-gradient-to-br from-orange-500/[0.18] via-orange-500/[0.07] to-transparent p-3.5 transition-colors hover:border-orange-400/45"
+    >
+      <p className="flex items-center gap-2 text-sm font-semibold text-white">
+        <SparkIcon className="h-4 w-4 text-orange-300" />
+        Seja Premium
+      </p>
+      <p className="mt-1 text-xs leading-5 text-slate-400">Trilhas completas, simulados ilimitados e análise por domínio.</p>
+      <span className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-orange-300">
+        Ver planos
+        <ArrowRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+      </span>
+    </Link>
   );
 }
