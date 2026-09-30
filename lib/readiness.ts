@@ -1,10 +1,16 @@
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { verifySession } from "@/lib/dal";
-import { getModules, type CertId } from "@/lib/content";
+import { getModules, type CertId, type ModuleMeta } from "@/lib/content";
 import { getProgressForCert } from "@/lib/progress";
 
 export type DomainStat = { domain: string; correct: number; total: number; pct: number };
+
+export type NextModule = Pick<ModuleMeta, "slug" | "title" | "domain" | "durationMinutes" | "type" | "week"> & {
+  /** Posição 1-based na trilha ordenada. */
+  position: number;
+};
 
 export type Readiness = {
   certId: CertId;
@@ -15,15 +21,19 @@ export type Readiness = {
   scoreHistory: Array<{ score: number; completedAt: string }>; // cronológico (antigo → recente)
   avgRecentScore: number | null;
   weakestDomains: DomainStat[];
+  /** Todos os domínios já medidos em simulados completos, do mais fraco ao mais forte. */
+  domainStats: DomainStat[];
+  /** Primeiro módulo ainda não concluído, na ordem da trilha. */
+  nextModule: NextModule | null;
   ready: boolean;
   advice: string;
 };
 
-const READY_SCORE = 75; // margem sobre a nota de corte (~70-72%)
+export const READY_SCORE = 75; // margem sobre a nota de corte (~70-72%)
 
 // Regra de prontidão: todos os módulos concluídos + média >= 75% nos
-// últimos 3 simulados completos.
-export async function getReadiness(certId: CertId): Promise<Readiness> {
+// últimos 3 simulados completos. Cached per request (dashboard + certificado).
+export const getReadiness = cache(async (certId: CertId): Promise<Readiness> => {
   const { userId } = await verifySession();
   const supabase = await createClient();
 
@@ -32,6 +42,8 @@ export async function getReadiness(certId: CertId): Promise<Readiness> {
   const modulesCompleted = modules.filter(
     (m) => progress[`${certId}/${m.slug}`] === "completed"
   ).length;
+  const nextIndex = modules.findIndex((m) => progress[`${certId}/${m.slug}`] !== "completed");
+  const next = nextIndex >= 0 ? modules[nextIndex] : null;
 
   const { data: attempts } = await supabase
     .from("simulado_attempts")
@@ -76,15 +88,15 @@ export async function getReadiness(certId: CertId): Promise<Readiness> {
     }
   }
 
-  const weakestDomains = Object.entries(domainAgg)
+  const domainStats = Object.entries(domainAgg)
     .map(([domain, { correct, total }]) => ({
       domain,
       correct,
       total,
       pct: total ? Math.round((correct / total) * 100) : 0,
     }))
-    .sort((a, b) => a.pct - b.pct)
-    .slice(0, 3);
+    .sort((a, b) => a.pct - b.pct);
+  const weakestDomains = domainStats.slice(0, 3);
 
   const allModulesDone = modulesCompleted === modules.length && modules.length > 0;
   const scoreReady =
@@ -112,7 +124,19 @@ export async function getReadiness(certId: CertId): Promise<Readiness> {
     scoreHistory,
     avgRecentScore,
     weakestDomains,
+    domainStats,
+    nextModule: next
+      ? {
+          slug: next.slug,
+          title: next.title,
+          domain: next.domain,
+          durationMinutes: next.durationMinutes,
+          type: next.type,
+          week: next.week,
+          position: nextIndex + 1,
+        }
+      : null,
     ready,
     advice,
   };
-}
+});

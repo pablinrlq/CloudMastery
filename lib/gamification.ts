@@ -1,6 +1,8 @@
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { verifySession } from "@/lib/dal";
+import { activityCalendar, longestStreak } from "@/lib/study-format";
 
 // XP é DERIVADO dos dados existentes (progresso + simulados), sem tabela nova:
 // evita dupla contagem e mantém o número sempre consistente com o histórico.
@@ -8,6 +10,7 @@ const XP_PER_MODULE = 50;
 const XP_PER_FULL_SIMULADO = 100;
 const XP_PASS_BONUS = 50; // simulado completo com nota >= corte
 const PASS_SCORE = 72;
+const ACTIVITY_DAYS = 16 * 7; // janela do mapa de consistência
 
 export type Level = {
   index: number;
@@ -17,7 +20,7 @@ export type Level = {
   nextXp: number | null; // null = nível máximo
 };
 
-const LEVELS: Array<Omit<Level, "index" | "nextXp">> = [
+export const LEVELS: Array<Omit<Level, "index" | "nextXp">> = [
   { name: "Cloud Rookie", code: "CM-01", minXp: 0 },
   { name: "Cloud Explorer", code: "CM-02", minXp: 200 },
   { name: "Cloud Builder", code: "CM-03", minXp: 500 },
@@ -30,6 +33,7 @@ const LEVELS: Array<Omit<Level, "index" | "nextXp">> = [
 export type GamificationProfile = {
   totalXp: number;
   level: Level;
+  nextLevel: { name: string; code: string } | null;
   xpIntoLevel: number;
   xpForNextLevel: number | null;
   progressToNext: number; // 0-100
@@ -38,6 +42,9 @@ export type GamificationProfile = {
   modulesCompleted: number;
   simuladosCompleted: number;
   bestScore: number | null;
+  longestStreak: number;
+  /** Atividades por dia (UTC) nas últimas 16 semanas, do mais antigo ao mais recente. */
+  activity: Array<{ date: string; count: number }>;
 };
 
 function levelFor(xp: number): Level {
@@ -72,7 +79,8 @@ function computeStreak(dates: string[]): { streak: number; today: boolean } {
   return { streak, today: studiedToday };
 }
 
-export async function getGamificationProfile(): Promise<GamificationProfile> {
+// Cached per request: the workspace shell and the dashboard share one read.
+export const getGamificationProfile = cache(async (): Promise<GamificationProfile> => {
   const { userId } = await verifySession();
   const supabase = await createClient();
 
@@ -120,6 +128,7 @@ export async function getGamificationProfile(): Promise<GamificationProfile> {
   return {
     totalXp,
     level,
+    nextLevel: LEVELS[level.index + 1] ? { name: LEVELS[level.index + 1].name, code: LEVELS[level.index + 1].code } : null,
     xpIntoLevel,
     xpForNextLevel,
     progressToNext,
@@ -128,5 +137,7 @@ export async function getGamificationProfile(): Promise<GamificationProfile> {
     modulesCompleted,
     simuladosCompleted,
     bestScore,
+    longestStreak: longestStreak(activityDates),
+    activity: activityCalendar(activityDates, ACTIVITY_DAYS),
   };
-}
+});

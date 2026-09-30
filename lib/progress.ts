@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { verifySession } from "@/lib/dal";
 
@@ -7,7 +8,8 @@ export type ProgressMap = Record<string, "not_started" | "in_progress" | "comple
 // Returns { "<certId>/<slug>": status } for the signed-in user.
 // Module identity is cert+slug (mirrors content files); the DB modules table
 // keeps ids for relational integrity, seeded from the same slugs.
-export async function getProgressForCert(certId: string): Promise<ProgressMap> {
+// Cached per request so the workspace shell, dashboard and course pages share reads.
+export const getProgressForCert = cache(async (certId: string): Promise<ProgressMap> => {
   const { userId } = await verifySession();
   const supabase = await createClient();
 
@@ -23,4 +25,4 @@ export async function getProgressForCert(certId: string): Promise<ProgressMap> {
     map[`${mod.cert_id}/${mod.slug}`] = row.status as ProgressMap[string];
   }
   return map;
-}
+});
