@@ -27,10 +27,25 @@ export const verifySession = cache(async () => {
   return { userId: user.id, email: user.email, user };
 });
 
+async function lookupSession(requestHeaders: Headers) {
+  try {
+    return await auth.api.getSession({ headers: requestHeaders });
+  } catch (error) {
+    console.error(
+      "[auth] session lookup failed:",
+      error instanceof Error ? `${error.name}: ${error.message}` : "unknown error"
+    );
+    return null;
+  }
+}
+
+// Best-effort lookup for public pages: the marketing header only uses it to pick
+// its CTA, so a misconfigured auth backend or an unreachable database must not
+// take the whole page down (it renders as signed-out and the error is logged).
+// `headers()` stays outside the try block so Next's dynamic-rendering signals
+// still propagate. Protected pages use verifySession(), which fails closed.
 export const getSession = cache(async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await lookupSession(await headers());
 
   const user = session?.user;
 
