@@ -26,6 +26,34 @@ export function initialsFromEmail(email: string): string {
   return letters.toUpperCase() || "CM";
 }
 
+function isRealName(fullName: string | null | undefined, email: string): fullName is string {
+  const local = (email.split("@")[0] ?? "").trim().toLowerCase();
+  const cleaned = (fullName ?? "").trim();
+  // Cadastro por e-mail grava a parte local do e-mail como "name": não é um nome de verdade.
+  return cleaned.length > 0 && cleaned.toLowerCase() !== local;
+}
+
+/** Primeiro nome real da conta (login social); senão, deduzido do e-mail. */
+export function displayName(fullName: string | null | undefined, email: string): string | null {
+  if (isRealName(fullName, email)) {
+    const first = fullName.trim().split(/\s+/)[0];
+    if (/^\p{L}[\p{L}'’-]{1,19}$/u.test(first)) {
+      return first.charAt(0).toLocaleUpperCase("pt-BR") + first.slice(1);
+    }
+  }
+  return displayNameFromEmail(email);
+}
+
+/** Iniciais do nome real (primeiro + último); senão, do e-mail. */
+export function displayInitials(fullName: string | null | undefined, email: string): string {
+  if (isRealName(fullName, email)) {
+    const parts = fullName.trim().split(/\s+/).filter((part) => /^\p{L}/u.test(part));
+    if (parts.length >= 2) return `${parts[0][0]}${parts[parts.length - 1][0]}`.toLocaleUpperCase("pt-BR");
+    if (parts.length === 1) return parts[0].slice(0, 2).toLocaleUpperCase("pt-BR");
+  }
+  return initialsFromEmail(email);
+}
+
 /** Stable anchor id for a heading: lowercase, no accents, dash separated. */
 export function slugifyHeading(text: string): string {
   return text

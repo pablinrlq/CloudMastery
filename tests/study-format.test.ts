@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   activityCalendar,
+  displayInitials,
+  displayName,
   displayNameFromEmail,
   extractHeadings,
   formatMinutes,
@@ -17,6 +19,19 @@ test("display name comes from a name-like email local part", () => {
   assert.equal(displayNameFromEmail("x@x.com"), null);
   assert.equal(displayNameFromEmail("123456@x.com"), null);
   assert.equal(displayNameFromEmail("averyveryverylongname@x.com"), null);
+});
+
+test("a real account name wins over the e-mail guess", () => {
+  assert.equal(displayName("Pablo Moisés Gomes", "pablo@x.com"), "Pablo");
+  assert.equal(displayName("maria eduarda", "x@x.com"), "Maria");
+  assert.equal(displayName("Zoë", "zoe@x.com"), "Zoë");
+  // e-mail sign-ups store the local part as the name: fall back to the e-mail guess
+  assert.equal(displayName("ana.silva", "ana.silva@exemplo.com"), "Ana");
+  assert.equal(displayName("", "joao.pereira@exemplo.com"), "Joao");
+  assert.equal(displayName(null, "42@x.com"), null);
+  assert.equal(displayInitials("Pablo Moisés Gomes", "pablo@x.com"), "PG");
+  assert.equal(displayInitials("Zoë", "zoe@x.com"), "ZO");
+  assert.equal(displayInitials("ana.silva", "ana.silva@exemplo.com"), "AS");
 });
 
 test("initials use two name parts when available", () => {

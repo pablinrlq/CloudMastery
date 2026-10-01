@@ -4,7 +4,7 @@ import { getSubscription, hasAccess, verifySession } from "@/lib/dal";
 import { CERTIFICATIONS, getModules, type CertId } from "@/lib/learning/content";
 import { getProgressForCert } from "@/lib/learning/progress";
 import { getGamificationProfile, type GamificationProfile } from "@/lib/learning/gamification";
-import { displayNameFromEmail, initialsFromEmail } from "@/lib/learning/study-format";
+import { displayInitials, displayName } from "@/lib/learning/study-format";
 
 export type WorkspaceCert = {
   id: CertId;
@@ -33,7 +33,7 @@ const PLAN_LABELS: Record<string, string> = {
 // Identity, plan and per-track progress for the workspace shell. Cached per
 // request, so pages that read the same data (dashboard, course) reuse it.
 export const getWorkspaceSummary = cache(async (): Promise<WorkspaceSummary> => {
-  const [{ email }, subscription] = await Promise.all([verifySession(), getSubscription()]);
+  const [{ email, user }, subscription] = await Promise.all([verifySession(), getSubscription()]);
   const certIds = Object.keys(CERTIFICATIONS) as CertId[];
   const unlockedIds = certIds.filter((certId) => hasAccess(subscription, certId));
   const premium = unlockedIds.length > 0;
@@ -60,8 +60,8 @@ export const getWorkspaceSummary = cache(async (): Promise<WorkspaceSummary> => 
 
   return {
     email,
-    name: displayNameFromEmail(email),
-    initials: initialsFromEmail(email),
+    name: displayName(user.name, email),
+    initials: displayInitials(user.name, email),
     premium,
     planLabel: premium ? (PLAN_LABELS[subscription?.plan ?? ""] ?? "Premium") : null,
     profile,
