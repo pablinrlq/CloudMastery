@@ -31,7 +31,5 @@ export async function sendAuthEmail(to: string, subject: string, html: string) {
     disableUrlAccess: true,
   });
 
-  console.log(transporter)
-
   await transporter.sendMail({ from, to, subject, html });
 }
