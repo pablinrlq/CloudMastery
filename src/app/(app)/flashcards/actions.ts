@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { verifySession } from "@/lib/dal";
+import { getSubscription, hasAccess, verifySession } from "@/lib/dal";
 
 export async function markFlashcard(
   flashcardId: string,
@@ -11,6 +11,11 @@ export async function markFlashcard(
     throw new Error("Flashcard inválido.");
   }
   const { userId } = await verifySession();
+  const card = await db.selectFrom("flashcards").select("cert_id").where("id", "=", flashcardId).executeTakeFirst();
+  if (!card) throw new Error("Flashcard não encontrado.");
+  const subscription = await getSubscription();
+  if (!hasAccess(subscription, card.cert_id)) throw new Error("Acesso Premium necessário.");
+
   await db.insertInto("user_flashcard_progress").values({
       user_id: userId,
       flashcard_id: flashcardId,

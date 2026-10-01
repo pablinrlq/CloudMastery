@@ -21,6 +21,9 @@ export async function POST() {
     );
   }
 
+  const rateLimited = await enforceRateLimit("stripe-portal", user.id, 10, 600);
+  if (rateLimited) return rateLimited;
+
   const subscription = await db.selectFrom("subscriptions").select(["stripe_customer_id", "plan"]).where("user_id", "=", user.id).executeTakeFirst();
 
   if (!subscription?.stripe_customer_id) {

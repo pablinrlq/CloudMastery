@@ -72,7 +72,8 @@ export async function POST(request: NextRequest) {
     subscription as Subscription | null,
     attempt.cert_id
   );
-  if (!premiumInsights) {
+  // O diagnóstico gratuito é corrigido para qualquer conta; o resto é Premium.
+  if (attempt.mode !== "diagnostic" && !premiumInsights) {
     return NextResponse.json({ error: "Assinatura necessária" }, { status: 403 });
   }
 

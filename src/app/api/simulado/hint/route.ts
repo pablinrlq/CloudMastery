@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { sql } from "kysely";
 import { getApiUser } from "@/lib/auth/api";
 import { db } from "@/lib/db";
 import { hasAccess, type Subscription } from "@/lib/dal";
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
     .select(["status", "plan", "cert_access", "current_period_end"])
     .where("user_id", "=", user.id)
     .executeTakeFirst();
-  if (!hasAccess(subscription as Subscription | null, attempt.cert_id)) {
+  if (attempt.mode === "diagnostic" || !hasAccess(subscription as Subscription | null, attempt.cert_id)) {
     return NextResponse.json({ error: "Dicas são um recurso Premium." }, { status: 403 });
   }
   const selectedQuestionIds: string[] = Array.isArray(attempt.selected_question_ids)
@@ -65,7 +66,23 @@ export async function POST(request: NextRequest) {
 
   const used: string[] = Array.isArray(attempt.hints_used) ? attempt.hints_used : [];
   if (!used.includes(questionId)) {
-    const result = await db.updateTable("simulado_attempts").set({ hints_used: [...used, questionId] }).where("id", "=", attemptId).where("completed_at", "is", null).executeTakeFirst();
+    // Registro atômico no próprio UPDATE: requisições simultâneas não perdem
+    // dicas (e, portanto, não escapam da penalidade aplicada na correção).
+    const result = await db
+      .updateTable("simulado_attempts")
+      .set({
+        // jsonb_typeof: linhas antigas gravadas como "{}" (objeto) voltam a ser lista.
+        hints_used: sql`case
+          when jsonb_typeof(hints_used) <> 'array' then jsonb_build_array(${questionId}::text)
+          when hints_used @> jsonb_build_array(${questionId}::text) then hints_used
+          else hints_used || jsonb_build_array(${questionId}::text)
+        end`,
+      })
+      .where("id", "=", attemptId)
+      .where("user_id", "=", user.id)
+      .where("completed_at", "is", null)
+      .where(sql<boolean>`${questionId}::uuid = any(selected_question_ids)`)
+      .executeTakeFirst();
     if (Number(result.numUpdatedRows) === 0) {
       return NextResponse.json({ error: "Falha ao registrar dica" }, { status: 500 });
     }

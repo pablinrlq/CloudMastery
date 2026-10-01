@@ -47,6 +47,15 @@ export type FlashcardTable = {
 export type Flashcard = Selectable<FlashcardTable>;
 export type NewFlashcard = Insertable<FlashcardTable>;
 export type FlashcardUpdate = Updateable<FlashcardTable>;
+export type FreeDiagnosticClaimTable = {
+    user_id: string;
+    cert_id: string;
+    attempt_id: string;
+    claimed_at: Generated<Timestamp>;
+};
+export type FreeDiagnosticClaim = Selectable<FreeDiagnosticClaimTable>;
+export type NewFreeDiagnosticClaim = Insertable<FreeDiagnosticClaimTable>;
+export type FreeDiagnosticClaimUpdate = Updateable<FreeDiagnosticClaimTable>;
 export type ModuleTable = {
     id: GeneratedAlways<string>;
     cert_id: string;
@@ -191,6 +200,7 @@ export type Database = {
     account: AccountTable;
     certifications: CertificationTable;
     flashcards: FlashcardTable;
+    free_diagnostic_claims: FreeDiagnosticClaimTable;
     modules: ModuleTable;
     questions: QuestionTable;
     session: SessionTable;

@@ -27,6 +27,7 @@ model User {
   progress          UserProgress[]
   attempts          SimuladoAttempt[]
   flashcardProgress UserFlashcardProgress[]
+  diagnosticClaim   FreeDiagnosticClaim?
 
   @@map("user")
 }
@@ -93,6 +94,7 @@ model Certification {
   questions  Question[]
   attempts   SimuladoAttempt[]
   flashcards Flashcard[]
+  diagnosticClaims FreeDiagnosticClaim[]
 
   @@map("certifications")
 }
@@ -182,6 +184,7 @@ model SimuladoAttempt {
   completedAt         DateTime?     @map("completed_at") @db.Timestamptz
   user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   cert                Certification @relation(fields: [certId], references: [id], onDelete: Cascade)
+  diagnosticClaims    FreeDiagnosticClaim[]
 
   @@map("simulado_attempts")
 }
@@ -211,4 +214,18 @@ model UserFlashcardProgress {
 
   @@unique([userId, flashcardId])
   @@map("user_flashcard_progress")
+}
+
+// Cada conta escolhe exatamente uma certificação para o diagnóstico gratuito.
+// A tabela é a autoridade final da regra (db/migrations/0023_*.sql).
+model FreeDiagnosticClaim {
+  userId    String          @id @map("user_id") @db.Uuid
+  certId    String          @map("cert_id")
+  attemptId String          @map("attempt_id") @db.Uuid
+  claimedAt DateTime        @default(now()) @map("claimed_at") @db.Timestamptz
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cert      Certification   @relation(fields: [certId], references: [id])
+  attempt   SimuladoAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@map("free_diagnostic_claims")
 }

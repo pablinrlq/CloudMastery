@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { verifySession } from "@/lib/dal";
+import { requireAccess, verifySession } from "@/lib/dal";
 import { isValidCert } from "@/lib/learning/content";
 
 export async function markModuleCompleted(certId: string, slug: string) {
@@ -11,6 +11,7 @@ export async function markModuleCompleted(certId: string, slug: string) {
     throw new Error("Módulo inválido.");
   }
   const { userId } = await verifySession();
+  await requireAccess(certId);
   const mod = await db.selectFrom("modules").select("id").where("cert_id", "=", certId).where("slug", "=", slug).executeTakeFirst();
 
   if (!mod) throw new Error("Módulo não encontrado.");
