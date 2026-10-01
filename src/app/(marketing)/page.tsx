@@ -119,7 +119,7 @@ export default function LandingPage() {
                 <span className="ml-2" aria-hidden>→</span>
               </Link>
               <Link
-                href="#planos"
+                href="/pricing"
                 className="inline-flex min-h-12 min-w-48 items-center justify-center rounded-xl border border-white/15 bg-white/[0.055] px-7 text-sm font-bold text-white backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/15 active:translate-y-0"
               >
                 Ver planos e preços
