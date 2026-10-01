@@ -5,7 +5,7 @@ import {
   DIAGNOSTIC_QUESTION_COUNT,
   isSimuladoMode,
   shuffledCopy,
-} from "../lib/simulado.ts";
+} from "../src/lib/learning/simulado.ts";
 
 test("simulado modes reject forged values", () => {
   assert.equal(isSimuladoMode("diagnostic"), true);

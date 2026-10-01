@@ -1,11 +1,15 @@
-# Database setup
+# PostgreSQL
 
-1. Create a project at supabase.com.
-2. Set `DATABASE_URL` and run `node db/run-migrations.mjs`. The runner uses a ledger, a database lock and one transaction per migration. Existing pre-ledger environments are baselined through migration 0019 automatically.
-3. Copy `.env.example` to `.env.local` and fill in the Supabase URL/keys from Project Settings > API.
+1. Configure `DATABASE_URL` em `.env.local` (local: `postgresql://postgres:1234@localhost:5433/cloudmastery`).
+2. Execute `npm run db:migrate`.
+3. Configure `BETTER_AUTH_SECRET` com pelo menos 32 bytes aleatórios.
 
-## Notes
+O schema canônico fica em `prisma/schema.prisma`. Depois de qualquer alteração nele, execute `npm run db:generate`; o arquivo `src/generated/kysely/types.ts` não deve ser editado manualmente.
 
-- `questions` has no client-facing select policy on purpose: correct answers are only ever read server-side (service-role key) when building a simulado and when grading a submission, so they never reach the browser before grading.
-- `flashcards` is gated by `has_active_access()`, which checks for an active/trialing subscription covering that certification (or an `all` plan).
-- `subscriptions` rows are written by the Stripe webhook handler using the service-role key (bypasses RLS); users can only read their own row.
+Ao migrar uma instância Supabase existente, `0000_better_auth.sql` preserva UUIDs e emails. Por segurança, hashes de senha não são importados: cada usuário deve usar “Esqueci minha senha” uma vez.
+
+## Contas de teste
+
+`npm run db:seed-demo` cria `premium@cloudmastery.test` (Premium, com histórico de estudo) e `gratis@cloudmastery.test` (plano gratuito), já com o e-mail verificado, então não precisa de SMTP. A senha é sorteada e impressa uma única vez; rodar de novo recria as contas com outra senha (ou defina `DEMO_PASSWORD`).
+
+Em um banco que não é localhost o comando exige `--remote`. Use só em banco de teste/preview, nunca em produção: as contas têm senha conhecida e acesso Premium. O botão "Gerenciar assinatura" não funciona nelas, porque o cliente Stripe é fictício.
