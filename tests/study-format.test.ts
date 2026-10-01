@@ -8,7 +8,7 @@ import {
   initialsFromEmail,
   longestStreak,
   slugifyHeading,
-} from "../lib/study-format.ts";
+} from "../src/lib/learning/study-format.ts";
 
 test("display name comes from a name-like email local part", () => {
   assert.equal(displayNameFromEmail("ana.silva@exemplo.com"), "Ana");

@@ -83,8 +83,14 @@ create policy "verified users manage own flashcard progress"
 drop function if exists public.has_active_access(uuid, text);
 drop function if exists public.is_email_confirmed();
 
-alter function public.set_updated_at() set search_path = '';
-revoke all on function public.set_updated_at() from public, anon, authenticated;
+do $$
+begin
+  if to_regprocedure('public.set_updated_at()') is not null then
+    execute 'alter function public.set_updated_at() set search_path = ''''';
+    execute 'revoke all on function public.set_updated_at() from public, anon, authenticated';
+  end if;
+end;
+$$;
 
 revoke all on function public.append_simulado_hint(uuid, uuid, uuid)
   from public, anon, authenticated;

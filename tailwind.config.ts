@@ -8,8 +8,8 @@ const ws = (name: string) => `rgb(var(--ws-${name}) / <alpha-value>)`;
 const config: Config = {
   darkMode: "class",
   content: [
-    "./app/**/*.{ts,tsx,mdx}",
-    "./components/**/*.{ts,tsx}",
+    "./src/app/**/*.{ts,tsx,mdx}",
+    "./src/components/**/*.{ts,tsx}",
     "./content/**/*.mdx",
   ],
   theme: {

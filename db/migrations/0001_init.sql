@@ -1,5 +1,5 @@
 -- Initial schema for AWS Certs study platform
--- Run in Supabase SQL editor (or via `supabase db push`) in order.
+-- Run with the project migration script in order.
 
 create extension if not exists "pgcrypto";
 
@@ -34,7 +34,7 @@ create table modules (
 
 create table subscriptions (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
+  user_id uuid not null references "user"(id) on delete cascade,
   stripe_customer_id text not null,
   stripe_subscription_id text,
   status text not null default 'incomplete'
@@ -76,7 +76,7 @@ $$ language sql stable security definer;
 
 create table user_progress (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
+  user_id uuid not null references "user"(id) on delete cascade,
   module_id uuid not null references modules(id) on delete cascade,
   status text not null default 'not_started'
     check (status in ('not_started','in_progress','completed')),
@@ -104,7 +104,7 @@ create table questions (
 
 create table simulado_attempts (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
+  user_id uuid not null references "user"(id) on delete cascade,
   cert_id text not null references certifications(id) on delete cascade,
   mode text not null check (mode in ('full','domain')),
   domain text,                            -- set when mode = 'domain'
@@ -131,63 +131,12 @@ create table flashcards (
 
 create table user_flashcard_progress (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
+  user_id uuid not null references "user"(id) on delete cascade,
   flashcard_id uuid not null references flashcards(id) on delete cascade,
   status text not null default 'new' check (status in ('new','review_later','known')),
   last_reviewed_at timestamptz not null default now(),
   unique (user_id, flashcard_id)
 );
 
--- ============================================================
--- Row Level Security
--- ============================================================
-
-alter table certifications enable row level security;
-alter table modules enable row level security;
-alter table subscriptions enable row level security;
-alter table user_progress enable row level security;
-alter table questions enable row level security;
-alter table simulado_attempts enable row level security;
-alter table flashcards enable row level security;
-alter table user_flashcard_progress enable row level security;
-
--- Certifications & modules: metadata is public (used for marketing/pricing
--- pages and course navigation). Actual module MDX content lives in the app
--- bundle (/content), gated by subscription in app code, not by this table.
-create policy "certifications are publicly readable"
-  on certifications for select using (true);
-
-create policy "modules are publicly readable"
-  on modules for select using (true);
-
--- Subscriptions: users can only see/manage their own row.
--- Inserts/updates from webhooks use the service-role key and bypass RLS.
-create policy "users read own subscription"
-  on subscriptions for select using (auth.uid() = user_id);
-
--- Progress: owner-only read/write.
-create policy "users manage own progress"
-  on user_progress for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
--- Questions: intentionally NO select policy for anon/authenticated roles.
--- Only the server (service-role key) reads this table, e.g. to build a
--- simulado and to grade it, so correct_choice_ids never reaches the client
--- before grading.
-
--- Simulado attempts: owner-only.
-create policy "users manage own simulado attempts"
-  on simulado_attempts for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
--- Flashcards: front/back is paid content, gated by active subscription.
-create policy "subscribers read flashcards"
-  on flashcards for select
-  using (has_active_access(auth.uid(), cert_id));
-
-create policy "users manage own flashcard progress"
-  on user_flashcard_progress for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+-- Authorization is enforced by server-only session checks and Kysely queries.
+-- PostgreSQL is not exposed through a client-side Data API.
