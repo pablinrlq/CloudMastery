@@ -12,7 +12,7 @@
     "db:migrate": "node db/run-migrations.mjs",
     "db:seed-demo": "node db/seed-demo.mjs",
     "db:generate": "prisma generate",
-    "prebuild": "npm run db:generate"
+    "prebuild": "npm run db:generate && node db/preview-setup.mjs"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",

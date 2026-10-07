@@ -146,8 +146,13 @@ try {
 
   console.log("\nContas de teste criadas (e-mail já verificado):\n");
   for (const account of accounts) console.log(`  ${account.label}  ${account.email}`);
-  console.log(`\n  Senha (a mesma nas duas): ${password}`);
-  console.log("\nA senha só aparece agora. Rode o comando de novo para gerar outra (as contas são recriadas).");
+  if (process.env.DEMO_PASSWORD) {
+    // Chosen by whoever set it (e.g. in Vercel); keep it out of build logs.
+    console.log("\n  Senha: a definida em DEMO_PASSWORD.");
+  } else {
+    console.log(`\n  Senha (a mesma nas duas): ${password}`);
+    console.log("\nA senha só aparece agora. Rode o comando de novo para gerar outra (as contas são recriadas).");
+  }
   if (!isLocal) console.log("Banco remoto: apague estas contas quando terminar o teste.");
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);
