@@ -9,8 +9,8 @@ import pg from "pg";
 import dotenv from "dotenv";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-dotenv.config({ path: path.join(root, ".env.local") });
-dotenv.config({ path: path.join(root, ".env") });
+dotenv.config({ path: path.join(root, ".env.local"), quiet: true });
+dotenv.config({ path: path.join(root, ".env"), quiet: true });
 const url = process.env.DATABASE_URL;
 if (!url) {
   console.error("DATABASE_URL não encontrada no .env.local");

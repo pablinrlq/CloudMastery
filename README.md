@@ -18,6 +18,8 @@ Plataforma de preparação para certificações AWS em português. A CloudMaster
 
 ## Funcionalidades
 
+**Rodar rápido na sua máquina:** com o Docker Desktop aberto, `npm run local`. Na primeira vez ele cria o `.env.local`, sobe o PostgreSQL, aplica as migrations, cria as contas de teste (`premium@cloudmastery.test` e `gratis@cloudmastery.test`, senha mostrada no terminal) e abre o site em http://localhost:3000. O Stripe fica sem configurar e os e-mails aparecem no terminal; para configurá-los, siga os passos abaixo.
+
 1. `npm install`
 2. Suba o PostgreSQL (`docker compose up -d db`) e rode `npm run db:migrate`.
 3. Copie `.env.example` para `.env.local` e preencha PostgreSQL, Better Auth e Stripe.
