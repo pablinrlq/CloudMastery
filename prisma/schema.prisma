@@ -28,6 +28,7 @@ model User {
   attempts          SimuladoAttempt[]
   flashcardProgress UserFlashcardProgress[]
   diagnosticClaim   FreeDiagnosticClaim?
+  credentials       Credential[]
 
   @@map("user")
 }
@@ -95,6 +96,7 @@ model Certification {
   attempts   SimuladoAttempt[]
   flashcards Flashcard[]
   diagnosticClaims FreeDiagnosticClaim[]
+  credentials      Credential[]
 
   @@map("certifications")
 }
@@ -228,4 +230,24 @@ model FreeDiagnosticClaim {
   attempt   SimuladoAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
 
   @@map("free_diagnostic_claims")
+}
+
+model Credential {
+  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code        String         @unique
+  userId      String         @map("user_id") @db.Uuid
+  /// @kyselyType('badge' | 'certificate')
+  kind        String
+  achievement String
+  certId      String?        @map("cert_id")
+  title       String
+  evidence    Json           @default("{}")
+  issuedAt    DateTime       @default(now()) @map("issued_at") @db.Timestamptz
+  revokedAt   DateTime?      @map("revoked_at") @db.Timestamptz
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cert        Certification? @relation(fields: [certId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, achievement])
+  @@index([userId, issuedAt(sort: Desc)], map: "credentials_user_id_idx")
+  @@map("credentials")
 }

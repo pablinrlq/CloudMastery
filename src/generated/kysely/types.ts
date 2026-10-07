@@ -36,6 +36,24 @@ export type CertificationTable = {
 export type Certification = Selectable<CertificationTable>;
 export type NewCertification = Insertable<CertificationTable>;
 export type CertificationUpdate = Updateable<CertificationTable>;
+export type CredentialTable = {
+    id: GeneratedAlways<string>;
+    code: string;
+    user_id: string;
+    /**
+     * @kyselyType('badge' | 'certificate')
+     */
+    kind: 'badge' | 'certificate';
+    achievement: string;
+    cert_id: string | null;
+    title: string;
+    evidence: Generated<unknown>;
+    issued_at: Generated<Timestamp>;
+    revoked_at: Timestamp | null;
+};
+export type Credential = Selectable<CredentialTable>;
+export type NewCredential = Insertable<CredentialTable>;
+export type CredentialUpdate = Updateable<CredentialTable>;
 export type FlashcardTable = {
     id: GeneratedAlways<string>;
     cert_id: string;
@@ -199,6 +217,7 @@ export type VerificationUpdate = Updateable<VerificationTable>;
 export type Database = {
     account: AccountTable;
     certifications: CertificationTable;
+    credentials: CredentialTable;
     flashcards: FlashcardTable;
     free_diagnostic_claims: FreeDiagnosticClaimTable;
     modules: ModuleTable;
