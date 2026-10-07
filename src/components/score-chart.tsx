@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { PASS_SCORE } from "@/lib/learning/thresholds";
 
 export type ScoreSeries = {
   id: string;
@@ -6,8 +7,6 @@ export type ScoreSeries = {
   color: string;
   points: Array<{ score: number; completedAt: string }>;
 };
-
-const PASS_SCORE = 72;
 
 // Evolução das notas (várias trilhas no mesmo eixo de tempo). Linhas e áreas
 // em SVG esticável; rótulos e pontos em HTML para ficarem nítidos em qualquer

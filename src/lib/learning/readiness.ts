@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { verifySession } from "@/lib/dal";
 import { getModules, type CertId, type ModuleMeta } from "@/lib/learning/content";
 import { getProgressForCert } from "@/lib/learning/progress";
+import { READY_SCORE } from "@/lib/learning/thresholds";
 
 export type DomainStat = { domain: string; correct: number; total: number; pct: number };
 
@@ -29,7 +30,7 @@ export type Readiness = {
   advice: string;
 };
 
-export const READY_SCORE = 75; // margem sobre a nota de corte (~70-72%)
+export { READY_SCORE };
 
 // Regra de prontidão: todos os módulos concluídos + média >= 75% nos
 // últimos 3 simulados completos. Cached per request (dashboard + certificado).

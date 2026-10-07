@@ -3,32 +3,13 @@ import { cache } from "react";
 import { db } from "@/lib/db";
 import { verifySession } from "@/lib/dal";
 import { activityCalendar, longestStreak } from "@/lib/learning/study-format";
+import { computeXp, LEVELS, levelFor, type Level } from "@/lib/learning/levels";
+
+export { LEVELS, type Level };
 
 // XP é DERIVADO dos dados existentes (progresso + simulados), sem tabela nova:
 // evita dupla contagem e mantém o número sempre consistente com o histórico.
-const XP_PER_MODULE = 50;
-const XP_PER_FULL_SIMULADO = 100;
-const XP_PASS_BONUS = 50; // simulado completo com nota >= corte
-const PASS_SCORE = 72;
 const ACTIVITY_DAYS = 16 * 7; // janela do mapa de consistência
-
-export type Level = {
-  index: number;
-  name: string;
-  code: string;
-  minXp: number;
-  nextXp: number | null; // null = nível máximo
-};
-
-export const LEVELS: Array<Omit<Level, "index" | "nextXp">> = [
-  { name: "Cloud Rookie", code: "CM-01", minXp: 0 },
-  { name: "Cloud Explorer", code: "CM-02", minXp: 200 },
-  { name: "Cloud Builder", code: "CM-03", minXp: 500 },
-  { name: "Cloud Practitioner", code: "CM-04", minXp: 1000 },
-  { name: "Cloud Architect", code: "CM-05", minXp: 1800 },
-  { name: "Cloud Expert", code: "CM-06", minXp: 3000 },
-  { name: "Cloud Master", code: "CM-07", minXp: 4500 },
-];
 
 export type GamificationProfile = {
   totalXp: number;
@@ -46,16 +27,6 @@ export type GamificationProfile = {
   /** Atividades por dia (UTC) nas últimas 16 semanas, do mais antigo ao mais recente. */
   activity: Array<{ date: string; count: number }>;
 };
-
-function levelFor(xp: number): Level {
-  let i = 0;
-  for (let k = 0; k < LEVELS.length; k++) {
-    if (xp >= LEVELS[k].minXp) i = k;
-  }
-  const base = LEVELS[i];
-  const next = LEVELS[i + 1] ?? null;
-  return { index: i, name: base.name, code: base.code, minXp: base.minXp, nextXp: next?.minXp ?? null };
-}
 
 // Streak = dias consecutivos com atividade, terminando hoje ou ontem.
 function computeStreak(dates: string[]): { streak: number; today: boolean } {
@@ -93,15 +64,11 @@ export const getGamificationProfile = cache(async (): Promise<GamificationProfil
 
   const modulesCompleted = completedModules.length;
   const simuladosCompleted = fullAttempts.length;
-  const passing = fullAttempts.filter((a) => Number(a.score) >= PASS_SCORE).length;
   const bestScore = completedAttempts.length
     ? Math.max(...completedAttempts.map((a) => Number(a.score) || 0))
     : null;
 
-  const totalXp =
-    modulesCompleted * XP_PER_MODULE +
-    simuladosCompleted * XP_PER_FULL_SIMULADO +
-    passing * XP_PASS_BONUS;
+  const totalXp = computeXp({ modulesCompleted, fullScores: fullAttempts.map((a) => Number(a.score)) });
 
   const level = levelFor(totalXp);
   const xpIntoLevel = totalXp - level.minXp;

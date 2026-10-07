@@ -29,6 +29,7 @@ import {
   XCircleIcon,
   XIcon,
 } from "@/components/ui-icons";
+import { PASS_SCORE } from "@/lib/learning/thresholds";
 
 type Choice = { id: string; text: string };
 type Question = {
@@ -81,7 +82,6 @@ type Results = {
 type Mode = "diagnostic" | "full" | "domain";
 type Phase = "idle" | "loading" | "running" | "submitting" | "results";
 
-const PASS_SCORE = 72;
 const MODE_LABEL: Record<Mode, string> = {
   diagnostic: "Diagnóstico",
   full: "Simulado completo",
