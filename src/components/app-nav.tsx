@@ -65,6 +65,12 @@ export function SidebarNav({ certs, premium }: { certs: NavCert[]; premium: bool
           </span>
           Visão geral
         </Link>
+        <Link href="/conquistas" aria-current={pathname === "/conquistas" ? "page" : undefined} className="ws-nav-link mt-0.5">
+          <span className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-white/[0.06] text-slate-300">
+            <AwardIcon className="h-4 w-4" />
+          </span>
+          Conquistas
+        </Link>
       </div>
 
       <div>
@@ -255,6 +261,15 @@ export function AccountMenu({
             <span className={`ws-chip mt-3 ${planLabel ? "ws-chip-accent" : ""}`}>{planLabel ?? "Plano gratuito"}</span>
           </div>
           <div className="ws-divider mx-1 border-t" />
+          <Link
+            href="/conquistas"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className="mt-1 flex h-10 w-full items-center gap-2.5 rounded-xl px-3 text-sm font-medium text-ws-muted transition-colors hover:bg-ws-line/5 hover:text-ws-ink"
+          >
+            <AwardIcon className="h-4 w-4" />
+            Conquistas e certificados
+          </Link>
           <div className="flex items-center justify-between px-3 py-2.5">
             <span className="text-sm text-ws-muted">Aparência</span>
             <ThemeToggle />

@@ -12,6 +12,7 @@ const protectedPrefixes = [
   "/simulado",
   "/flashcards",
   "/certificado",
+  "/conquistas",
 ];
 
 export function proxy(request: NextRequest) {

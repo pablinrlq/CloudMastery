@@ -1214,6 +1214,45 @@ html.dark .cm-public .cm-link:hover {
     display: none;
   }
 
+  /* ---------------------------------------------------------------- credentials */
+
+  .cm-medal > svg {
+    display: block;
+    overflow: visible;
+  }
+
+  .cm-medal-float {
+    display: block;
+    animation: cm-medal-float 7s ease-in-out infinite;
+    animation-delay: calc(var(--d, 0) * -2.3s);
+  }
+
+  .cm-medal-pop {
+    animation: cm-medal-pop 0.9s var(--ws-ease) both;
+  }
+
+  .cm-celebrate {
+    background:
+      radial-gradient(90% 140% at 0% 0%, rgb(251 191 36 / 0.22), transparent 55%),
+      radial-gradient(70% 120% at 100% 100%, rgb(249 115 22 / 0.2), transparent 60%),
+      linear-gradient(150deg, #120d07, #0a0d16 60%);
+  }
+
+  .cm-confetti {
+    position: absolute;
+    inset: -40% 0 0;
+    pointer-events: none;
+    opacity: 0.55;
+    background-image:
+      radial-gradient(circle, #fbbf24 1.6px, transparent 2px),
+      radial-gradient(circle, #fb923c 1.4px, transparent 1.8px),
+      radial-gradient(circle, #a78bfa 1.3px, transparent 1.7px),
+      radial-gradient(circle, #34d399 1.2px, transparent 1.6px);
+    background-size: 90px 70px, 130px 90px, 110px 120px, 150px 100px;
+    background-position: 0 0, 40px 25px, 70px 10px, 20px 60px;
+    animation: cm-confetti-fall 9s linear infinite;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .ws-flip-card {
       transition: none;
@@ -1221,6 +1260,12 @@ html.dark .cm-public .cm-link:hover {
 
     .ws-reading-progress {
       display: none;
+    }
+
+    .cm-medal-float,
+    .cm-medal-pop,
+    .cm-confetti {
+      animation: none;
     }
   }
 }
@@ -1275,5 +1320,38 @@ html.dark .cm-public .cm-link:hover {
   100% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+@keyframes cm-medal-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-1.5deg);
+  }
+}
+
+@keyframes cm-medal-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) rotate(-25deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.12) rotate(6deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes cm-confetti-fall {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(40%);
   }
 }

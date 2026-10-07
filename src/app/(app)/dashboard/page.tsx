@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { getSubscription } from "@/lib/dal";
+import { getSubscription, verifySession } from "@/lib/dal";
 import { CERTIFICATIONS, type CertId } from "@/lib/learning/content";
 import { getReadiness, READY_SCORE, type Readiness } from "@/lib/learning/readiness";
 import { getWorkspaceSummary, type WorkspaceSummary } from "@/lib/learning/workspace";
@@ -11,6 +11,8 @@ import { ProgressRing } from "@/components/progress-ring";
 import { ScoreChart } from "@/components/score-chart";
 import { ActivityHeatmap, HeatmapLegend } from "@/components/activity-heatmap";
 import { PortalButton } from "@/components/portal-button";
+import { AchievementsStrip, NewCredentialBanner } from "@/components/achievements";
+import { trySyncCredentials } from "@/lib/credentials/server";
 import { EmptyState, ProgressBar, SectionHeader, StatTile } from "@/components/workspace-ui";
 import {
   ArrowRightIcon,
@@ -46,14 +48,27 @@ type Mission = {
 };
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ checkout?: string }> }) {
-  const [{ checkout }, summary, subscription] = await Promise.all([searchParams, getWorkspaceSummary(), getSubscription()]);
+  const [{ checkout }, summary, subscription, { userId }] = await Promise.all([
+    searchParams,
+    getWorkspaceSummary(),
+    getSubscription(),
+    verifySession(),
+  ]);
   const hasStripeManagedPlan = subscription?.plan === "monthly" || subscription?.plan === "annual";
+  // Issues newly earned badges/certificates; a failure only hides the showcase.
+  const credentials = await trySyncCredentials(userId, summary.premium);
 
   if (!summary.premium || !summary.profile) {
     return (
       <PageShell>
         {checkout === "success" ? <CheckoutBanner /> : null}
+        {credentials ? <NewCredentialBanner state={credentials} /> : null}
         <FreeDashboard summary={summary} />
+        {credentials ? (
+          <div className="mt-4">
+            <AchievementsStrip state={credentials} />
+          </div>
+        ) : null}
       </PageShell>
     );
   }
@@ -82,6 +97,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   return (
     <PageShell>
       {checkout === "success" ? <CheckoutBanner /> : null}
+      {credentials ? <NewCredentialBanner state={credentials} /> : null}
 
       <section className="ws-ink ws-rise p-6 sm:p-8 xl:p-10" aria-labelledby="dashboard-title">
         <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_17rem] xl:items-center xl:gap-10">
@@ -134,6 +150,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           ))}
         </div>
       </section>
+
+      {credentials ? (
+        <div className="mt-4">
+          <AchievementsStrip state={credentials} />
+        </div>
+      ) : null}
 
       <section className="mt-12 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]" aria-label="Desempenho">
         <div className="ws-card p-5 sm:p-6">
