@@ -2,6 +2,8 @@ import Link from "next/link";
 import { CERTIFICATIONS } from "@/lib/learning/content";
 import { HeroNetwork } from "@/components/hero-network";
 import { Reveal } from "@/components/reveal";
+import { LandingCredentials } from "@/components/landing-credentials";
+import { CertEmblem } from "@/components/cert-emblem";
 
 const ecosystem = [
   { label: "Compute", items: ["EC2", "Lambda"] },
@@ -42,9 +44,9 @@ const features = [
 
 const platformNumbers = [
   ["89", "módulos publicados"],
-  ["162", "questões explicadas"],
+  ["162", "questões comentadas"],
   ["83", "flashcards de revisão"],
-  ["3", "certificações completas"],
+  ["3", "trilhas completas"],
 ];
 
 const steps = [
@@ -76,15 +78,13 @@ const faq = [
     "Sim. Todo o conteúdo é escrito em português do Brasil para CLF-C02, SAA-C03 e AIF-C01.",
   ],
   [
+    "Os certificados vão para o LinkedIn?",
+    "Sim. Ao concluir a trilha e atingir a prontidão nos simulados, você recebe um certificado com ID único, QR code e página pública de verificação, que entra em Licenças e certificados do LinkedIn em um clique. Os marcos da jornada viram badges que também podem ser compartilhados. São credenciais da CloudMastery e não substituem a certificação oficial da AWS.",
+  ],
+  [
     "Existe fidelidade?",
     "Não. Você pode gerenciar ou cancelar sua assinatura pelo portal seguro de pagamento.",
   ],
-];
-
-const scoreRows = [
-  ["Conceitos de nuvem", "84%", "84%"],
-  ["Segurança", "76%", "76%"],
-  ["Tecnologia", "68%", "68%"],
 ];
 
 export default function LandingPage() {
@@ -100,9 +100,9 @@ export default function LandingPage() {
           <div className="mx-auto max-w-4xl text-center">
             <p className="cm-fade-up mx-auto inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 font-mono text-xs text-slate-400 backdrop-blur-xl">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]" />
-              <span className="text-orange-400">$</span> trilhas ativas: CLF-C02 · SAA-C03 · AIF-C01
+              <span className="text-orange-400">$</span> <span className="hidden sm:inline">trilhas ativas:</span> CLF-C02 · SAA-C03 · AIF-C01
             </p>
-            <h1 className="cm-fade-up-delay-1 mt-7 text-balance text-[2.75rem] font-extrabold leading-[0.98] tracking-[-0.06em] sm:text-6xl lg:text-[4.45rem]">
+            <h1 className="cm-fade-up-delay-1 mt-7 text-balance text-[2.75rem] font-extrabold leading-[1] tracking-[-0.045em] sm:text-6xl lg:text-[4.45rem]">
               Passe na sua certificação AWS
               {" "}
               <span className="block bg-gradient-to-r from-orange-300 via-orange-400 to-amber-200 bg-clip-text text-transparent">
@@ -156,21 +156,10 @@ export default function LandingPage() {
           </div>
 
           <div className="mx-auto mt-14 grid max-w-4xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.07] sm:grid-cols-4">
-            {[["80+", "módulos autorais"], ["160+", "questões comentadas"], ["11", "labs guiados"], ["3", "certificações completas"]].map(([value, label]) => (
-              <div key={label} className="bg-[#0b0f17] px-4 py-5 text-center"><p className="text-2xl font-bold tracking-tight text-white">{value}</p><p className="mt-1 text-xs text-slate-600">{label}</p></div>
+            {platformNumbers.map(([value, label]) => (
+              <div key={label} className="bg-[#0b0f17] px-4 py-5 text-center"><p className="text-2xl font-bold tracking-tight text-white">{value}</p><p className="mt-1 text-xs text-slate-400">{label}</p></div>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section aria-label="Conteúdo disponível" className="border-b border-slate-200 bg-white">
-        <div className="cm-container grid grid-cols-2 divide-x divide-slate-200 lg:grid-cols-4">
-          {platformNumbers.map(([value, label], index) => (
-            <div key={label} className={`px-3 py-7 text-center sm:py-9 ${index === 2 ? "border-t border-slate-200 lg:border-t-0" : ""} ${index === 3 ? "border-t border-slate-200 lg:border-t-0" : ""}`}>
-              <p className="text-2xl font-extrabold tracking-[-0.04em] text-slate-950 sm:text-3xl">{value}</p>
-              <p className="mt-1.5 text-xs font-medium text-slate-500 sm:text-sm">{label}</p>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -216,16 +205,18 @@ export default function LandingPage() {
           <Reveal className="text-center"><p className="cm-kicker">Trilhas disponíveis</p><h2 className="cm-title mt-4 sm:text-5xl">Escolha sua próxima credencial.</h2></Reveal>
           <div className="mx-auto mt-14 grid max-w-6xl gap-5 lg:grid-cols-3">
             {Object.values(CERTIFICATIONS).map((cert, index) => (
-              <Reveal key={cert.id} as="article" delay={index * 100} className="relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-8 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.3)] sm:p-10">
-                <div className="absolute right-0 top-0 h-32 w-32 rounded-bl-full bg-orange-50" />
-                <p className="relative text-xs font-bold uppercase tracking-[0.2em] text-orange-600">{cert.code}</p><h3 className="relative mt-5 max-w-sm text-2xl font-bold tracking-[-0.035em] text-slate-950">{cert.name}</h3>
-                <div className="relative mt-8 grid grid-cols-3 gap-3 border-y border-slate-100 py-5 text-sm"><div><p className="font-bold">{cert.examQuestionCount}</p><p className="mt-1 text-xs text-slate-400">questões</p></div><div><p className="font-bold">{cert.examDurationMinutes} min</p><p className="mt-1 text-xs text-slate-400">de prova</p></div><div><p className="font-bold">{cert.suggestedWeeks} sem.</p><p className="mt-1 text-xs text-slate-400">de trilha</p></div></div>
+              <Reveal key={cert.id} as="article" delay={index * 100} className="cm-card-hover relative flex flex-col overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-8 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.3)] sm:p-10">
+                <div className="flex items-center gap-4"><CertEmblem certId={cert.id} size="lg" /><p className="text-xs font-bold uppercase tracking-[0.2em] text-orange-600">{cert.code}</p></div>
+                <h3 className="mb-8 mt-6 max-w-sm text-2xl font-bold tracking-[-0.035em] text-slate-950">{cert.name}</h3>
+                <div className="relative mt-auto grid grid-cols-3 gap-3 border-y border-slate-100 py-5 text-sm"><div><p className="font-bold">{cert.examQuestionCount}</p><p className="mt-1 text-xs text-slate-400">questões</p></div><div><p className="font-bold">{cert.examDurationMinutes} min</p><p className="mt-1 text-xs text-slate-400">de prova</p></div><div><p className="font-bold">{cert.suggestedWeeks} sem.</p><p className="mt-1 text-xs text-slate-400">de trilha</p></div></div>
                 <Link href="/signup" className="cm-button-secondary mt-7 w-full justify-between">Explorar esta trilha <span aria-hidden>→</span></Link>
               </Reveal>
             ))}
           </div>
         </div>
       </section>
+
+      <LandingCredentials />
 
       <section className="py-24 sm:py-32">
         <div className="cm-container grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">

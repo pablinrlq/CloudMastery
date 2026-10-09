@@ -10,6 +10,7 @@ const features = [
   "Cenários de arquitetura e prática aplicada",
   "Flashcards com revisão direcionada",
   "Diagnóstico do momento certo para a prova",
+  "Certificados e badges verificáveis, prontos para o LinkedIn",
   "Novas certificações incluídas sem custo extra",
   "Cancelamento pelo portal do assinante",
 ];
@@ -28,7 +29,7 @@ export default async function PricingPage({
         <div className="pointer-events-none absolute left-1/2 top-0 h-80 w-[700px] -translate-x-1/2 rounded-full bg-orange-500/15 blur-[110px]" />
         <div className="cm-container relative text-center">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Um plano. Acesso completo.</p>
-          <h1 className="mx-auto mt-5 max-w-3xl text-balance text-5xl font-bold tracking-[-0.055em] sm:text-6xl">Invista em clareza, não em mais conteúdo solto.</h1>
+          <h1 className="mx-auto mt-5 max-w-3xl text-balance text-5xl font-bold tracking-[-0.042em] sm:text-6xl">Invista em clareza, não em mais conteúdo solto.</h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-400">Todas as ferramentas para estudar, praticar e medir sua prontidão em um único lugar.</p>
         </div>
       </section>
@@ -41,7 +42,7 @@ export default async function PricingPage({
         <div className="mx-auto grid max-w-5xl gap-5 lg:grid-cols-2">
           <article className="rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-[0_24px_70px_-42px_rgba(15,23,42,0.35)] sm:p-9">
             <div className="flex items-start justify-between gap-4"><div><p className="text-sm font-bold text-slate-500">Plano mensal</p><h2 className="mt-2 text-2xl font-bold tracking-tight">Flexibilidade total</h2></div><span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">MENSAL</span></div>
-            <div className="mt-8 flex items-end gap-2 border-b border-slate-100 pb-8"><span className="pb-2 text-sm font-bold text-slate-400">R$</span><span className="text-6xl font-bold tracking-[-0.06em]">39</span><span className="pb-2 text-sm text-slate-400">/mês</span></div>
+            <div className="mt-8 flex items-end gap-2 border-b border-slate-100 pb-8"><span className="pb-2 text-sm font-bold text-slate-400">R$</span><span className="text-6xl font-bold tracking-[-0.045em]">39</span><span className="pb-2 text-sm text-slate-400">/mês</span></div>
             <p className="mt-7 text-sm leading-6 text-slate-600">Ideal para conhecer o método ou acelerar uma preparação já em andamento.</p>
             <CheckoutButton plan="monthly" className="cm-button-secondary mt-7 w-full">Escolher plano mensal</CheckoutButton>
           </article>
@@ -49,7 +50,7 @@ export default async function PricingPage({
           <article className="relative overflow-hidden rounded-[1.75rem] border border-orange-400 bg-[#0d121c] p-7 text-white shadow-[0_32px_90px_-38px_rgba(249,115,22,0.45)] sm:p-9">
             <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-orange-500/15 blur-[80px]" />
             <div className="relative flex items-start justify-between gap-4"><div><p className="text-sm font-bold text-orange-300">Plano anual</p><h2 className="mt-2 text-2xl font-bold tracking-tight">Ritmo para ir além</h2></div><span className="rounded-full bg-orange-400 px-3 py-1 text-xs font-bold text-slate-950">2 MESES GRÁTIS</span></div>
-            <div className="relative mt-8 flex items-end gap-2 border-b border-white/10 pb-8"><span className="pb-2 text-sm font-bold text-slate-500">R$</span><span className="text-6xl font-bold tracking-[-0.06em]">390</span><span className="pb-2 text-sm text-slate-500">/ano</span></div>
+            <div className="relative mt-8 flex items-end gap-2 border-b border-white/10 pb-8"><span className="pb-2 text-sm font-bold text-slate-500">R$</span><span className="text-6xl font-bold tracking-[-0.045em]">390</span><span className="pb-2 text-sm text-slate-500">/ano</span></div>
             <p className="relative mt-7 text-sm leading-6 text-slate-400">Equivale a R$ 32,50 por mês. Tempo para conquistar duas ou mais certificações.</p>
             <CheckoutButton plan="annual" className="cm-button-primary mt-7 w-full">Escolher plano anual <span className="ml-2" aria-hidden>→</span></CheckoutButton>
           </article>
