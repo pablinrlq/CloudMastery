@@ -15,6 +15,8 @@ export const CERTIFICATIONS = {
       "Tecnologia e Serviços",
       "Cobrança, Preços e Suporte",
     ],
+    // Percent of the scored exam per domain, in `domains` order (official exam guide).
+    domainWeights: [24, 30, 34, 12],
   },
   saa: {
     id: "saa",
@@ -29,6 +31,7 @@ export const CERTIFICATIONS = {
       "Arquiteturas de Alta Performance",
       "Arquiteturas com Custo Otimizado",
     ],
+    domainWeights: [30, 26, 24, 20],
   },
   aif: {
     id: "aif",
@@ -44,6 +47,7 @@ export const CERTIFICATIONS = {
       "Diretrizes para IA Responsável",
       "Segurança, Conformidade e Governança para Soluções de IA",
     ],
+    domainWeights: [20, 24, 28, 14, 14],
   },
 } as const;
 
@@ -51,4 +55,10 @@ export type CertId = keyof typeof CERTIFICATIONS;
 
 export function isValidCert(certId: string): certId is CertId {
   return certId in CERTIFICATIONS;
+}
+
+/** Official exam weight of each domain, keyed by domain name. */
+export function domainWeights(certId: CertId): Record<string, number> {
+  const cert = CERTIFICATIONS[certId];
+  return Object.fromEntries(cert.domains.map((domain, index) => [domain, cert.domainWeights[index]]));
 }

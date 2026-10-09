@@ -51,4 +51,4 @@ export function getModule(certId: string, slug: string): ModuleContent | null {
   return { ...data, slug, certId, body: content };
 }
 
-export { CERTIFICATIONS, isValidCert, type CertId } from "@/lib/learning/certifications";
+export { CERTIFICATIONS, domainWeights, isValidCert, type CertId } from "@/lib/learning/certifications";

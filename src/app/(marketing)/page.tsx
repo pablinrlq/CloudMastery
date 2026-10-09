@@ -44,8 +44,8 @@ const features = [
 
 const platformNumbers = [
   ["89", "módulos publicados"],
-  ["162", "questões comentadas"],
-  ["83", "flashcards de revisão"],
+  ["613", "questões comentadas"],
+  ["280", "flashcards de revisão"],
   ["3", "trilhas completas"],
 ];
 
@@ -71,7 +71,7 @@ const faq = [
   ],
   [
     "Os simulados seguem o formato da prova?",
-    "Sim. Eles reproduzem quantidade de questões, duração e estilo dos cenários, além de detalhar tempo e desempenho por domínio.",
+    "Sim. Eles reproduzem a quantidade de questões, a duração, o estilo dos cenários e o peso oficial de cada domínio. Também evitam repetir as questões das suas últimas provas e detalham tempo e desempenho por domínio.",
   ],
   [
     "O conteúdo é em português?",

@@ -588,7 +588,7 @@ export function SimuladoRunner({
                 </button>
                 <p className="hidden items-center gap-1.5 text-xs text-ws-subtle xl:flex">
                   <KeyboardIcon className="h-4 w-4" />
-                  <span className="ws-kbd">A</span>–<span className="ws-kbd">D</span> responder
+                  <span className="ws-kbd">A</span>–<span className="ws-kbd">{"ABCDE"[Math.min(q.choices.length, 5) - 1]}</span> responder
                   <span className="ws-kbd ml-2">←</span><span className="ws-kbd">→</span> navegar
                   <span className="ws-kbd ml-2">F</span> marcar
                 </p>
@@ -900,7 +900,7 @@ function IdleView({
           icon={<PracticeIcon className="h-5 w-5" />}
           eyebrow="Modo prova"
           title="Simulado completo"
-          text={`Formato oficial: ${fullQuestionCount} questões em ${fullDurationMinutes} minutos, com análise de tempo por questão e plano de recuperação.`}
+          text={`Formato oficial: ${fullQuestionCount} questões em ${fullDurationMinutes} minutos, no peso de cada domínio da prova e priorizando questões que você ainda não viu.`}
           specs={[`${fullQuestionCount} questões`, `${fullDurationMinutes} min`, "+100 XP", `+50 XP se ≥ ${PASS_SCORE}%`]}
           note="Dicas disponíveis, mas a questão passa a valer meio ponto."
           perks={["Explicação de cada alternativa", "Tempo gasto por questão", "Desempenho por domínio", "Plano de recuperação na trilha"]}

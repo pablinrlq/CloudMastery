@@ -2,13 +2,13 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getApiUser } from "@/lib/auth/api";
 import { db } from "@/lib/db";
 import { hasAccess, type Subscription } from "@/lib/dal";
-import { CERTIFICATIONS, isValidCert } from "@/lib/learning/content";
+import { CERTIFICATIONS, domainWeights, isValidCert } from "@/lib/learning/content";
 import { hasVerifiedEmail } from "@/lib/auth/security";
 import {
   DIAGNOSTIC_DURATION_MINUTES,
   DIAGNOSTIC_QUESTION_COUNT,
   isSimuladoMode,
-  shuffledCopy,
+  selectSimuladoQuestions,
 } from "@/lib/learning/simulado";
 import { enforceRateLimit } from "@/lib/learning/rate-limit";
 
@@ -18,6 +18,10 @@ function errorCode(error: unknown): string | undefined {
     : undefined;
 }
 
+// With about 195 questions per certification, three full exams in a row barely
+// repeat a question; after that, the ones seen longest ago come back first.
+const RECENT_ATTEMPTS_TO_AVOID = 3;
+
 // PostgreSQL unique_violation
 function isUniqueViolation(error: unknown) {
   return errorCode(error) === "23505";
@@ -26,6 +30,8 @@ function isUniqueViolation(error: unknown) {
 // POST { certId, mode: "diagnostic" | "full" | "domain", domain? }
 // Creates an attempt and returns questions WITHOUT correct answers.
 // "full" usa o número oficial de questões do exame; "domain" usa até 20.
+// As questões seguem os pesos oficiais dos domínios e priorizam as que o aluno
+// não viu nas últimas tentativas da mesma certificação.
 export async function POST(request: NextRequest) {
   const user = await getApiUser();
 
@@ -143,7 +149,21 @@ export async function POST(request: NextRequest) {
       : mode === "full"
         ? CERTIFICATIONS[certId].examQuestionCount
         : 20;
-  const selected = shuffledCopy(questions).slice(0, cap).map((q) => ({
+  const recentAttempts = await db
+    .selectFrom("simulado_attempts")
+    .select("selected_question_ids")
+    .where("user_id", "=", user.id)
+    .where("cert_id", "=", certId)
+    .orderBy("started_at", "desc")
+    .limit(RECENT_ATTEMPTS_TO_AVOID)
+    .execute();
+  const selected = selectSimuladoQuestions(questions, {
+    count: cap,
+    weights: domainWeights(certId),
+    recentAttempts: recentAttempts.map((attempt) =>
+      Array.isArray(attempt.selected_question_ids) ? attempt.selected_question_ids : []
+    ),
+  }).map((q) => ({
     id: q.id,
     domain: q.domain,
     prompt: q.prompt,

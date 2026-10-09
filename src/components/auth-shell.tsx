@@ -4,7 +4,7 @@ import { Logo, LogoIcon } from "@/components/logo";
 const platformStats = [
   ["3", "trilhas completas"],
   ["89", "módulos"],
-  ["162", "questões"],
+  ["613", "questões"],
 ];
 
 export function AuthShell({
