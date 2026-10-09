@@ -1,10 +1,7 @@
 import Link from "next/link";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Logo } from "@/components/logo";
 import { getSession } from "@/lib/dal";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
-const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
 
 // Public credential pages (shared on LinkedIn) use the workspace design system
 // so a recruiter sees the same product quality as the student.
@@ -12,7 +9,7 @@ export default async function CredentialLayout({ children }: { children: React.R
   const session = await getSession();
 
   return (
-    <div className={`cm-workspace ${geist.variable} ${geistMono.variable} flex min-h-screen flex-col`}>
+    <div className={`cm-workspace flex min-h-screen flex-col`}>
       <div className="ws-backdrop" aria-hidden="true" />
       <header className="relative z-10">
         <div className="mx-auto flex h-16 w-full max-w-[1120px] items-center justify-between gap-3 px-4 sm:px-8">
@@ -28,7 +25,7 @@ export default async function CredentialLayout({ children }: { children: React.R
                   Entrar
                 </Link>
                 <Link href="/signup" className="ws-btn ws-btn-primary ws-btn-sm whitespace-nowrap">
-                  Criar conta<span className="hidden sm:inline"> grátis</span>
+                  Criar conta<span className="ml-[0.28em] hidden sm:inline">grátis</span>
                 </Link>
               </>
             )}

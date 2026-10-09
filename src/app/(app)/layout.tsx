@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { logout } from "@/app/(auth)/actions";
@@ -8,14 +7,12 @@ import { ProgressRing } from "@/components/progress-ring";
 import { ArrowRightIcon, BoltIcon, CheckCircleIcon, FlameIcon, LogoutIcon, SparkIcon } from "@/components/ui-icons";
 import { getWorkspaceSummary, type WorkspaceSummary } from "@/lib/learning/workspace";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
-const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const summary = await getWorkspaceSummary();
 
   return (
-    <div className={`cm-workspace ${geist.variable} ${geistMono.variable}`}>
+    <div className={`cm-workspace`}>
       <div className="ws-backdrop" aria-hidden="true" />
       <a
         href="#conteudo"

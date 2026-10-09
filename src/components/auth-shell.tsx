@@ -36,7 +36,7 @@ export function AuthShell({
             <span className="h-1.5 w-1.5 rounded-full bg-orange-400 shadow-[0_0_14px_#fb923c]" />
             Preparação orientada por dados
           </span>
-          <h2 className="mt-7 max-w-lg text-5xl font-extrabold leading-[1.02] tracking-[-0.055em] text-white xl:text-6xl">
+          <h2 className="mt-7 max-w-lg text-5xl font-extrabold leading-[1.04] tracking-[-0.042em] text-white xl:text-6xl">
             Menos dúvida.
             <span className="block bg-gradient-to-r from-orange-300 to-amber-200 bg-clip-text text-transparent">Mais domínio.</span>
           </h2>
@@ -81,7 +81,7 @@ export function AuthShell({
           </Link>
 
           <p className="cm-kicker">{eyebrow}</p>
-          <h1 className="mt-3 text-balance text-4xl font-extrabold tracking-[-0.05em] text-slate-950 sm:text-[2.75rem]">{title}</h1>
+          <h1 className="mt-3 text-balance text-4xl font-extrabold tracking-[-0.04em] text-slate-950 sm:text-[2.75rem]">{title}</h1>
           <p className="mt-4 text-[15px] leading-7 text-slate-600">{description}</p>
 
           <div className="mt-8">{children}</div>
