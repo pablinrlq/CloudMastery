@@ -30,3 +30,47 @@ Embeddings representam significado em vetores. Documentos semanticamente próxim
 
 Uma empresa classifica 10 milhões de tickets por mês e resume apenas casos complexos. Um modelo pequeno classifica e roteia; o modelo mais capaz é chamado em uma fração dos tickets. Essa composição reduz custo e latência sem reduzir qualidade onde ela importa.
 
+## Exemplo resolvido: quanto custa um assistente
+
+Use preços hipotéticos de **US$ 0,50 por milhão de tokens de entrada** e **US$ 2,00 por milhão de tokens de saída** (os reais variam por modelo e Região).
+
+- 100 mil perguntas por mês.
+- Cada uma com 1.500 tokens de entrada (prompt de sistema, contexto e pergunta) e 300 de saída.
+- Entrada: 150 milhões de tokens × US$ 0,50 = **US$ 75**.
+- Saída: 30 milhões de tokens × US$ 2,00 = **US$ 60**.
+
+Repare que a saída é um quinto do volume da entrada, mas quase metade do custo. Limitar o tamanho das respostas e reaproveitar prefixos repetidos (prompt caching) são as alavancas mais diretas.
+
+## Parâmetros de inferência lado a lado
+
+| Parâmetro | O que controla | Valor baixo | Valor alto |
+|---|---|---|---|
+| Temperature | Aleatoriedade da amostragem | Respostas consistentes | Respostas criativas e variadas |
+| Top-p | Núcleo de probabilidade acumulada | Só tokens muito prováveis | Mais diversidade |
+| Top-k | Quantos candidatos considerar | Poucos candidatos | Muitos candidatos |
+| Max tokens | Tamanho máximo da saída | Respostas curtas, risco de corte | Respostas longas, mais custo |
+| Stop sequences | Onde parar | — | — |
+
+Para extração de dados e classificação, use temperature baixa. Para brainstorming e textos criativos, um valor mais alto.
+
+## Formas de consumir modelos no Bedrock
+
+| Opção | Quando usar |
+|---|---|
+| Sob demanda | Uso variável; paga por token |
+| Inferência em lote | Grandes volumes sem pressa; preço menor |
+| Provisioned Throughput | Volume alto e constante, capacidade garantida e, em muitos casos, modelos customizados |
+| Inferência entre Regiões | Mais throughput, roteando entre Regiões de uma mesma geografia |
+| Prompt caching | Prefixos longos repetidos em muitas chamadas |
+
+## Pegadinhas
+
+- **Resposta cortada no meio = max tokens.** Não é temperature.
+- **Embeddings de indexação e de consulta precisam vir do mesmo modelo.** Trocar o modelo exige reindexar.
+- **Janela de contexto maior não é sempre melhor:** custa mais e pode diluir a informação relevante.
+
+## Checklist do módulo
+
+- [ ] Estimo o custo mensal a partir de tokens de entrada e de saída.
+- [ ] Sei o efeito de temperature, top-p, top-k, max tokens e stop sequences.
+- [ ] Escolho entre sob demanda, lote e Provisioned Throughput.

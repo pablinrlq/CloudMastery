@@ -32,3 +32,45 @@ Revisão humana é mais importante quando o impacto é alto, a confiança é bai
 
 Um sistema prioriza currículos. Antes do uso, a empresa documenta finalidade, testa taxas de erro por grupos, remove dados não necessários, fornece explicação aos recrutadores, impede rejeição automática e cria canal de contestação. Monitoramento procura drift após mudanças no mercado. O objetivo é auxiliar, não ocultar uma decisão de alto impacto atrás do modelo.
 
+## Ferramentas AWS para IA responsável
+
+| Necessidade | Ferramenta |
+|---|---|
+| Bloquear conteúdo nocivo, assuntos proibidos e PII | Amazon Bedrock Guardrails |
+| Bloquear respostas sem base nos documentos | Guardrails: verificação de fundamentação contextual |
+| Validar respostas contra regras formais | Guardrails: verificações de raciocínio automatizado |
+| Medir viés nos dados e nas previsões | SageMaker Clarify |
+| Explicar previsões (importância das features) | SageMaker Clarify (SHAP) |
+| Detectar viés que surge em produção | SageMaker Model Monitor + Clarify |
+| Revisão humana de previsões de baixa confiança | Amazon Augmented AI (A2I) |
+| Documentar finalidade, dados e limitações | SageMaker Model Cards |
+| Entender limites dos serviços de IA da AWS | AWS AI Service Cards |
+
+## Características de um bom dataset
+
+- **Inclusivo e diverso:** representa as pessoas e situações que o sistema vai atender.
+- **Balanceado:** nenhum grupo relevante fica com poucos exemplos.
+- **Curado:** limpo, sem duplicatas, com rótulos revisados.
+- **Documentado:** origem, consentimento, período e limitações conhecidas.
+
+## Riscos legais e de reputação
+
+- **Propriedade intelectual:** conteúdo gerado parecido demais com obras protegidas.
+- **Resultados enviesados:** decisões que discriminam grupos.
+- **Alucinações:** informação falsa apresentada como fato a clientes.
+- **Perda de confiança:** usuários enganados ou expostos.
+- **Risco ao usuário final:** conselhos perigosos em saúde, finanças ou segurança.
+
+## Interpretável × opaco
+
+Modelos interpretáveis (regressão, árvores de decisão) são fáceis de explicar e auditar, às vezes com um pouco menos de desempenho. Modelos opacos (deep learning, LLMs) são mais capazes, mas exigem ferramentas de explicação e mais controles. Em decisões reguladas, como crédito, a transparência costuma pesar mais.
+
+## Sustentabilidade
+
+Escolha o menor modelo que atende, evite treinamentos desnecessários, reaproveite modelos prontos e desligue endpoints ociosos. Eficiência também é responsabilidade.
+
+## Checklist do módulo
+
+- [ ] Associo cada necessidade de IA responsável à ferramenta AWS.
+- [ ] Descrevo as características de um dataset justo.
+- [ ] Explico a troca entre desempenho e interpretabilidade.

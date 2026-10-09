@@ -36,3 +36,50 @@ O agente pode consultar saldo, mas transferência exige autenticação reforçad
 
 Explique claramente tokens, embeddings, hallucination, RAG, fine-tuning, agentes, métricas e princípios responsáveis. Para cada arquitetura, localize dados sensíveis, fronteira de autorização, validação da saída e responsável pela decisão.
 
+## Mais comparações que derrubam candidatos
+
+| Dúvida | Diferença |
+|---|---|
+| Amazon Q Business × Knowledge Bases | Q Business é um assistente pronto para funcionários; Knowledge Bases é o bloco para você construir o seu RAG |
+| Kendra × OpenSearch | Kendra é busca corporativa pronta com conectores; OpenSearch é motor de busca e vetores que você configura |
+| Comprehend × LLM | Comprehend é barato e consistente para sentimento e entidades; LLM é flexível para tarefas abertas |
+| Textract × LLM | Textract extrai dados de documentos com coordenadas; LLM interpreta e resume o texto extraído |
+| A2I × Guardrails | A2I coloca humanos para revisar; Guardrails filtra automaticamente |
+| Clarify × Model Monitor | Clarify mede viés e explica; Model Monitor acompanha a produção (usando o Clarify para viés) |
+| CloudTrail × invocation logging | Quem chamou a API × o conteúdo do prompt e da resposta |
+| Fine-tuning × pré-treinamento contínuo | Dados rotulados × texto do domínio sem rótulo |
+
+## Palavras-gatilho
+
+| No enunciado | Pense em |
+|---|---|
+| "citar a fonte", "documentos internos atualizados" | RAG / Knowledge Bases |
+| "sem gerenciar infraestrutura", "modelo de fundação" | Amazon Bedrock |
+| "treinar e implantar modelo próprio" | SageMaker AI |
+| "sem código", "analista de negócio" | SageMaker Canvas |
+| "rotular dados" | SageMaker Ground Truth |
+| "viés", "explicar a decisão" | SageMaker Clarify |
+| "drift", "qualidade caiu em produção" | SageMaker Model Monitor |
+| "revisão humana quando a confiança é baixa" | Amazon A2I |
+| "bloquear assunto", "mascarar PII" | Bedrock Guardrails |
+| "respostas sem base nos documentos" | Fundamentação contextual (Guardrails) |
+| "executar ações em sistemas" | Agentes com action groups |
+| "menor custo para grandes volumes sem pressa" | Inferência em lote |
+
+## Revisão final em 15 itens
+
+1. IA ⊃ ML ⊃ deep learning; IA generativa cria conteúdo.
+2. Supervisionado usa rótulos; não supervisionado agrupa; reforço usa recompensas.
+3. Overfitting: ótimo no treino, ruim em dados novos.
+4. Precisão evita falso positivo; recall evita falso negativo.
+5. Tokens definem custo e limite de contexto.
+6. Temperature baixa = consistência; max tokens corta a resposta.
+7. Embeddings + banco vetorial = busca por significado.
+8. RAG para conhecimento atualizado e citável; fine-tuning para comportamento.
+9. Prompt → RAG → fine-tuning → pré-treinamento: custo crescente.
+10. Agentes precisam de menor privilégio, limites e confirmação.
+11. ROUGE para resumo, BLEU para tradução, BERTScore para semântica.
+12. Guardrails, Clarify, A2I e Model Cards para IA responsável.
+13. Bedrock não treina modelos base com seus dados.
+14. PrivateLink, KMS, IAM, CloudTrail e invocation logging protegem e auditam.
+15. Artifact, Audit Manager e Config apoiam a conformidade.

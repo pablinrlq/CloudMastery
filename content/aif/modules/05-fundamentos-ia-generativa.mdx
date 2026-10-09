@@ -31,3 +31,46 @@ Hallucination, viés, não determinismo, contexto finito, custo por token, latê
 
 Use ML tradicional para previsão numérica, classificação consistente e detecção baseada em padrões específicos. Use GenAI quando a saída é conteúdo flexível ou linguagem natural. Soluções híbridas são comuns: um classificador roteia a solicitação, RAG recupera fatos e um LLM redige a resposta.
 
+## Como os modelos generativos funcionam por dentro
+
+| Arquitetura | Ideia central | Uso típico |
+|---|---|---|
+| Transformer | Autoatenção: cada token pondera a relação com todos os outros | LLMs de texto e código |
+| Difusão | Aprende a remover ruído até formar uma imagem coerente | Geração de imagens e vídeo |
+| GAN | Um gerador tenta enganar um discriminador | Imagens sintéticas, aumento de dados |
+| VAE | Comprime em um espaço latente e reconstrói | Geração e detecção de anomalias |
+
+LLMs são pré-treinados de forma **auto-supervisionada**: prevendo o próximo token em grandes volumes de texto. Depois passam por ajuste com instruções (instruction tuning) e alinhamento com preferências humanas (RLHF) para seguir comandos com segurança.
+
+## Ciclo de vida de um modelo de fundação
+
+1. **Seleção de dados** em grande escala, com curadoria e filtros.
+2. **Pré-treinamento**: a etapa mais cara, com milhares de GPUs por semanas.
+3. **Ajuste** (fine-tuning, instruções, alinhamento).
+4. **Avaliação** com benchmarks e testes humanos.
+5. **Implantação** por API ou endpoint.
+6. **Feedback** dos usuários para as próximas versões.
+
+A maioria das empresas entra no ciclo a partir da etapa 3 ou 5, usando um modelo pronto.
+
+## Vantagens e desvantagens para o negócio
+
+| Vantagens | Desvantagens |
+|---|---|
+| Adaptabilidade a muitas tarefas | Alucinações e falta de veracidade |
+| Velocidade de entrega (sem treinar do zero) | Não determinismo (respostas variam) |
+| Interface em linguagem natural | Interpretabilidade limitada |
+| Escala para conteúdo e atendimento | Custo por token e latência |
+| Personalização por prompt e RAG | Riscos de privacidade, PI e viés |
+
+## Pegadinhas
+
+- **"Responde com fluência" não significa "responde certo".** Para fatos, combine com RAG e citações.
+- **O modelo não aprende com o seu uso diário:** o conhecimento para na data de corte, salvo se você fornecer contexto.
+- **Difusão gera imagens; Rekognition analisa imagens.** Gerar e analisar são verbos diferentes.
+
+## Checklist do módulo
+
+- [ ] Explico autoatenção, difusão e GAN em uma frase cada.
+- [ ] Listo as etapas do ciclo de vida de um modelo de fundação.
+- [ ] Escolho entre IA generativa e ML tradicional para um cenário.

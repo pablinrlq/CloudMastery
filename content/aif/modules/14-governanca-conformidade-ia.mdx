@@ -33,3 +33,46 @@ Confirme Região, fluxo de dados, termos do provedor, retenção e uso de conte�
 
 Um banco cataloga cada caso de IA por criticidade. Modelos de marketing seguem aprovação simplificada; crédito exige validação independente, fairness, explicação, supervisão humana e evidências de auditoria. SCPs e pipelines impedem deploy fora das Regiões aprovadas.
 
+## Normas e regulações que aparecem
+
+| Referência | Do que trata |
+|---|---|
+| ISO/IEC 42001 | Sistema de gestão de IA (a AWS é certificada) |
+| ISO/IEC 27001 | Sistema de gestão de segurança da informação |
+| SOC 1, 2 e 3 | Relatórios de controles auditados |
+| LGPD e GDPR | Proteção de dados pessoais |
+| EU AI Act | Obrigações por nível de risco: inaceitável, alto, limitado e mínimo |
+| NIST AI RMF | Framework de gestão de riscos de IA: governar, mapear, medir e gerenciar |
+
+## Serviços AWS de governança e para que servem
+
+| Serviço | Papel na governança de IA |
+|---|---|
+| AWS Artifact | Baixar relatórios de conformidade da AWS (SOC, ISO) |
+| AWS Audit Manager | Coletar evidências continuamente, inclusive com framework de boas práticas de IA generativa |
+| AWS Config | Histórico de configuração e regras de conformidade dos recursos |
+| AWS CloudTrail | Trilha de quem fez o quê via API |
+| AWS Trusted Advisor | Verificações de boas práticas na conta |
+| Amazon Inspector | Vulnerabilidades em instâncias, contêineres e funções |
+| Amazon Macie | Dados sensíveis no S3 |
+| AWS Organizations (SCPs) | Limitar Regiões, serviços e modelos permitidos por conta |
+
+## Governança de dados
+
+- **Ciclo de vida:** coleta, uso, retenção e exclusão definidos por política.
+- **Residência:** em que Regiões os dados e a inferência podem ocorrer (atenção à inferência entre Regiões).
+- **Linhagem:** de onde veio cada dado de treino e que transformações sofreu.
+- **Catalogação:** saber quais datasets existem, quem é o dono e qual a classificação.
+- **Monitoramento e logs:** acessos e mudanças registrados e revisados.
+
+## Pegadinhas
+
+- **Artifact fornece relatórios da AWS; Audit Manager coleta evidências das SUAS cargas.**
+- **Config responde "como estava configurado"; CloudTrail responde "quem mudou".**
+- **Governança é contínua:** aprovação única no lançamento não basta, porque modelos, dados e leis mudam.
+
+## Checklist do módulo
+
+- [ ] Associo cada norma ao seu tema.
+- [ ] Escolho entre Artifact, Audit Manager, Config e CloudTrail.
+- [ ] Listo os elementos de governança de dados para um projeto de IA.

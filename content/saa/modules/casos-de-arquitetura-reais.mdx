@@ -38,7 +38,7 @@ Onde a prova te pega: upload passando pela Lambda (limite 6 MB), API Gateway tim
 **Requisitos**: telemetria de milhares de dispositivos, dashboards em minutos, histórico consultável barato.
 
 - **Ingestão**: Kinesis Data Streams (tempo real) → Lambda para alertas imediatos
-- **Entrega**: Kinesis Data Firehose → S3 em **Parquet** particionado
+- **Entrega**: Amazon Data Firehose (antigo Kinesis Data Firehose) → S3 em **Parquet** particionado
 - **Consulta**: Athena (ad-hoc) + QuickSight (dashboards)
 - **Arquivo**: lifecycle S3 → Glacier após 90 dias
 

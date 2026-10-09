@@ -33,3 +33,47 @@ RAG fornece conhecimento atualizável e fontes; fine-tuning adapta comportamento
 
 Filtre a recuperação com metadados de autorização antes de enviar trechos ao modelo. Um índice compartilhado sem filtros pode vazar documentos entre departamentos. Criptografe fontes e índices, registre acesso e remova PII não necessária.
 
+## Estratégias de chunking
+
+| Estratégia | Como divide | Bom para |
+|---|---|---|
+| Tamanho fixo | N tokens com sobreposição | Textos homogêneos, ponto de partida |
+| Hierárquica | Trechos pequenos para busca, ligados a trechos maiores para contexto | Documentos longos e estruturados |
+| Semântica | Corta onde o assunto muda | Textos com seções de tamanhos variados |
+| Sem divisão | Cada arquivo é um chunk | Documentos curtos e já segmentados |
+
+Chunks grandes demais trazem ruído e custo; pequenos demais perdem contexto. Ajuste com um conjunto de perguntas de teste.
+
+## Onde guardar os vetores na AWS
+
+| Opção | Quando faz sentido |
+|---|---|
+| Amazon OpenSearch Serverless | Opção de criação rápida das Knowledge Bases; busca vetorial e híbrida gerenciada |
+| Amazon Aurora PostgreSQL (pgvector) | Já usa PostgreSQL e quer vetores junto dos dados relacionais |
+| Amazon Neptune Analytics | Combinar grafos com busca vetorial (GraphRAG) |
+| Amazon MemoryDB | Busca vetorial em memória com latência muito baixa |
+| Amazon DocumentDB | Vetores junto de documentos JSON |
+| Parceiros (Pinecone, MongoDB Atlas, Redis) | Quando a empresa já usa essas plataformas |
+
+## Melhorando a recuperação
+
+- **Filtros de metadados:** limitar a busca por departamento, país ou data, inclusive por permissão.
+- **Busca híbrida:** palavra-chave + semântica, para siglas, códigos e nomes exatos.
+- **Reranking:** um modelo reordena os trechos por relevância real antes de irem ao prompt.
+- **Reformulação da consulta:** dividir perguntas compostas em subperguntas.
+
+## Como avaliar um RAG
+
+Avalie em duas partes. Na **recuperação**: os trechos certos vieram? Meça relevância e cobertura do contexto. Na **geração**: a resposta está fiel ao contexto (groundedness), responde à pergunta e cita a fonte certa? Uma resposta errada com o contexto certo é problema de prompt ou de modelo; com o contexto errado, é problema de recuperação.
+
+## Pegadinhas
+
+- **RAG não altera o modelo.** A sincronização da Knowledge Base indexa documentos; não treina nada.
+- **Dados que mudam toda semana pedem RAG**, não fine-tuning.
+- **Mais trechos aumentam o custo** em tokens de entrada e podem piorar a resposta.
+
+## Checklist do módulo
+
+- [ ] Desenho o fluxo de ingestão e o de consulta de um RAG.
+- [ ] Escolho um armazenamento vetorial para o cenário.
+- [ ] Explico filtros de metadados, busca híbrida e reranking.

@@ -30,3 +30,53 @@ Offline evaluation compara versões em dataset controlado. A/B testing mede comp
 
 Um assistente de suporte reduz o tempo médio, mas começa a inventar políticas de reembolso. O KPI operacional melhorou, porém a qualidade de negócio piorou. A solução adiciona RAG sobre políticas aprovadas, citações, recusa quando não há evidência, avaliação de groundedness e escalonamento humano.
 
+## Exemplo resolvido: matriz de confusão
+
+Um modelo analisou 1.000 transações, das quais 50 eram fraude:
+
+| | Previu fraude | Previu legítima |
+|---|---:|---:|
+| **Era fraude** | 40 (VP) | 10 (FN) |
+| **Era legítima** | 60 (FP) | 890 (VN) |
+
+- **Acurácia** = (40 + 890) / 1000 = **93%**.
+- **Precisão** = 40 / (40 + 60) = **40%**: de cada 10 bloqueios, 6 incomodaram clientes legítimos.
+- **Recall** = 40 / (40 + 10) = **80%**: o modelo encontrou 8 de cada 10 fraudes.
+- **F1** = 2 × (0,4 × 0,8) / (0,4 + 0,8) ≈ **53%**.
+
+A acurácia de 93% parece ótima, mas um modelo que nunca acusa fraude teria 95%. Por isso, em classes desbalanceadas, olhe precisão, recall, F1 e AUC-ROC.
+
+## Qual métrica para cada tarefa
+
+| Tarefa | Métricas |
+|---|---|
+| Classificação | Acurácia, precisão, recall, F1, AUC-ROC |
+| Regressão | MAE, RMSE, R² |
+| Resumo | ROUGE + avaliação humana |
+| Tradução | BLEU + avaliação humana |
+| Similaridade semântica | BERTScore |
+| Modelo de linguagem | Perplexidade (quanto menor, melhor) |
+| RAG | Relevância do contexto, fidelidade (groundedness), relevância da resposta |
+
+## Métricas de negócio
+
+A métrica técnica precisa virar valor. Exemplos que a prova usa:
+
+- **Atendimento:** tempo médio de atendimento, taxa de resolução sem escalonamento, satisfação (CSAT).
+- **Vendas:** taxa de conversão, receita média por usuário (ARPU), valor de vida do cliente (CLV).
+- **Operação:** custo por transação, horas economizadas, tempo até a primeira resposta.
+- **Risco:** perdas por fraude evitadas, falsos positivos que geraram reclamação.
+
+Calcule também o custo da solução: tokens, endpoints, rotulagem e revisão humana. Um modelo 2% mais preciso que custa 10 vezes mais pode não compensar.
+
+## Pegadinhas
+
+- **AUC-ROC 0,5 é sorte;** 1,0 é separação perfeita.
+- **RMSE pune erros grandes** mais que o MAE, o que é útil quando um erro grande custa caro.
+- **Nem todo número é métrica de negócio:** número de parâmetros, GPUs e janela de contexto são características técnicas.
+
+## Checklist do módulo
+
+- [ ] Calculo precisão, recall e F1 a partir de uma matriz de confusão.
+- [ ] Escolho a métrica a partir do custo do erro.
+- [ ] Dou dois exemplos de métricas de negócio para um assistente de IA generativa.
