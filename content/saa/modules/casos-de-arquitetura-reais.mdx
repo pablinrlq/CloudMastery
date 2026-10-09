@@ -49,7 +49,7 @@ Onde a prova te pega: Firehose quando precisa de replay (é Streams), formato JS
 **Requisitos**: aplicação crítica, RTO 15 min, RPO ~1 min, custo controlado.
 
 - **Estratégia**: **warm standby** na região secundária (escala reduzida)
-- **Dados**: Aurora Global Database (replicação <1s); S3 com CRR; DynamoDB Global Tables
+- **Dados**: Aurora Global Database (replicação abaixo de 1 s); S3 com CRR; DynamoDB Global Tables
 - **Infra**: CloudFormation para escalar a secundária no failover
 - **Tráfego**: Route 53 failover + health checks
 - **Prova do plano**: GameDays regulares testando o failover
