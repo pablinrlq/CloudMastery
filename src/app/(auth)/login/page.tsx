@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { login, loginWithGithub, loginWithGoogle } from "../actions";
 import { AuthShell } from "@/components/auth-shell";
+import { GoogleIcon } from "@/components/ui-icons";
 
 export default function LoginPage() {
   return (
@@ -117,9 +118,7 @@ function LoginForm() {
 
       <form action={loginWithGoogle}>
         <button type="submit" className="cm-button-secondary w-full gap-3">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-bold text-slate-800 shadow-sm">
-            G
-          </span>
+          <GoogleIcon />
           Continuar com Google
         </button>
       </form>

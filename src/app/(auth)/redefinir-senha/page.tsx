@@ -26,9 +26,9 @@ function ResetPasswordForm() {
             name="password"
             type="password"
             required
-            minLength={12}
+            minLength={8}
             autoComplete="new-password"
-            placeholder="Mínimo de 12 caracteres"
+            placeholder="Mínimo de 8 caracteres"
             className="cm-input"
           />
         </div>
@@ -41,7 +41,7 @@ function ResetPasswordForm() {
             name="passwordConfirmation"
             type="password"
             required
-            minLength={12}
+            minLength={8}
             autoComplete="new-password"
             placeholder="Repita a nova senha"
             className="cm-input"

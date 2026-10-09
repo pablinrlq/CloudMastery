@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { signup, loginWithGoogle, loginWithGithub } from "../actions";
 import { AuthShell } from "@/components/auth-shell";
+import { GoogleIcon } from "@/components/ui-icons";
 
 export default function SignupPage() {
   const [state, action, pending] = useActionState(signup, undefined);
@@ -52,9 +53,9 @@ export default function SignupPage() {
             name="password"
             type="password"
             required
-            minLength={12}
+            minLength={8}
             autoComplete="new-password"
-            placeholder="Mínimo de 12 caracteres"
+            placeholder="Mínimo de 8 caracteres"
             className="cm-input"
           />
           <p className="mt-2 text-xs text-slate-400">
@@ -85,9 +86,7 @@ export default function SignupPage() {
 
       <form action={loginWithGoogle}>
         <button type="submit" className="cm-button-secondary w-full gap-3">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-bold text-slate-800 shadow-sm">
-            G
-          </span>
+          <GoogleIcon />
           Continuar com Google
         </button>
       </form>
