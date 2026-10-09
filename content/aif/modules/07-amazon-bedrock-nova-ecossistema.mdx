@@ -33,3 +33,55 @@ Para o exame, reconheça a categoria e o problema resolvido. Para produção, co
 
 Uma empresa quer um assistente interno sobre manuais. Bedrock fornece o FM, Knowledge Bases implementa recuperação, Guardrails filtra conteúdo e IAM controla acesso. Logs e avaliações medem groundedness. Se o objetivo fosse treinar um modelo preditivo proprietário com pipeline completo, SageMaker AI seria mais adequado.
 
+## Mapa de recursos do Amazon Bedrock
+
+| Recurso | O que resolve |
+|---|---|
+| Catálogo de modelos | Modelos de fundação de vários fornecedores (Amazon Nova, Anthropic, Meta, Mistral, Cohere e outros) por uma API |
+| Converse API | Mesmo formato de requisição para conversas e uso de ferramentas entre modelos |
+| Knowledge Bases | RAG gerenciado: ingestão, chunking, embeddings, banco vetorial e citações |
+| Agents | Orquestração de tarefas com action groups e bases de conhecimento |
+| Guardrails | Filtros de conteúdo, tópicos negados, PII, fundamentação contextual |
+| Model Evaluation | Avaliação automática, com LLM como juiz, ou humana |
+| Customização | Fine-tuning, pré-treinamento contínuo e destilação |
+| Prompt Management e Flows | Versionar prompts e montar fluxos visuais |
+| Inferência em lote e Provisioned Throughput | Reduzir custo em volume ou garantir capacidade |
+| Model invocation logging | Registrar prompts e respostas para auditoria |
+
+## Bedrock, SageMaker AI ou serviço pronto?
+
+| Se o cenário pede… | Escolha |
+|---|---|
+| Gerar texto, resumir, conversar com um modelo de fundação por API, sem gerenciar servidores | Amazon Bedrock |
+| Treinar, ajustar e hospedar modelos próprios com controle total do ciclo | Amazon SageMaker AI |
+| Implantar um modelo open source pré-treinado em um endpoint próprio com poucos cliques | SageMaker JumpStart |
+| Uma tarefa específica sem treinar nada (OCR, tradução, sentimento) | Serviço de IA pronto |
+
+## Serviços de IA prontos que a prova cobra
+
+| Serviço | Entrada → saída |
+|---|---|
+| Amazon Comprehend | Texto → sentimento, entidades, frases-chave, PII |
+| Amazon Translate | Texto → texto em outro idioma |
+| Amazon Transcribe | Áudio → texto |
+| Amazon Polly | Texto → áudio |
+| Amazon Rekognition | Imagem e vídeo → rótulos, rostos, texto, moderação |
+| Amazon Textract | Documento → texto, formulários e tabelas |
+| Amazon Lex | Conversa → intenções e slots (chatbots) |
+| Amazon Kendra | Pergunta → busca inteligente em documentos corporativos |
+| Amazon Personalize | Interações → recomendações personalizadas |
+| Amazon Q Developer | Assistente de código na IDE e no console |
+| Amazon Q Business | Assistente corporativo sobre dados da empresa, respeitando permissões |
+| PartyRock | Playground sem código para aprender e prototipar |
+
+## Pegadinhas
+
+- **Bedrock não usa seus prompts para treinar os modelos base**, nem os compartilha com os fornecedores.
+- **"Analisar imagens" é Rekognition; "gerar imagens" é um modelo no Bedrock** (como o Nova Canvas).
+- **Textract extrai; Comprehend entende.** Para "extrair campos de um formulário e depois detectar o sentimento", usam-se os dois.
+
+## Checklist do módulo
+
+- [ ] Associo cada recurso do Bedrock ao problema que resolve.
+- [ ] Decido entre Bedrock, SageMaker AI, JumpStart e um serviço de IA pronto.
+- [ ] Reconheço a entrada e a saída de cada serviço de IA pronto.

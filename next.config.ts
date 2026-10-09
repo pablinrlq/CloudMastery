@@ -4,6 +4,10 @@ const nextConfig: NextConfig = {
   // Vercel supplies its own Next.js runtime output. Standalone is only for the
   // self-hosted Docker/EC2 image and conflicts with Vercel's build adapter.
   output: process.env.VERCEL ? undefined : "standalone",
+  // Credential share images read their fonts from disk at request time.
+  outputFileTracingIncludes: {
+    "/c/**": ["./src/assets/fonts/**/*"],
+  },
   async headers() {
     return [
       {

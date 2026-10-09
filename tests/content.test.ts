@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { parseFrontmatter } from "../lib/frontmatter.ts";
+import { serialize } from "next-mdx-remote/serialize";
+import remarkGfm from "remark-gfm";
+import { parseFrontmatter } from "../src/lib/learning/frontmatter.ts";
 
 const expectedCoreSections = { ccp: 21, saa: 33, aif: 15 } as const;
 const expectedMinimumFiles = { ccp: 26, saa: 46, aif: 17 } as const;
@@ -45,3 +47,21 @@ for (const certId of Object.keys(expectedCoreSections) as Array<keyof typeof exp
     }
   });
 }
+
+// The course page compiles each module at request time, so a stray "<1s" or "{"
+// only shows up as a server error for whoever opens that module.
+test("every module compiles as MDX like the course page does", async () => {
+  const failures: string[] = [];
+  for (const certId of Object.keys(expectedCoreSections)) {
+    const directory = path.join(process.cwd(), "content", certId, "modules");
+    for (const file of fs.readdirSync(directory).filter((name) => name.endsWith(".mdx"))) {
+      const { content } = parseFrontmatter(fs.readFileSync(path.join(directory, file), "utf8"));
+      try {
+        await serialize(content, { mdxOptions: { remarkPlugins: [remarkGfm] } });
+      } catch (error) {
+        failures.push(`${certId}/${file}: ${String((error as Error).message).split("\n")[1] ?? error}`);
+      }
+    }
+  }
+  assert.deepEqual(failures, []);
+});

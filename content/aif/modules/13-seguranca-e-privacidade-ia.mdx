@@ -34,3 +34,44 @@ Autentique o usuário antes da recuperação, aplique filtros por documento, min
 
 Um chatbot de RH usa políticas por país. O usuário só recupera documentos permitidos para sua região e função. Logs mascaram identificadores, chaves ficam no Secrets Manager e o modelo não pode chamar sistemas de folha. Solicitações de alteração viram tickets revisados por humanos.
 
+## O que o Bedrock garante e o que fica com você
+
+| A AWS cuida de | Você cuida de |
+|---|---|
+| Infraestrutura, hospedagem e isolamento dos modelos | Quem pode invocar quais modelos (IAM) |
+| Não usar seus prompts e respostas para treinar os modelos base | Quais dados entram nos prompts e no RAG |
+| Não compartilhar seus dados com os fornecedores dos modelos | Configurar guardrails, filtros e validação da saída |
+| Criptografia em trânsito e em repouso | Escolher chaves KMS gerenciadas pelo cliente quando exigido |
+| Disponibilidade do serviço na Região | Registrar invocações, revisar logs e responder a incidentes |
+
+## Controles específicos para IA generativa
+
+- **Rede privada:** VPC endpoint de interface (PrivateLink) para o Bedrock, sem passar pela internet.
+- **Auditoria de API:** CloudTrail registra quem chamou qual API e quando.
+- **Conteúdo das invocações:** model invocation logging grava prompts e respostas no CloudWatch Logs ou no S3. Proteja esses logs, porque eles podem conter dados sensíveis.
+- **Dados de treino e RAG:** Macie encontra PII no S3 antes da ingestão; KMS e políticas de bucket restringem o acesso.
+- **Menor privilégio:** políticas IAM limitando `bedrock:InvokeModel` aos modelos aprovados.
+
+## Generative AI Security Scoping Matrix
+
+| Escopo | O que a empresa usa | Exemplo |
+|---|---|---|
+| 1. Aplicação de consumo | App público de IA | Usar um chatbot público no navegador |
+| 2. Aplicação corporativa | SaaS com recursos de IA | Ferramenta de e-mail com resumo automático |
+| 3. Modelo pré-treinado | Modelo de terceiros via API | Aplicação própria sobre o Bedrock |
+| 4. Modelo ajustado | Modelo customizado com seus dados | Fine-tuning no Bedrock |
+| 5. Modelo próprio | Treinado do zero pela empresa | Pré-treinamento no SageMaker AI |
+
+Quanto maior o escopo, mais controles ficam com a empresa: dados de treino, avaliação, hospedagem e resposta a incidentes.
+
+## Pegadinhas
+
+- **CloudTrail não guarda o texto dos prompts.** Para isso existe o model invocation logging.
+- **Guardrails não substituem IAM.** Um usuário sem permissão não deve sequer conseguir chamar o modelo.
+- **Dados pessoais nos logs também são dados pessoais:** mascare, restrinja e defina retenção.
+
+## Checklist do módulo
+
+- [ ] Separo as responsabilidades da AWS e do cliente no Bedrock.
+- [ ] Classifico um caso de uso nos 5 escopos da matriz.
+- [ ] Escolho entre CloudTrail e model invocation logging.

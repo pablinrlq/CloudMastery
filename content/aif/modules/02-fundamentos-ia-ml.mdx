@@ -34,3 +34,41 @@ Underfitting ocorre quando o modelo é simples ou pouco treinado e erra até nos
 
 Se uma regra determinística resolve o problema com precisão, auditabilidade e baixo custo, ML adiciona risco desnecessário. Também evite automatizar decisões de alto impacto quando dados e governança não sustentam uso seguro.
 
+## Mapa rápido: problema → técnica
+
+| Pergunta do negócio | Tipo de aprendizado | Técnica | Exemplo |
+|---|---|---|---|
+| "É fraude ou não?" | Supervisionado | Classificação binária | Aprovar ou bloquear uma compra |
+| "Qual das 5 categorias?" | Supervisionado | Classificação multiclasse | Rotear chamados |
+| "Quanto vai custar?" | Supervisionado | Regressão | Prever preço de imóvel |
+| "Quais clientes se parecem?" | Não supervisionado | Clusterização (k-means) | Segmentação de marketing |
+| "Isso foge do normal?" | Não supervisionado | Detecção de anomalias | Leituras estranhas de sensores |
+| "Qual a melhor ação agora?" | Reforço | Política com recompensas | Robótica, jogos |
+| "Escreva um resumo" | Auto-supervisionado (pré-treino) + instruções | IA generativa | Resumir um contrato |
+
+## Tipos de dados que caem na prova
+
+- **Rotulado × não rotulado:** rótulos custam caro (alguém precisa anotar). Quando não há rótulos, pense em não supervisionado ou em rotulagem com o SageMaker Ground Truth.
+- **Estruturado × não estruturado:** tabelas e CSVs são estruturados; texto livre, imagem, áudio e vídeo não são.
+- **Séries temporais:** a ordem importa (vendas por dia, telemetria por minuto). Embaralhar esses dados entre treino e teste vaza informação do futuro.
+
+## Redes neurais e deep learning em uma frase
+
+Uma rede neural combina camadas de "neurônios" com pesos ajustados no treinamento. Com muitas camadas (deep learning), ela aprende sozinha representações complexas, como bordas, formas e objetos numa imagem, ao custo de precisar de muitos dados, computação (GPUs) e oferecer pouca interpretabilidade.
+
+## Visão computacional e linguagem natural
+
+- **Visão computacional:** classificar imagens, detectar objetos, reconhecer texto em fotos e moderar conteúdo. Na AWS, o Amazon Rekognition faz isso sem treinar nada.
+- **Processamento de linguagem natural (NLP):** sentimento, entidades, tradução e resumo. O Amazon Comprehend, o Translate e os modelos de fundação cobrem esses casos.
+
+## Pegadinhas
+
+- **Clusterização não usa rótulos.** Se o enunciado diz "sem categorias definidas", não é classificação.
+- **Regressão prevê número contínuo**, mesmo que o nome lembre "regressão logística", que na verdade é um classificador.
+- **Mais complexidade não corrige dado ruim.** Dados não representativos geram viés em qualquer algoritmo.
+
+## Checklist do módulo
+
+- [ ] Classifico um cenário em supervisionado, não supervisionado ou reforço.
+- [ ] Explico feature, label, treino, validação e teste.
+- [ ] Reconheço underfitting (ruim em tudo) e overfitting (bom no treino, ruim em dados novos).

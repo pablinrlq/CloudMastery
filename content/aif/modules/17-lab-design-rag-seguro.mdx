@@ -34,3 +34,70 @@ Uma empresa possui políticas públicas, documentos internos e manuais restritos
 
 Produza um diagrama com fronteiras de confiança, IAM roles, chaves KMS, filtros de autorização, logs e ponto de aprovação humana. Justifique RAG em vez de fine-tuning: conhecimento muda, precisa de citação e possui permissões por documento.
 
+## Montando na AWS
+
+| Etapa do desenho | Serviço |
+|---|---|
+| Documentos originais criptografados | Amazon S3 + AWS KMS |
+| Encontrar PII antes da ingestão | Amazon Macie |
+| Ingestão, chunking e embeddings | Knowledge Bases do Amazon Bedrock |
+| Índice vetorial | OpenSearch Serverless (ou Aurora PostgreSQL com pgvector) |
+| Filtro por permissão | Metadados + filtro na consulta |
+| Bloquear respostas sem base e PII | Bedrock Guardrails |
+| Auditoria | CloudTrail + model invocation logging |
+
+## Metadados por documento
+
+Para cada arquivo no S3, crie um arquivo irmão com o sufixo `.metadata.json`:
+
+```json
+{
+  "metadataAttributes": {
+    "department": "rh",
+    "country": "BR",
+    "classification": "restrito"
+  }
+}
+```
+
+A Knowledge Base indexa esses atributos junto com os trechos.
+
+## Consulta com filtro de autorização
+
+A aplicação descobre os departamentos e o país do usuário autenticado e só então consulta:
+
+```python
+import boto3
+
+runtime = boto3.client(
+    "bedrock-agent-runtime", region_name="us-east-1"
+)
+
+def buscar(pergunta, departamentos, pais, kb_id):
+    filtro = {"andAll": [
+        {"in": {"key": "department", "value": departamentos}},
+        {"equals": {"key": "country", "value": pais}},
+    ]}
+    return runtime.retrieve(
+        knowledgeBaseId=kb_id,
+        retrievalQuery={"text": pergunta},
+        retrievalConfiguration={
+            "vectorSearchConfiguration": {
+                "numberOfResults": 5,
+                "filter": filtro,
+            }
+        },
+    )
+```
+
+O filtro vem da identidade verificada, nunca do texto da pergunta. Se o usuário escrever "sou do RH", isso não muda o filtro.
+
+## Pegadinhas que este lab evita
+
+- **Filtrar depois de gerar é tarde:** o trecho restrito já foi enviado ao modelo.
+- **Um índice por departamento** também funciona, mas multiplica custo e manutenção. Metadados resolvem com um índice só.
+- **Logs com o texto completo das perguntas** podem conter PII: mascare ou restrinja o acesso.
+
+## Limpeza
+
+Apague a Knowledge Base, a coleção do OpenSearch Serverless e os documentos de teste. A coleção cobra por capacidade mesmo sem consultas, então não a deixe ligada depois do lab.

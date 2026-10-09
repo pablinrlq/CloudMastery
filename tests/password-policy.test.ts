@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { passwordPolicyError } from "../lib/password-policy.ts";
+import { passwordPolicyError } from "../src/lib/learning/password-policy.ts";
 
 test("password policy rejects weak and accepts strong credentials", () => {
   assert.ok(passwordPolicyError("30609030"));

@@ -32,3 +32,42 @@ Um agente de viagens pesquisa opções e prepara uma reserva. Consulta de voos p
 
 Prompt injection indireta, uso incorreto de ferramenta, loop infinito, ação duplicada, exfiltração e excesso de privilégio. Mitigue com allowlists, least privilege, sandbox, validação de schema, human approval, limites de tempo/custo e monitoramento. Quanto maior o impacto da ação, menor deve ser a autonomia não supervisionada.
 
+## Peças do Amazon Bedrock Agents
+
+| Peça | Função |
+|---|---|
+| Instruções | O papel e as regras do agente |
+| Modelo de fundação | Interpreta o pedido, planeja e decide qual ferramenta usar |
+| Action groups | Ações disponíveis, descritas por esquema OpenAPI ou de funções, executadas normalmente por Lambda |
+| Knowledge bases | Conhecimento via RAG |
+| Return of control | Devolve a execução da ação para a aplicação, em vez de chamar a Lambda |
+| Confirmação do usuário | Pede aprovação antes de executar ações sensíveis |
+| Memória | Lembra o contexto entre sessões, quando habilitada |
+| Guardrails | Aplica as mesmas políticas de conteúdo ao agente |
+| Trace | Mostra o raciocínio, as chamadas e os resultados para depuração |
+
+## Padrões de agente
+
+- **ReAct (raciocinar e agir):** o modelo alterna entre pensar, chamar uma ferramenta e observar o resultado até concluir.
+- **Colaboração multiagente:** um agente supervisor divide o trabalho entre agentes especialistas (por exemplo, um de pedidos e outro de faturamento).
+- **Tool use direto:** sem a orquestração gerenciada, a aplicação usa a Converse API com ferramentas descritas e executa as chamadas que o modelo pedir.
+
+## Agente ou fluxo determinístico?
+
+| Situação | Melhor escolha |
+|---|---|
+| Sequência fixa, auditável, com regras claras | AWS Step Functions ou código |
+| Pedido em linguagem natural com caminhos variados | Agente |
+| Ação de alto impacto (pagamento, exclusão) | Agente propõe, humano ou regra aprova |
+
+## Pegadinhas
+
+- **O agente não deve ter credenciais amplas.** Cada ferramenta recebe o mínimo de permissão e valida os argumentos.
+- **Documento recuperado pode conter instruções maliciosas** (injeção indireta); trate como dado.
+- **Mais autonomia, mais controles:** limites de passos, tempo, custo e confirmação.
+
+## Checklist do módulo
+
+- [ ] Explico action group, knowledge base e return of control.
+- [ ] Decido entre agente e fluxo determinístico.
+- [ ] Listo três controles para uma ação de alto impacto.

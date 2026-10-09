@@ -35,3 +35,41 @@ Registre modelo/provider/version, prompt, parâmetros, dataset, código de recup
 
 Um jurídico quer classificar cláusulas e explicar o resultado. Primeiro, few-shot com schema atende classificação. RAG adiciona políticas internas e citações. Fine-tuning só entra se houver grande volume de exemplos consistentes e ganho medido. Decisões finais permanecem com especialista humano.
 
+## Técnicas de customização
+
+| Técnica | Dados necessários | Muda o quê |
+|---|---|---|
+| Fine-tuning supervisionado | Pares rotulados de prompt e resposta (JSONL) | Formato, estilo, tarefa específica |
+| Instruction tuning | Instruções variadas e respostas | Capacidade de seguir comandos |
+| Pré-treinamento contínuo | Grande volume de texto do domínio, sem rótulos | Vocabulário e conhecimento do domínio |
+| Destilação | Prompts; o modelo professor gera as respostas | Modelo menor e mais barato com qualidade parecida |
+| RLHF | Preferências humanas entre respostas | Alinhamento a comportamento desejado |
+| Transfer learning | Poucos dados da nova tarefa | Reaproveita o que o modelo já sabe |
+
+No Bedrock, modelos customizados ficam privados na sua conta. Dependendo do modelo, servir a versão customizada pode exigir Provisioned Throughput, o que entra na conta do custo.
+
+## Métricas de avaliação
+
+| Métrica | Mede | Uso típico |
+|---|---|---|
+| ROUGE | Sobreposição com resumos de referência (recall) | Resumo |
+| BLEU | Precisão de n-gramas contra referências | Tradução |
+| BERTScore | Similaridade semântica via embeddings | Paráfrases e respostas abertas |
+| Perplexidade | O quanto o modelo "se surpreende" com o texto | Qualidade de modelo de linguagem |
+| Avaliação humana | Utilidade, tom, correção | Critérios subjetivos |
+| LLM como juiz | Um modelo avalia outro com rubrica | Escalar avaliações, calibrado com humanos |
+| Benchmarks | Conjuntos padronizados | Comparar modelos entre si |
+
+O **Amazon Bedrock Model Evaluation** executa avaliações automáticas (com conjuntos próprios ou prontos), com LLM como juiz e com equipes humanas, incluindo avaliações de Knowledge Bases.
+
+## Pegadinhas
+
+- **Dados rotulados → fine-tuning; texto sem rótulo → pré-treinamento contínuo.** É a distinção mais cobrada.
+- **Benchmark público não substitui teste com seus dados.** O modelo campeão em benchmark pode perder na sua tarefa.
+- **Fine-tuning não resolve dado que muda toda semana**: o modelo congela o que aprendeu.
+
+## Checklist do módulo
+
+- [ ] Ordeno as opções de adaptação do menor para o maior custo.
+- [ ] Escolho a técnica de customização a partir do tipo de dado disponível.
+- [ ] Associo ROUGE, BLEU e BERTScore às tarefas certas.

@@ -1,0 +1,85 @@
+import type { Metadata } from "next";
+import { headers } from "next/headers";
+import Script from "next/script";
+import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import "./globals.css";
+import { siteUrl } from "@/lib/site-url";
+
+// The brand typeface for every page (marketing, auth, workspace, credentials).
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
+
+export const metadata: Metadata = {
+  metadataBase: siteUrl(),
+  title: {
+    default: "CloudMastery — Certificações AWS com método",
+    template: "%s | CloudMastery",
+  },
+  description:
+    "Trilhas semanais em português, simulados no formato oficial com análise de tempo por questão, labs práticos e diagnóstico de prontidão para as certificações AWS.",
+  keywords: [
+    "certificação AWS",
+    "AWS Cloud Practitioner",
+    "AWS Solutions Architect",
+    "AWS AI Practitioner",
+    "CLF-C02",
+    "SAA-C03",
+    "AIF-C01",
+    "simulado AWS",
+    "estudar AWS em português",
+  ],
+  openGraph: {
+    title: "CloudMastery — Certificações AWS com método",
+    description:
+      "Trilhas semanais, simulados no formato oficial e diagnóstico de prontidão para as certificações AWS. 100% em português.",
+    type: "website",
+    locale: "pt_BR",
+    siteName: "CloudMastery",
+    images: [
+      {
+        url: "/og.png",
+        width: 1760,
+        height: 907,
+        alt: "CloudMastery — Passe na sua certificação AWS sem perder tempo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CloudMastery — Certificações AWS com método",
+    description:
+      "Trilhas, simulados oficiais e diagnóstico de prontidão para as certificações AWS. 100% em português.",
+    images: ["/og.png"],
+  },
+};
+
+export default async function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
+  return (
+    <html
+      lang="pt-BR"
+      className={`${geist.variable} ${geistMono.variable} h-full antialiased`}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Anti-flash: aplica o tema salvo antes do primeiro paint. */}
+        <Script id="cloudmastery-theme" nonce={nonce} strategy="beforeInteractive">
+          {`(function(){try{var t=localStorage.getItem('cm-theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}else{document.documentElement.classList.remove('dark')}}catch(e){}})();`}
+        </Script>
+      </head>
+      <body className="flex min-h-full flex-col bg-white text-slate-900 dark:bg-[#070a10] dark:text-slate-100">
+        {children}
+        <Analytics />
+        <SpeedInsights />
+      </body>
+    </html>
+  );
+}

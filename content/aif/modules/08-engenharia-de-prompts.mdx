@@ -33,3 +33,53 @@ Conteúdo recuperado ou enviado pelo usuário pode conter “ignore as instruç�
 
 Crie um conjunto de prompts normais, extremos e adversariais. Versione system prompt e modelo, meça qualidade/custo/latência e execute regressões antes de publicar. Otimização sem dataset leva a melhorias anedóticas.
 
+## Técnicas que a prova nomeia
+
+| Técnica | Como é | Quando usar |
+|---|---|---|
+| Zero-shot | Só a instrução | Tarefas simples e bem conhecidas |
+| Few-shot | Alguns exemplos de entrada e saída no prompt | Mostrar formato ou padrão sem treinar |
+| Chain-of-thought | Pedir raciocínio passo a passo | Lógica, cálculo, planejamento |
+| Papel (persona) | "Você é um analista de suporte…" | Ajustar tom e foco |
+| Template | Estrutura fixa com variáveis | Padronizar e versionar |
+| Instruções negativas | "Não invente dados; não cite concorrentes" | Restringir comportamento |
+| Delimitadores | Tags ou blocos separando dados de instruções | Reduzir risco de injeção |
+
+## Antes e depois
+
+**Antes:** "Resuma esse e-mail."
+
+**Depois:**
+
+```text
+Você é um assistente do time de suporte.
+Tarefa: resuma o e-mail entre <email> em até 3 tópicos.
+Inclua: problema, pedido do cliente e prazo mencionado.
+Se não houver prazo, escreva "sem prazo".
+Não invente informações que não estejam no e-mail.
+<email>{{texto_do_cliente}}</email>
+```
+
+O segundo prompt define papel, tarefa, formato, comportamento na ausência de dado e fronteira entre instrução e conteúdo.
+
+## Ataques a prompts
+
+| Ataque | O que é | Defesa |
+|---|---|---|
+| Prompt injection | Instruções maliciosas no texto do usuário ou em documentos recuperados | Tratar conteúdo como dado, delimitadores, guardrails, validação fora do modelo |
+| Jailbreak | Roleplay ou truques para burlar regras | Guardrails com filtro de ataques de prompt, testes adversariais |
+| Prompt leaking | Fazer o modelo revelar o prompt de sistema | Nunca colocar segredos no prompt, filtrar saídas |
+| Hijacking | Desviar o assistente para outra tarefa | Escopo claro, tópicos negados, recusa padrão |
+| Envenenamento | Dados maliciosos em fontes de RAG ou de treino | Curadoria, controle de origem, revisão |
+
+## Pegadinhas
+
+- **Few-shot não altera pesos.** Se a alternativa diz "treinar o modelo com exemplos no prompt", está errada.
+- **Prompt é a forma mais barata de adaptação:** tente antes de RAG e de fine-tuning.
+- **Guardrails complementam, mas não substituem**, a validação por código e o controle de acesso.
+
+## Checklist do módulo
+
+- [ ] Diferencio zero-shot, few-shot e chain-of-thought.
+- [ ] Reescrevo um prompt vago com papel, tarefa, formato e restrições.
+- [ ] Associo cada ataque à sua defesa.

@@ -31,3 +31,42 @@ Amazon SageMaker AI reúne preparação, treinamento, tuning, registro, implanta
 
 Um varejista prevê demanda diária. O baseline usa média histórica; o modelo incorpora feriados, preço e promoções. Inferência em lote grava previsões no S3, e o planejamento consome os resultados. Quando o erro por categoria ultrapassa o limite, uma pipeline revisa dados e inicia retreinamento com aprovação antes de promover a nova versão.
 
+## SageMaker AI por etapa do ciclo
+
+| Etapa | Recurso | Para quê |
+|---|---|---|
+| Rotular dados | SageMaker Ground Truth | Rotulagem humana com apoio de rotulagem automática |
+| Preparar dados | SageMaker Canvas / Data Wrangler | Limpeza e transformação visual |
+| Reutilizar features | SageMaker Feature Store | Mesmas features no treino (offline) e na inferência (online) |
+| Treinar e ajustar | Training jobs + Automatic Model Tuning | Treino gerenciado e busca de hiperparâmetros |
+| Começar rápido | SageMaker JumpStart | Modelos pré-treinados e soluções prontas |
+| Sem código | SageMaker Canvas | Analistas criam modelos com interface visual |
+| Viés e explicação | SageMaker Clarify | Métricas de viés e importância de features |
+| Versionar e aprovar | SageMaker Model Registry | Catálogo de versões com status de aprovação |
+| Automatizar | SageMaker Pipelines | MLOps: etapas reprodutíveis do dado ao deploy |
+| Monitorar | SageMaker Model Monitor | Drift de dados, de qualidade e de viés em produção |
+
+## Quatro formas de servir um modelo
+
+| Opção | Quando usar | Exemplo |
+|---|---|---|
+| Endpoint em tempo real | Baixa latência, tráfego constante | Antifraude no checkout |
+| Inferência serverless | Tráfego intermitente, tolera cold start | Ferramenta interna usada poucas vezes ao dia |
+| Inferência assíncrona | Payload grande (até 1 GB) ou processamento longo; escala a zero | Análise de vídeos |
+| Batch transform | Grandes volumes offline, sem endpoint ligado | Pontuar 20 milhões de clientes por mês |
+
+## MLOps na prática
+
+MLOps aplica ao ML o que o DevOps faz com software: versionamento de dados, código e modelos; pipelines reprodutíveis; testes automáticos de qualidade antes da promoção; implantação gradual; monitoramento e retreino. O objetivo é que qualquer modelo em produção seja rastreável até os dados e o código que o geraram.
+
+## Pegadinhas
+
+- **Ground Truth rotula; Model Monitor monitora; Clarify explica.** Os nomes parecidos confundem, então associe cada um ao verbo.
+- **Data drift × concept drift:** no primeiro mudam as entradas (novo perfil de cliente); no segundo muda a relação entre entrada e resultado (a mesma renda passa a indicar outro risco).
+- **Batch é mais barato** quando não há necessidade de resposta imediata. Endpoint ligado 24/7 para uso mensal é desperdício.
+
+## Checklist do módulo
+
+- [ ] Ordeno as etapas do ciclo de vida de ML.
+- [ ] Escolho entre tempo real, serverless, assíncrona e lote a partir do cenário.
+- [ ] Associo cada recurso do SageMaker AI à sua etapa.
